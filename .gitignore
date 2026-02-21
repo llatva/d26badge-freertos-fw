@@ -1,9 +1,9 @@
 build/
+/build/esp-idf/
 /micro_init.stamp
 /set_environ.sh
 /micropython.bin
 dist/
-FreeRTOS/build
 frozen_fs/BUILD
 frozen_firmware/modules/frozen_fs.py
 .venv/
