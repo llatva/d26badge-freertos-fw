@@ -1,3 +1,4 @@
+build/
 /micro_init.stamp
 /set_environ.sh
 /micropython.bin
