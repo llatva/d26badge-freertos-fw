@@ -48,6 +48,7 @@
 #include "about_screen.h"
 #include "color_select_screen.h" /* New */
 #include "audio.h"              /* Added for VU meter mode */
+#include "pyapps_fs.h"          /* Python apps filesystem */
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -830,6 +831,14 @@ void app_main(void) {
     audio_init();       /* Microphone driver init */
     buttons_init(g_btn_queue);
     settings_init();
+
+    /* ── Filesystem init for Python apps ── */
+    esp_err_t fs_ret = pyapps_fs_init();
+    if (fs_ret == ESP_OK) {
+        ESP_LOGI(TAG, "Python apps filesystem mounted successfully");
+    } else {
+        ESP_LOGW(TAG, "Failed to mount Python apps filesystem: %s", esp_err_to_name(fs_ret));
+    }
 
     /* ── Build menus with icons and submenus ── */
     

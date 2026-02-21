@@ -1,0 +1,19 @@
+# ESP32-S3-WROOM-2 Partition Table: OTA + MicroPython Apps
+# Flash Size: 16MB (0x1000000) - ESP32-S3-WROOM-2 module
+# PSRAM: 8MB (configured via sdkconfig)
+# 
+# This partition layout supports:
+# - Dual OTA app slots (factory + ota_0 + ota_1) - 4MB each for large firmware
+# - 1MB FAT filesystem for MicroPython applications
+# - Total: 12MB for apps + 1MB for Python = 13MB used of 16MB
+#
+# Name,       Type, SubType,  Offset,   Size,     Flags
+# Bootloader is at 0x1000, partition table at 0x8000
+
+nvs,          data, nvs,      0x9000,   0x6000,
+otadata,      data, ota,      0xF000,   0x2000,
+phy_init,     data, phy,      0x11000,  0x1000,
+factory,      app,  factory,  0x20000,  0x400000,
+ota_0,        app,  ota_0,    0x420000, 0x400000,
+ota_1,        app,  ota_1,    0x820000, 0x400000,
+pyapps,       data, fat,      0xc20000, 0x100000,

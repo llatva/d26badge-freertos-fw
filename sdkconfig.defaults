@@ -1,11 +1,22 @@
-# Target board
+# Target board: ESP32-S3-WROOM-2 (16MB Flash, 8MB PSRAM)
 CONFIG_IDF_TARGET="esp32s3"
 
 # CPU speed
 CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
 
-# Flash
-CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+# Flash size: 16MB for ESP32-S3-WROOM-2
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+
+# PSRAM: Disabled for now due to bootloader instability with Octal flash
+# CONFIG_SPIRAM is not set
+
+# Custom partition table with OTA + MicroPython support
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions_ota_micropython.csv"
+
+# FAT filesystem for Python apps
+CONFIG_FATFS_LFN_HEAP=y
+CONFIG_FATFS_MAX_LFN=255
 
 # Pin the app to CPU0; keep CPU1 free for future MicroPython
 CONFIG_FREERTOS_UNICORE=n
