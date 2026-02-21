@@ -1,15 +1,144 @@
+set(MICROPY_DIR "${CMAKE_SOURCE_DIR}/micropython")
+set(MICROPY_PORT_DIR "${MICROPY_DIR}/ports/esp32")
+
+# MicroPython core source files
+set(MICROPY_SOURCE_PY
+    ${MICROPY_DIR}/py/argcheck.c
+    ${MICROPY_DIR}/py/asmarm.c
+    ${MICROPY_DIR}/py/asmbase.c
+    ${MICROPY_DIR}/py/asmthumb.c
+    ${MICROPY_DIR}/py/asmx64.c
+    ${MICROPY_DIR}/py/asmx86.c
+    ${MICROPY_DIR}/py/asmxtensa.c
+    ${MICROPY_DIR}/py/bc.c
+    ${MICROPY_DIR}/py/binary.c
+    ${MICROPY_DIR}/py/builtinevex.c
+    ${MICROPY_DIR}/py/builtinhelp.c
+    ${MICROPY_DIR}/py/builtinimport.c
+    ${MICROPY_DIR}/py/compile.c
+    ${MICROPY_DIR}/py/emitbc.c
+    ${MICROPY_DIR}/py/emitcommon.c
+    ${MICROPY_DIR}/py/emitglue.c
+    ${MICROPY_DIR}/py/emitinlinethumb.c
+    ${MICROPY_DIR}/py/emitinlinextensa.c
+    ${MICROPY_DIR}/py/emitnative.c
+    ${MICROPY_DIR}/py/formatfloat.c
+    ${MICROPY_DIR}/py/frozenmod.c
+    ${MICROPY_DIR}/py/gc.c
+    ${MICROPY_DIR}/py/lexer.c
+    ${MICROPY_DIR}/py/malloc.c
+    ${MICROPY_DIR}/py/map.c
+    ${MICROPY_DIR}/py/modarray.c
+    ${MICROPY_DIR}/py/modbuiltins.c
+    ${MICROPY_DIR}/py/modcollections.c
+    ${MICROPY_DIR}/py/modgc.c
+    ${MICROPY_DIR}/py/modio.c
+    ${MICROPY_DIR}/py/modmath.c
+    ${MICROPY_DIR}/py/modmicropython.c
+    ${MICROPY_DIR}/py/modstruct.c
+    ${MICROPY_DIR}/py/modsys.c
+    ${MICROPY_DIR}/py/modthread.c
+    ${MICROPY_DIR}/py/moderrno.c
+    ${MICROPY_DIR}/py/mpprint.c
+    ${MICROPY_DIR}/py/mpstate.c
+    ${MICROPY_DIR}/py/mpz.c
+    ${MICROPY_DIR}/py/nativeglue.c
+    ${MICROPY_DIR}/py/obj.c
+    ${MICROPY_DIR}/py/objarray.c
+    ${MICROPY_DIR}/py/objattrtuple.c
+    ${MICROPY_DIR}/py/objbool.c
+    ${MICROPY_DIR}/py/objboundmeth.c
+    ${MICROPY_DIR}/py/objcell.c
+    ${MICROPY_DIR}/py/objclosure.c
+    ${MICROPY_DIR}/py/objcomplex.c
+    ${MICROPY_DIR}/py/objdeque.c
+    ${MICROPY_DIR}/py/objdict.c
+    ${MICROPY_DIR}/py/objenumerate.c
+    ${MICROPY_DIR}/py/objexcept.c
+    ${MICROPY_DIR}/py/objfilter.c
+    ${MICROPY_DIR}/py/objfloat.c
+    ${MICROPY_DIR}/py/objfun.c
+    ${MICROPY_DIR}/py/objgenerator.c
+    ${MICROPY_DIR}/py/objgetitemiter.c
+    ${MICROPY_DIR}/py/objint.c
+    ${MICROPY_DIR}/py/objint_longlong.c
+    ${MICROPY_DIR}/py/objint_mpz.c
+    ${MICROPY_DIR}/py/objlist.c
+    ${MICROPY_DIR}/py/objmap.c
+    ${MICROPY_DIR}/py/objmodule.c
+    ${MICROPY_DIR}/py/objnamedtuple.c
+    ${MICROPY_DIR}/py/objnone.c
+    ${MICROPY_DIR}/py/objobject.c
+    ${MICROPY_DIR}/py/objpolyiter.c
+    ${MICROPY_DIR}/py/objproperty.c
+    ${MICROPY_DIR}/py/objrange.c
+    ${MICROPY_DIR}/py/objreversed.c
+    ${MICROPY_DIR}/py/objset.c
+    ${MICROPY_DIR}/py/objsingleton.c
+    ${MICROPY_DIR}/py/objslice.c
+    ${MICROPY_DIR}/py/objstr.c
+    ${MICROPY_DIR}/py/objstringio.c
+    ${MICROPY_DIR}/py/objstrunicode.c
+    ${MICROPY_DIR}/py/objtuple.c
+    ${MICROPY_DIR}/py/objtype.c
+    ${MICROPY_DIR}/py/objzip.c
+    ${MICROPY_DIR}/py/opmethods.c
+    ${MICROPY_DIR}/py/pairheap.c
+    ${MICROPY_DIR}/py/parse.c
+    ${MICROPY_DIR}/py/parsenum.c
+    ${MICROPY_DIR}/py/parsenumbase.c
+    ${MICROPY_DIR}/py/persistentcode.c
+    ${MICROPY_DIR}/py/profile.c
+    ${MICROPY_DIR}/py/pystack.c
+    ${MICROPY_DIR}/py/qstr.c
+    ${MICROPY_DIR}/py/reader.c
+    ${MICROPY_DIR}/py/repl.c
+    ${MICROPY_DIR}/py/runtime.c
+    ${MICROPY_DIR}/py/runtime_utils.c
+    ${MICROPY_DIR}/py/scheduler.c
+    ${MICROPY_DIR}/py/scope.c
+    ${MICROPY_DIR}/py/sequence.c
+    ${MICROPY_DIR}/py/showbc.c
+    ${MICROPY_DIR}/py/smallint.c
+    ${MICROPY_DIR}/py/stackctrl.c
+    ${MICROPY_DIR}/py/stream.c
+    ${MICROPY_DIR}/py/unicode.c
+    ${MICROPY_DIR}/py/vm.c
+    ${MICROPY_DIR}/py/vstr.c
+    ${MICROPY_DIR}/py/warning.c
+)
+
 idf_component_register(
     SRCS
         "micropython_runner.c"
         "mp_bridge.c"
+        "modbadge.c"
+        "mphalport.c"
+        ${MICROPY_SOURCE_PY}
     INCLUDE_DIRS
         "include"
+        "."
+        "genhdr"
+        "${MICROPY_DIR}"
+        "${MICROPY_DIR}/py"
+        "${MICROPY_PORT_DIR}"
     REQUIRES
         freertos
         esp_system
         esp_common
+        esp_timer
         nvs_flash
 )
 
-# TODO: Add MicroPython library integration
-# This will be expanded when we integrate the actual MicroPython VM
+# Add MicroPython compile definitions
+target_compile_definitions(${COMPONENT_LIB} PRIVATE
+    MICROPY_QSTR_EXTRA_POOL=mp_qstr_frozen_const_pool
+    MICROPY_MODULE_FROZEN_MPY=1
+    FFCONF_H=\"${MICROPY_PORT_DIR}/esp32_common.cmake\"
+)
+
+# Add include directories for MicroPython build
+target_include_directories(${COMPONENT_LIB} PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
+
