@@ -12,7 +12,7 @@
 #   2. Sources micropython/esp-idf/export.sh to put idf.py on PATH.
 #
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="${SCRIPT_DIR}"
 
 # Check for ESP-IDF in multiple locations (system-wide, repo, or micropython submodule)
 IDF_EXPORT=""

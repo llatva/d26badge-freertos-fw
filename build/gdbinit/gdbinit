@@ -1,0 +1,2 @@
+source /home/llatva/git/d26badge-freertos-fw/build/gdbinit/symbols
+source /home/llatva/git/d26badge-freertos-fw/build/gdbinit/connect

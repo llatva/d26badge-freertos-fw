@@ -48,6 +48,7 @@
 #include "about_screen.h"
 #include "color_select_screen.h" /* New */
 #include "audio.h"              /* Added for VU meter mode */
+#include "micropython_runner.h"  /* MicroPython integration */
 #include "pyapps_fs.h"          /* Python apps filesystem */
 
 #include "freertos/FreeRTOS.h"
@@ -838,6 +839,14 @@ void app_main(void) {
         ESP_LOGI(TAG, "Python apps filesystem mounted successfully");
     } else {
         ESP_LOGW(TAG, "Failed to mount Python apps filesystem: %s", esp_err_to_name(fs_ret));
+    }
+
+    /* ── MicroPython runner init ── */
+    esp_err_t mp_ret = micropython_runner_init();
+    if (mp_ret == ESP_OK) {
+        ESP_LOGI(TAG, "MicroPython runner initialized on CPU1");
+    } else {
+        ESP_LOGW(TAG, "Failed to initialize MicroPython runner: %s", esp_err_to_name(mp_ret));
     }
 
     /* ── Build menus with icons and submenus ── */

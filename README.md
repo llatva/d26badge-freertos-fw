@@ -4,6 +4,8 @@ An ESP-IDF / FreeRTOS firmware for the **Disobey 2025 Badge** that shows an inte
 
 > **CPU partitioning**: all tasks run on **CPU0** (`PRO_CPU`). **CPU1** (`APP_CPU`) is intentionally left idle so a future MicroPython VM can be spawned there independently.
 
+> **🐍 NEW: MicroPython Integration!** See [`MICROPYTHON_INTEGRATION_PLAN.md`](MICROPYTHON_INTEGRATION_PLAN.md) for the roadmap to add user-extensible Python mini-apps. Quick start: [`QUICKSTART_MICROPYTHON.md`](QUICKSTART_MICROPYTHON.md)
+
 ---
 
 ## Table of Contents
@@ -17,6 +19,7 @@ An ESP-IDF / FreeRTOS firmware for the **Disobey 2025 Badge** that shows an inte
 7. [Serial Monitor](#serial-monitor)
 8. [Adding a New LED Mode](#adding-a-new-led-mode)
 9. [Design Decisions](#design-decisions)
+10. [**MicroPython Apps** (Coming Soon)](#micropython-apps)
 
 ---
 
@@ -260,5 +263,81 @@ Default baud rate is 115 200 (set in `sdkconfig.defaults` via `CONFIG_ESP_CONSOL
 | `atomic_int` for `g_led_mode` | Cheapest cross-task signalling; LED mode updates are single-word writes |
 | 20 ms ISR debounce timer | Matches typical mechanical button bounce; avoids polling overhead |
 | RMT new API (IDF 5.x) | `rmt_new_bytes_encoder` is the correct API for IDF 5.2.2; old API removed |
+
+---
+
+## MicroPython Apps
+
+**Status:** 🚧 Planning Phase (Implementation starting soon)
+
+The badge firmware is being extended to support **user-created Python mini-apps** that run on CPU1 alongside the main FreeRTOS firmware.
+
+### Vision
+
+- Write mini-apps in Python (games, tools, animations)
+- Upload via USB serial or WiFi
+- Access badge hardware through clean Python API
+- Apps appear in menu automatically
+- Example: Snake game included
+
+### Documentation
+
+- **Full Plan:** [`MICROPYTHON_INTEGRATION_PLAN.md`](MICROPYTHON_INTEGRATION_PLAN.md) - Complete architecture, phases, timeline
+- **Quick Start:** [`QUICKSTART_MICROPYTHON.md`](QUICKSTART_MICROPYTHON.md) - Start implementing Phase 1 today
+- **Partition Table:** [`partitions_ota_micropython.csv`](partitions_ota_micropython.csv) - New layout with OTA + Python apps
+
+### Architecture Preview
+
+```
+┌─────────────────────────────────────────┐
+│  ESP32-S3 (Dual Core)                   │
+│  ┌─────────────┐  ┌──────────────────┐ │
+│  │ CPU0        │  │ CPU1             │ │
+│  │ FreeRTOS    │◄─┤ MicroPython VM   │ │
+│  │ - Display   │  │ - User apps      │ │
+│  │ - LEDs      │  │ - Snake game     │ │
+│  │ - Buttons   │  │ - Custom tools   │ │
+│  └─────────────┘  └──────────────────┘ │
+└─────────────────────────────────────────┘
+```
+
+### Example: Snake Game (Planned)
+
+```python
+import badge
+
+# Draw to display
+badge.display.clear()
+badge.display.text("Score: 42", 10, 10)
+
+# Control LEDs
+badge.leds.fill(r=0, g=255, b=0)
+
+# Read buttons
+if badge.buttons.get()['up']:
+    # Move snake up
+    pass
+
+badge.display.show()
+```
+
+### Timeline
+
+- **Phase 1-2:** Partition table + filesystem (2-3 weeks)
+- **Phase 3-4:** API bridge + app launcher (2 weeks)
+- **Phase 5:** OTA system (1 week)
+- **Phase 6:** Dev tools + REPL (3 days)
+
+**Total:** ~6 weeks to production-ready
+
+### Contributing
+
+Want to help? See the implementation plan for:
+- Component architecture
+- API design
+- Example apps
+- Testing strategy
+
+**Questions?** Open an issue or discussion!
 | Row-offset 35 for ST7789 | The ER-TFT019-1 1.9" panel is a 320×170 window inside a 320×240 controller |
 | SK6812 GRB byte order | SK6812 (unlike some WS2812B variants) uses G-R-B on the wire |

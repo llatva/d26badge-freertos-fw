@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles/bootloader
+/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles/bootloader.rule
+/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles/bootloader-complete.rule
+/home/llatva/git/d26badge-freertos-fw/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/home/llatva/git/d26badge-freertos-fw/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/llatva/git/d26badge-freertos-fw/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/llatva/git/d26badge-freertos-fw/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/llatva/git/d26badge-freertos-fw/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/llatva/git/d26badge-freertos-fw/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/llatva/git/d26badge-freertos-fw/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
