@@ -1,2 +1,0 @@
-/home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-ar qc libst7789.a CMakeFiles/__idf_st7789.dir/st7789.c.obj
-/home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-ranlib libst7789.a
