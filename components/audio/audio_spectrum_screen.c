@@ -30,11 +30,17 @@
 
 /* Task control */
 static TaskHandle_t s_audio_task = NULL;
-static bool s_audio_task_running = false;
+static volatile bool s_audio_task_running = false;
+
+/* Draw state – reset on init */
+static bool s_title_drawn = false;
+static uint8_t s_last_spectrum[AUDIO_FREQ_BINS];
 
 void audio_spectrum_screen_init(audio_spectrum_screen_t *screen) {
     memset(screen, 0, sizeof(*screen));
-    /* audio_init() moved to app_main */
+    /* Reset draw state so everything is redrawn on next entry */
+    s_title_drawn = false;
+    memset(s_last_spectrum, 0, sizeof(s_last_spectrum));
 }
 
 void audio_spectrum_screen_update(audio_spectrum_screen_t *screen, uint8_t *new_spectrum) {
@@ -58,12 +64,9 @@ void audio_spectrum_screen_update(audio_spectrum_screen_t *screen, uint8_t *new_
 }
 
 void audio_spectrum_screen_draw(audio_spectrum_screen_t *screen) {
-    static bool title_drawn = false;
-    static uint8_t last_spectrum[AUDIO_FREQ_BINS] = {0};
-    
     /* Draw title, frequency markers, and indicators once */
-    if (!title_drawn) {
-        st7789_fill_rect(0, 0, 320, SPECTRUM_Y - 5, COLOR_BG);
+    if (!s_title_drawn) {
+        st7789_fill(COLOR_BG);
         st7789_draw_string(4, 8, "Audio Spectrum (0-20kHz)", COLOR_TEXT, COLOR_BG, 1);
         
         /* Frequency markers at top */
@@ -72,7 +75,13 @@ void audio_spectrum_screen_draw(audio_spectrum_screen_t *screen) {
         st7789_draw_string(280, 20, "20k", COLOR_GRID, COLOR_BG, 1);
         
         st7789_draw_string(4, 160, "EXIT: SELECT/A     HOLD: B", COLOR_TEXT, COLOR_BG, 1);
-        title_drawn = true;
+
+        /* Frequency axis labels at bottom */
+        st7789_draw_string(4, SPECTRUM_Y + SPECTRUM_H + 5, "DC", COLOR_TEXT, COLOR_BG, 1);
+        st7789_draw_string(140, SPECTRUM_Y + SPECTRUM_H + 5, "10k", COLOR_TEXT, COLOR_BG, 1);
+        st7789_draw_string(290, SPECTRUM_Y + SPECTRUM_H + 5, "20k", COLOR_TEXT, COLOR_BG, 1);
+
+        s_title_drawn = true;
     }
 
     /* Draw max hold status indicator (top right area) */
@@ -88,7 +97,7 @@ void audio_spectrum_screen_draw(audio_spectrum_screen_t *screen) {
         uint8_t mag = screen->spectrum[i];
         uint8_t peak = screen->peak_hold[i];
         uint8_t max_mag = screen->max_hold_enabled ? screen->max_hold[i] : 0;
-        uint8_t last_mag = last_spectrum[i];
+        uint8_t last_mag = s_last_spectrum[i];
 
         /* Skip if nothing changed */
         if (mag == last_mag && peak <= 0 && max_mag <= 0) continue;
@@ -125,15 +134,7 @@ void audio_spectrum_screen_draw(audio_spectrum_screen_t *screen) {
             }
         }
 
-        last_spectrum[i] = mag;
-    }
-
-    /* Draw frequency axis labels at bottom only once */
-    if (screen->frame_count == 1) {
-        st7789_fill_rect(0, SPECTRUM_Y + SPECTRUM_H + 4, 320, 12, COLOR_BG);
-        st7789_draw_string(4, SPECTRUM_Y + SPECTRUM_H + 5, "DC", COLOR_TEXT, COLOR_BG, 1);
-        st7789_draw_string(140, SPECTRUM_Y + SPECTRUM_H + 5, "10k", COLOR_TEXT, COLOR_BG, 1);
-        st7789_draw_string(290, SPECTRUM_Y + SPECTRUM_H + 5, "20k", COLOR_TEXT, COLOR_BG, 1);
+        s_last_spectrum[i] = mag;
     }
 }
 
@@ -164,11 +165,12 @@ static void audio_capture_task(void *arg) {
     }
 
     ESP_LOGI(TAG, "Audio capture task stopped");
+    s_audio_task = NULL;  /* Clear handle before self-deleting */
     vTaskDelete(NULL);
 }
 
 void audio_spectrum_task_start(audio_spectrum_screen_t *screen) {
-    if (s_audio_task != NULL) {
+    if (s_audio_task_running || s_audio_task != NULL) {
         ESP_LOGW(TAG, "Audio task already running");
         return;
     }
@@ -186,9 +188,18 @@ void audio_spectrum_task_start(audio_spectrum_screen_t *screen) {
 }
 
 void audio_spectrum_task_stop(void) {
+    if (!s_audio_task_running) return;
+
     s_audio_task_running = false;
+
+    /* Wait for the task to actually finish (up to 500ms) */
+    for (int i = 0; i < 50 && s_audio_task != NULL; i++) {
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
     if (s_audio_task != NULL) {
-        xTaskNotifyGive(s_audio_task);
+        ESP_LOGW(TAG, "Audio task did not stop in time, forcing delete");
+        vTaskDelete(s_audio_task);
         s_audio_task = NULL;
     }
 }
@@ -207,5 +218,4 @@ void audio_spectrum_toggle_max_hold(audio_spectrum_screen_t *screen) {
 void audio_spectrum_screen_exit(void) {
     ESP_LOGI(TAG, "Exiting audio spectrum screen");
     audio_spectrum_task_stop();
-    st7789_fill(0x0000);  /* Clear display (black) */
 }

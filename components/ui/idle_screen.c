@@ -22,23 +22,6 @@ static bool s_needs_full_redraw = true;
 
 void idle_screen_draw(const char *nickname) {
     uint16_t ACCENT = settings_get_accent_color();
-    uint16_t TEXT   = settings_get_text_color();
-
-    /* Header/Footer lines */
-    st7789_fill_rect(0, 20, 320, 1, ACCENT);
-    
-    /* Nickname (large) */
-    if (nickname && nickname[0] != '\0') {
-        st7789_draw_string(10, 45, nickname, TEXT, COLOR_BG, 4);
-    } else {
-        st7789_draw_string(10, 45, "badge", TEXT, COLOR_BG, 4);
-    }
-
-    /* Connectivity status */
-    st7789_fill_rect(0, 115, 320, 1, ACCENT);
-
-    /* Footer message */
-    st7789_draw_string(4, 150, "v0.5.1 | Press any button to enter menu", ACCENT, COLOR_BG, 1);
 
     /* Time display */
     time_t now = time(NULL);
@@ -67,14 +50,10 @@ void idle_screen_draw(const char *nickname) {
     st7789_draw_string(4, 2, datetime_str, COLOR_TIME, COLOR_BG, 1);
 
     /* Draw WLAN and BT status at top right */
-    /* For now, assume both enabled (green); would need WiFi/BT API for real status */
-    uint16_t wlan_color = COLOR_ENABLED;    /* Green when enabled */
-    uint16_t bt_color = COLOR_ENABLED;      /* Green when enabled */
+    uint16_t wlan_color = COLOR_ENABLED;
+    uint16_t bt_color = COLOR_ENABLED;
     
-    /* Draw "WLAN" at top right (position at x=268 to avoid overflow) */
     st7789_draw_string(268, 2, "WLAN", wlan_color, COLOR_BG, 1);
-    
-    /* Draw "BT" at top right below WLAN (position at x=290 keeps it right-aligned and safe) */
     st7789_draw_string(290, 12, "BT", bt_color, COLOR_BG, 1);
 
     /* Draw decorative top line */
@@ -82,15 +61,14 @@ void idle_screen_draw(const char *nickname) {
 
     /* Draw nickname centered, larger font (scale 4) */
     /* Scale 4: each char is 8 pixels base × 4 scale = 32 pixels wide, 16x4=64 pixels tall */
-    
-    int nickname_len = strlen(nickname);
+    const char *display_name = (nickname && nickname[0] != '\0') ? nickname : "badge";
+    int nickname_len = strlen(display_name);
     int char_width = 8 * 4;  /* 32 pixels wide */
     int total_width = nickname_len * char_width;
     int start_x = (320 - total_width) / 2;
-    if (start_x < 0) start_x = 0; /* Keep nickname on screen */
+    if (start_x < 0) start_x = 0;
     
-    /* Draw nickname (centered vertically in middle, y=45 results in bottom at 45+64=109) */
-    st7789_draw_string(start_x, 45, (char *)nickname, COLOR_TEXT, COLOR_BG, 4);
+    st7789_draw_string(start_x, 45, (char *)display_name, COLOR_TEXT, COLOR_BG, 4);
 
     /* Draw decorative bottom line */
     st7789_fill_rect(0, 115, 320, 1, ACCENT);
