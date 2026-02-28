@@ -8,15 +8,17 @@
 #define GRID_H  2
 #define COLOR_MAX_OPTIONS (GRID_W * GRID_H)
 
-/* Palette: 12 vivid accent colours (RGB888 → RGB565)
- * #FF1A1A #FF6A00 #FFF200 #7CFC00 #00E600 #00FFD5
- * #00CFFF #004CFF #5E00FF #A000FF #FF00CC #FF4DA6
+/* Palette: 12 distinct colours (RGB888 → RGB565)
+ * White       #FFFFFF   Orange     #FF8000   Lime       #00FF00
+ * Red         #FF0000   Yellow     #FFFF00   Teal       #00C8A0
+ * Cyan        #00DCFF   Blue       #0050FF   Purple     #8000FF
+ * Magenta     #FF00A0   Pink       #FF6496   Warm White #FFC896
  */
 static const uint16_t s_colors[COLOR_MAX_OPTIONS] = {
-    /* Row 1: Red, Orange, Yellow, Lawn-Green, Green, Turquoise */
-    0xF8C3, 0xFB40, 0xFFC4, 0x7FE0, 0x0720, 0x07FA,
-    /* Row 2: Sky-Blue, Royal-Blue, Violet, Purple, Magenta, Hot-Pink */
-    0x0677, 0x0260, 0x5800, 0xA007, 0xF819, 0xFA69,
+    /* Row 1: White, Red, Orange, Yellow, Lime, Teal */
+    0xFFFF, 0xF800, 0xFC00, 0xFFE0, 0x07E0, 0x0654,
+    /* Row 2: Cyan, Blue, Purple, Magenta, Pink, Warm-White */
+    0x06FF, 0x029F, 0x801F, 0xF814, 0xFB32, 0xFE52,
 };
 
 #define BOX_W    42
@@ -29,14 +31,15 @@ static const uint16_t s_colors[COLOR_MAX_OPTIONS] = {
 void color_select_screen_init(color_select_screen_t *scr, uint16_t current, const char *title) {
     scr->selected_idx = 0;
     scr->title = title;
-    
+    scr->confirmed = false;
+    scr->cancelled = false;
+
     for (int i = 0; i < COLOR_MAX_OPTIONS; i++) {
         if (s_colors[i] == current) {
             scr->selected_idx = i;
             break;
         }
     }
-    scr->confirmed = false;
 }
 
 void color_select_screen_draw(color_select_screen_t *scr) {
@@ -66,7 +69,7 @@ void color_select_screen_draw(color_select_screen_t *scr) {
         st7789_fill_rect(x, y, BOX_W, BOX_H, s_colors[i]);
     }
     
-    st7789_draw_string(4, 155, "Arrows: Nav, A: Save, B: Exit", TEXT == 0x0000 ? 0x8410 : TEXT, bg, 1);
+    st7789_draw_string(4, 155, "Arrows:Nav  A:Save  B:Back", TEXT == 0x0000 ? 0x8410 : TEXT, bg, 1);
 }
 
 void color_select_screen_handle_button(color_select_screen_t *scr, int btn_id) {
@@ -79,9 +82,13 @@ void color_select_screen_handle_button(color_select_screen_t *scr, int btn_id) {
         case BTN_LEFT:  c = (c == 0) ? GRID_W - 1 : c - 1; break;
         case BTN_RIGHT: c = (c + 1) % GRID_W; break;
         case BTN_A:
-        case BTN_SELECT:
             scr->confirmed = true;
-            break;
+            return;  /* don't update position */
+        case BTN_B:
+            scr->cancelled = true;
+            return;  /* don't update position */
+        default:
+            return;
     }
     scr->selected_idx = r * GRID_W + c;
 }
@@ -92,4 +99,8 @@ uint16_t color_select_screen_get_color(color_select_screen_t *scr) {
 
 bool color_select_screen_is_confirmed(color_select_screen_t *scr) {
     return scr->confirmed;
+}
+
+bool color_select_screen_is_cancelled(color_select_screen_t *scr) {
+    return scr->cancelled;
 }

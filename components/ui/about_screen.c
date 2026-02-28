@@ -5,6 +5,7 @@
 #include "about_screen.h"
 #include "st7789.h"
 #include "badge_settings.h"
+#include "version.h"
 
 #define COLOR_BG        0x0000  /* Black */
 
@@ -22,7 +23,7 @@ void about_screen_draw(void) {
     
     /* Body */
     st7789_draw_string(4, 45, "Disobey Badge 2025/26", TEXT, COLOR_BG, 1);
-    st7789_draw_string(4, 60, "FW: v0.6.1 (FreeRTOS) by hzb", TEXT, COLOR_BG, 1);
+    st7789_draw_string(4, 60, "FW: v" VERSION_STR " (FreeRTOS) by hzb", TEXT, COLOR_BG, 1);
     
     st7789_draw_string(4, 75, "Hardware:", ACCENT, COLOR_BG, 1);
     st7789_draw_string(4, 88, "- ESP32-S3 (WROOM-1-N16R8)", TEXT, COLOR_BG, 1);

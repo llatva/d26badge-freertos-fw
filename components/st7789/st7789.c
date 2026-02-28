@@ -200,14 +200,15 @@ void st7789_draw_pixel(uint16_t x, uint16_t y, uint16_t colour) {
 /* ── Text rendering (uses font8x16.h) ──────────────────────────────────── */
 uint16_t st7789_draw_char(uint16_t x, uint16_t y, char c, uint16_t fg, uint16_t bg, uint8_t scale) {
     if (scale < 1) scale = 1;
+    if (scale > 6) scale = 6;  /* hard cap: char_buf is 48×96 = scale 6 max */
     if ((uint8_t)c < 32 || (uint8_t)c > 127) c = '?';
 
     const uint8_t *glyph = font8x16_data[(uint8_t)c - 32];
     uint16_t char_w = (uint16_t)8 * scale;
     uint16_t char_h = (uint16_t)16 * scale;
 
-    /* Buffer for scaled character (max 32×64 at scale 4) */
-    static uint16_t char_buf[32 * 64];
+    /* Buffer for scaled character (max 48×96 at scale 6) */
+    static uint16_t char_buf[48 * 96];
     
     /* Pre-swap colors once */
     uint16_t fg_swapped = (fg >> 8) | (fg << 8);

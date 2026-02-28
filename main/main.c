@@ -1206,9 +1206,14 @@ static void display_task(void *arg) {
             sensor_readout_screen_draw(&g_sensor_screen);
             vTaskDelay(pdMS_TO_TICKS(30));  /* ~33 FPS */
         } else if (state == APP_STATE_SAO_EEPROM) {
-            /* SAO EEPROM: static data, redraw on scroll */
-            sao_eeprom_screen_draw(&g_sao_screen);
-            vTaskDelay(pdMS_TO_TICKS(50));
+            /* SAO EEPROM: static data, redraw only on entry or scroll */
+            if (last_state != APP_STATE_SAO_EEPROM) {
+                sao_eeprom_screen_draw(&g_sao_screen);
+                last_state = APP_STATE_SAO_EEPROM;
+            }
+            if (xQueueReceive(g_disp_queue, &cmd, pdMS_TO_TICKS(50)) == pdTRUE) {
+                sao_eeprom_screen_draw(&g_sao_screen);
+            }
         } else if (state == APP_STATE_SIGNAL_STRENGTH) {
             /* Signal strength mode: continuous rendering */
             signal_strength_screen_draw(&g_signal_screen);
@@ -1406,8 +1411,10 @@ static void input_task(void *arg) {
                 request_redraw(DISP_CMD_REDRAW_FULL);
             } else if (ev.id == BTN_UP) {
                 sao_eeprom_screen_scroll_up(&g_sao_screen);
+                request_redraw(DISP_CMD_REDRAW_FULL);
             } else if (ev.id == BTN_DOWN) {
                 sao_eeprom_screen_scroll_down(&g_sao_screen);
+                request_redraw(DISP_CMD_REDRAW_FULL);
             }
         } else if (state == APP_STATE_SIGNAL_STRENGTH) {
             /* Signal strength mode: any button exits back to menu */
@@ -1444,12 +1451,13 @@ static void input_task(void *arg) {
                 request_redraw(DISP_CMD_REDRAW_FULL);
             }
         } else if (state == APP_STATE_COLOR_SELECT || state == APP_STATE_TEXT_COLOR_SELECT) {
-            /* Color select: handle button actions */
+            /* Color select: handle button actions.
+             * handle_button processes navigation, confirm (A), and cancel (B)
+             * internally, so we check the result flags afterwards. */
             color_select_screen_handle_button(&g_color_screen, ev.id);
-            
-            /* If user pressed B (mapped to some back behavior) */
-            if (ev.id == BTN_B || ev.id == BTN_LEFT) {
-                ESP_LOGI(TAG, "Exiting color selector");
+
+            if (color_select_screen_is_cancelled(&g_color_screen)) {
+                ESP_LOGI(TAG, "Exiting color selector (cancelled)");
                 atomic_store(&g_app_state, APP_STATE_MENU);
                 request_redraw(DISP_CMD_REDRAW_FULL);
             } else if (color_select_screen_is_confirmed(&g_color_screen)) {
@@ -1465,7 +1473,7 @@ static void input_task(void *arg) {
                 atomic_store(&g_app_state, APP_STATE_MENU);
                 request_redraw(DISP_CMD_REDRAW_FULL);
             } else {
-                /* Update selection display */
+                /* Navigation – update selection display */
                 request_redraw(DISP_CMD_REDRAW_ITEM);
             }
         } else if (state == APP_STATE_HACKY_BIRD) {
@@ -1621,7 +1629,7 @@ static void input_task(void *arg) {
 
 /* ── Entry point ─────────────────────────────────────────────────────────── */
 void app_main(void) {
-    ESP_LOGI(TAG, "Disobey Badge 2025/26 – FreeRTOS firmware");
+    ESP_LOGI(TAG, "Disobey Badge 2025/26 FreeRTOS firmware by hzb");
 
     /* ── Queues ── */
     g_btn_queue  = xQueueCreate(BTN_QUEUE_LEN,  sizeof(btn_event_t));
