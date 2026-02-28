@@ -171,11 +171,13 @@
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/menu_ui/libmenu_ui.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/ui/libui.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/audio/libaudio.a
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/libgames.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/pyapps_fs/libpyapps_fs.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/fatfs/libfatfs.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/micropython_runner/libmicropython_runner.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/main/libmain.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/menu_ui/libmenu_ui.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/audio/libaudio.a
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/libgames.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/pyapps_fs/libpyapps_fs.a
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/micropython_runner/libmicropython_runner.a

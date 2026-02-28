@@ -106,8 +106,4 @@ esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/arch/xtensa/panic_arch.c
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_system/include/esp_private/panic_internal.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/esp_private/panic_reason.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_system/port/include/private/esp_private/cache_err_int.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/rtc_cntl_reg.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_err.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/soc/esp32s3/soc_memprot_types.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_types.h
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/rtc_cntl_reg.h

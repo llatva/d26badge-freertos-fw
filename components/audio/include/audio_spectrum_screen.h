@@ -13,8 +13,6 @@ typedef struct {
     uint8_t peak_hold[128];     /* Peak hold for each frequency bin */
     uint8_t max_hold[128];      /* Max hold for each frequency bin (manual hold) */
     bool max_hold_enabled;      /* Whether max hold is active */
-    bool gain_adjust_mode;      /* Whether in gain adjustment mode */
-    uint8_t gain;               /* Gain adjustment: 0-20 (default 10) */
     uint32_t frame_count;       /* Frames rendered */
     bool updating;              /* Audio reader thread is active */
 } audio_spectrum_screen_t;
@@ -49,16 +47,6 @@ void audio_spectrum_task_stop(void);
  * @brief  Toggle max hold mode on/off.
  */
 void audio_spectrum_toggle_max_hold(audio_spectrum_screen_t *screen);
-
-/**
- * @brief  Toggle gain adjustment mode.
- */
-void audio_spectrum_toggle_gain_mode(audio_spectrum_screen_t *screen);
-
-/**
- * @brief  Adjust gain (delta: -1 or +1).
- */
-void audio_spectrum_adjust_gain(audio_spectrum_screen_t *screen, int8_t delta);
 
 /**
  * @brief  Exit audio spectrum screen and return to menu.

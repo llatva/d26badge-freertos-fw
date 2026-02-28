@@ -299,12 +299,14 @@ esp-idf/esp_system/ld/sections.ld: esp-idf/sk6812/libsk6812.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/menu_ui/libmenu_ui.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/ui/libui.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/audio/libaudio.a
+esp-idf/esp_system/ld/sections.ld: esp-idf/games/libgames.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/pyapps_fs/libpyapps_fs.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/fatfs/libfatfs.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/micropython_runner/libmicropython_runner.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/main/libmain.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/menu_ui/libmenu_ui.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/audio/libaudio.a
+esp-idf/esp_system/ld/sections.ld: esp-idf/games/libgames.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/pyapps_fs/libpyapps_fs.a
 esp-idf/esp_system/ld/sections.ld: esp-idf/micropython_runner/libmicropython_runner.a
 esp-idf/esp_system/ld/sections.ld: /home/llatva/git/d26badge-freertos-fw/sdkconfig

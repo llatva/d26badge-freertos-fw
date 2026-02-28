@@ -1,7 +1,0 @@
-Command: cmake -G Unix Makefiles -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/home/llatva/.espressif/python_env/idf5.5_py3.12_env/bin/python -DESP_PLATFORM=1 -DCCACHE_ENABLE=1 /home/llatva/git/d26badge-freertos-fw
-CMake Warning at esp-idf/tools/cmake/project.cmake:585 (message):
-  enabled ccache in build but ccache program not found
-Call Stack (most recent call first):
-  CMakeLists.txt:7 (project)
-
-

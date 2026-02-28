@@ -78,13 +78,6 @@ esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/panic_handler.c.obj: \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_sys.h \
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/inttypes.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/reset_reasons.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_err.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/soc/esp32s3/soc_memprot_types.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/config/include/freertos/FreeRTOSConfig.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/config/xtensa/include/freertos/FreeRTOSConfig_arch.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_config.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_types.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_system/include/esp_private/panic_internal.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/esp_private/panic_reason.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/include/hal/wdt_types.h \

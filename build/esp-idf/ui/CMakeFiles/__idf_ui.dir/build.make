@@ -181,10 +181,24 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.s"
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/ui && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/llatva/git/d26badge-freertos-fw/components/ui/wlan_spectrum_screen.c -o CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.s
 
+esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj: esp-idf/ui/CMakeFiles/__idf_ui.dir/flags.make
+esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj: /home/llatva/git/d26badge-freertos-fw/components/ui/wlan_list_screen.c
+esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj: esp-idf/ui/CMakeFiles/__idf_ui.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj"
+	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/ui && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj -MF CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj.d -o CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj -c /home/llatva/git/d26badge-freertos-fw/components/ui/wlan_list_screen.c
+
+esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/__idf_ui.dir/wlan_list_screen.c.i"
+	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/ui && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/llatva/git/d26badge-freertos-fw/components/ui/wlan_list_screen.c > CMakeFiles/__idf_ui.dir/wlan_list_screen.c.i
+
+esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/__idf_ui.dir/wlan_list_screen.c.s"
+	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/ui && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/llatva/git/d26badge-freertos-fw/components/ui/wlan_list_screen.c -o CMakeFiles/__idf_ui.dir/wlan_list_screen.c.s
+
 esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.obj: esp-idf/ui/CMakeFiles/__idf_ui.dir/flags.make
 esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.obj: /home/llatva/git/d26badge-freertos-fw/components/ui/color_select_screen.c
 esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.obj: esp-idf/ui/CMakeFiles/__idf_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.obj"
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/ui && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.obj -MF CMakeFiles/__idf_ui.dir/color_select_screen.c.obj.d -o CMakeFiles/__idf_ui.dir/color_select_screen.c.obj -c /home/llatva/git/d26badge-freertos-fw/components/ui/color_select_screen.c
 
 esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.i: cmake_force
@@ -205,6 +219,7 @@ __idf_ui_OBJECTS = \
 "CMakeFiles/__idf_ui.dir/sensor_readout_screen.c.obj" \
 "CMakeFiles/__idf_ui.dir/signal_strength_screen.c.obj" \
 "CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj" \
+"CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj" \
 "CMakeFiles/__idf_ui.dir/color_select_screen.c.obj"
 
 # External object files for target __idf_ui
@@ -218,10 +233,11 @@ esp-idf/ui/libui.a: esp-idf/ui/CMakeFiles/__idf_ui.dir/ui_test_screen.c.obj
 esp-idf/ui/libui.a: esp-idf/ui/CMakeFiles/__idf_ui.dir/sensor_readout_screen.c.obj
 esp-idf/ui/libui.a: esp-idf/ui/CMakeFiles/__idf_ui.dir/signal_strength_screen.c.obj
 esp-idf/ui/libui.a: esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj
+esp-idf/ui/libui.a: esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj
 esp-idf/ui/libui.a: esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.obj
 esp-idf/ui/libui.a: esp-idf/ui/CMakeFiles/__idf_ui.dir/build.make
 esp-idf/ui/libui.a: esp-idf/ui/CMakeFiles/__idf_ui.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking C static library libui.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking C static library libui.a"
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/ui && $(CMAKE_COMMAND) -P CMakeFiles/__idf_ui.dir/cmake_clean_target.cmake
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/ui && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/__idf_ui.dir/link.txt --verbose=$(VERBOSE)
 

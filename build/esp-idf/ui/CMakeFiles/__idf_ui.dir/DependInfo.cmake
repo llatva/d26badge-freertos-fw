@@ -16,6 +16,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/llatva/git/d26badge-freertos-fw/components/ui/signal_strength_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/signal_strength_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/signal_strength_screen.c.obj.d"
   "/home/llatva/git/d26badge-freertos-fw/components/ui/text_input_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/text_input_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/text_input_screen.c.obj.d"
   "/home/llatva/git/d26badge-freertos-fw/components/ui/ui_test_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/ui_test_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/ui_test_screen.c.obj.d"
+  "/home/llatva/git/d26badge-freertos-fw/components/ui/wlan_list_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj.d"
   "/home/llatva/git/d26badge-freertos-fw/components/ui/wlan_spectrum_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj.d"
   )
 

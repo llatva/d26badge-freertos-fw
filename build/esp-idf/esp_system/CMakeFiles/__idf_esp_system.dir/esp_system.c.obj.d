@@ -101,8 +101,4 @@ esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/esp_system.c.obj: \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/FreeRTOS-Kernel/include/freertos/message_buffer.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/FreeRTOS-Kernel/include/freertos/stream_buffer.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/FreeRTOS-Kernel/include/freertos/event_groups.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/FreeRTOS-Kernel/include/freertos/timers.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_err.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/soc/esp32s3/soc_memprot_types.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_types.h
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/FreeRTOS-Kernel/include/freertos/timers.h

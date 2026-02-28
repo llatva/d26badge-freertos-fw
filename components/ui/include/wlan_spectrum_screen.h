@@ -12,10 +12,9 @@
 
 /* Screen for displaying WiFi channel spectrum */
 typedef struct {
-    uint8_t channel_rssi[MAX_WIFI_CHANNELS];  /* Signal strength per channel (0-100) */
+    int8_t channel_rssi[MAX_WIFI_CHANNELS];   /* Signal strength per channel in dBm */
     uint32_t frame_count;                      /* Frames rendered */
     uint8_t num_channels;                      /* Number of channels to display */
-    uint8_t selected_channel;                  /* Currently selected channel for details */
 } wlan_spectrum_screen_t;
 
 /**
@@ -24,19 +23,19 @@ typedef struct {
 void wlan_spectrum_screen_init(wlan_spectrum_screen_t *screen);
 
 /**
+ * @brief  Start WiFi channel scanning task.
+ */
+void wlan_spectrum_screen_start_scan(wlan_spectrum_screen_t *screen);
+
+/**
+ * @brief  Stop WiFi channel scanning task.
+ */
+void wlan_spectrum_screen_stop_scan(void);
+
+/**
  * @brief  Render WLAN spectrum to display.
  */
 void wlan_spectrum_screen_draw(wlan_spectrum_screen_t *screen);
-
-/**
- * @brief  Handle button input for channel selection.
- */
-void wlan_spectrum_screen_handle_button(wlan_spectrum_screen_t *screen, int button_id);
-
-/**
- * @brief  Update channel data (simulated or from actual WiFi scan).
- */
-void wlan_spectrum_screen_update_channels(wlan_spectrum_screen_t *screen);
 
 /**
  * @brief  Exit WLAN spectrum screen and return to menu.

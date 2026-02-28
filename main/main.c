@@ -44,10 +44,14 @@
 #include "sensor_readout_screen.h"
 #include "signal_strength_screen.h"
 #include "wlan_spectrum_screen.h"
+#include "wlan_list_screen.h"
 #include "ui_test_screen.h"
 #include "about_screen.h"
 #include "color_select_screen.h" /* New */
 #include "audio.h"              /* Added for VU meter mode */
+#include "hacky_bird.h"         /* Hacky Bird game */
+#include "space_shooter.h"      /* Space Shooter game */
+#include "snake.h"              /* Snake game */
 #include "micropython_runner.h"  /* MicroPython integration */
 #include "pyapps_fs.h"          /* Python apps filesystem */
 
@@ -60,6 +64,10 @@
 #include <stdatomic.h>
 
 #define TAG "main"
+
+/* ── Display dimensions ───────────────────────────────────────────────────── */
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 170
 
 /* ── Queue sizes ─────────────────────────────────────────────────────────── */
 #define BTN_QUEUE_LEN  16
@@ -95,10 +103,15 @@ typedef enum {
     APP_STATE_SENSOR_READOUT = 4,
     APP_STATE_SIGNAL_STRENGTH = 5,
     APP_STATE_WLAN_SPECTRUM = 6,
-    APP_STATE_UI_TEST = 7,
-    APP_STATE_ABOUT = 8,
+    APP_STATE_WLAN_LIST = 7,
+    APP_STATE_UI_TEST = 8,
+    APP_STATE_ABOUT = 9,
     APP_STATE_COLOR_SELECT,
     APP_STATE_TEXT_COLOR_SELECT,
+    APP_STATE_HACKY_BIRD,
+    APP_STATE_SPACE_SHOOTER,
+    APP_STATE_SNAKE,
+    APP_STATE_PYTHON_DEMO,
 } app_state_t;
 
 static atomic_int g_app_state = APP_STATE_IDLE;
@@ -130,6 +143,8 @@ static menu_t         g_tools_menu;     /* Tools submenu */
 static menu_t         g_diag_menu;      /* Diagnostics submenu */
 static menu_t         g_settings_menu;  /* Settings submenu */
 static menu_t         g_led_menu;       /* LED Animation submenu */
+static menu_t         g_games_menu;     /* Games submenu */
+static menu_t         g_dev_menu;       /* Development submenu */
 static menu_t        *g_current_menu;   /* Pointer to current menu */
 static audio_spectrum_screen_t g_audio_screen;
 static text_input_screen_t g_text_input_screen;
@@ -137,7 +152,9 @@ static ui_test_screen_t g_ui_test_screen;
 static sensor_readout_screen_t g_sensor_screen;
 static signal_strength_screen_t g_signal_screen;
 static wlan_spectrum_screen_t g_wlan_spectrum_screen;
+static wlan_list_screen_t g_wlan_list_screen;
 static color_select_screen_t g_color_screen;  /* New color select screen */
+static bool g_hacky_bird_game_over = false;   /* Flag for game over state */
 
 /* ── Forward declarations ────────────────────────────────────────────────── */
 static void action_led_off(void);
@@ -150,9 +167,14 @@ static void action_ui_test(void);
 static void action_sensor_readout(void);
 static void action_signal_strength(void);
 static void action_wlan_spectrum(void);
+static void action_wlan_list(void);
 static void action_about(void);
 static void action_placeholder(void);
 static void action_color_select(void);  /* New action for color select */
+static void action_hacky_bird(void);    /* Hacky Bird game */
+static void action_space_shooter(void); /* Space Shooter game */
+static void action_snake(void);         /* Snake game */
+static void action_python_demo(void);   /* Python demo */
 
 /* ── Menu action callbacks ───────────────────────────────────────────────── */
 static void action_led_off(void)      { atomic_store(&g_led_mode, LED_MODE_OFF);      }
@@ -212,6 +234,14 @@ static void action_wlan_spectrum(void) {
     ESP_LOGI(TAG, "Launching WLAN Spectrum Analyzer...");
     atomic_store(&g_app_state, APP_STATE_WLAN_SPECTRUM);
     wlan_spectrum_screen_init(&g_wlan_spectrum_screen);
+    wlan_spectrum_screen_start_scan(&g_wlan_spectrum_screen);
+}
+
+static void action_wlan_list(void) {
+    ESP_LOGI(TAG, "Launching WLAN Networks List...");
+    atomic_store(&g_app_state, APP_STATE_WLAN_LIST);
+    wlan_list_screen_init(&g_wlan_list_screen);
+    wlan_list_screen_start_scan(&g_wlan_list_screen);
 }
 
 static void action_color_select(void) {
@@ -226,6 +256,118 @@ static void action_text_color_select(void) {
     color_select_screen_init(&g_color_screen, settings_get_text_color(), "Text Color");
     atomic_store(&g_app_state, APP_STATE_TEXT_COLOR_SELECT);
     request_redraw(DISP_CMD_REDRAW_FULL);
+}
+
+static void action_hacky_bird(void) {
+    ESP_LOGI(TAG, "Launching Hacky Bird...");
+    atomic_store(&g_app_state, APP_STATE_HACKY_BIRD);
+    g_hacky_bird_game_over = false;
+    hacky_bird_init();
+    request_redraw(DISP_CMD_REDRAW_FULL);
+}
+
+static void action_space_shooter(void) {
+    ESP_LOGI(TAG, "Launching Space Shooter...");
+    atomic_store(&g_app_state, APP_STATE_SPACE_SHOOTER);
+    space_shooter_init();
+    request_redraw(DISP_CMD_REDRAW_FULL);
+}
+
+static void action_snake(void) {
+    ESP_LOGI(TAG, "Launching Snake...");
+    atomic_store(&g_app_state, APP_STATE_SNAKE);
+    snake_init();
+    request_redraw(DISP_CMD_REDRAW_FULL);
+}
+
+/* ── Python demo ─────────────────────────────────────────────────────────── */
+
+/* Embedded Python demo script.
+ * Uses print() for serial output and basic math to prove the VM works.
+ * The badge module is not used here because display_task owns the SPI bus;
+ * instead we show Python output on the display from C after the script runs.
+ */
+static const char *PYTHON_DEMO_CODE =
+    "print('=== MicroPython Demo ===')\n"
+    "print('Hello from MicroPython on ESP32-S3!')\n"
+    "print()\n"
+    "\n"
+    "# Basic arithmetic\n"
+    "result = 0\n"
+    "for i in range(1, 11):\n"
+    "    result += i\n"
+    "print('Sum 1..10 =', result)\n"
+    "\n"
+    "# List comprehension\n"
+    "squares = [x*x for x in range(1, 6)]\n"
+    "print('Squares:', squares)\n"
+    "\n"
+    "# String formatting\n"
+    "badge_name = 'Disobey 2026'\n"
+    "print('Badge:', badge_name)\n"
+    "print('Name length:', len(badge_name))\n"
+    "\n"
+    "# Dictionary\n"
+    "info = {'cpu': 'ESP32-S3', 'leds': 8, 'display': '320x170'}\n"
+    "for k, v in info.items():\n"
+    "    print(' ', k, ':', v)\n"
+    "\n"
+    "print()\n"
+    "print('MicroPython is working!')\n"
+;
+
+/* Task wrapper: runs the demo in a dedicated task with enough stack */
+static void python_demo_task(void *arg)
+{
+    ESP_LOGI(TAG, "Python demo task started");
+
+    /* Draw "running" screen */
+    st7789_fill(0x0000);  /* black */
+    st7789_draw_string(10, 10, "MicroPython Demo", 0x07E0, 0x0000, 2);  /* green title */
+    st7789_draw_string(10, 40, "Running Python code...", 0xFFFF, 0x0000, 1);
+
+    /* Execute the Python demo */
+    int rc = micropython_run_code(PYTHON_DEMO_CODE);
+
+    /* Show result on display */
+    if (rc == 0) {
+        st7789_draw_string(10, 60, "Result: SUCCESS", 0x07E0, 0x0000, 1);   /* green */
+        st7789_draw_string(10, 80, "Sum 1..10 = 55", 0xFFFF, 0x0000, 1);
+        st7789_draw_string(10, 96, "Squares: [1,4,9,16,25]", 0xFFFF, 0x0000, 1);
+        st7789_draw_string(10, 112, "Badge: Disobey 2026", 0xFFFF, 0x0000, 1);
+        st7789_draw_string(10, 128, "CPU: ESP32-S3", 0xFFFF, 0x0000, 1);
+        st7789_draw_string(10, 150, "MicroPython is working!", 0x07E0, 0x0000, 1);
+    } else {
+        st7789_draw_string(10, 60, "Result: ERROR", 0xF800, 0x0000, 1);     /* red */
+        st7789_draw_string(10, 80, "Check serial console", 0xFFFF, 0x0000, 1);
+    }
+
+    /* Flash LEDs green briefly to celebrate */
+    if (rc == 0) {
+        sk6812_color_t green = {0, 60, 0};
+        sk6812_fill(green);
+        sk6812_show();
+        vTaskDelay(pdMS_TO_TICKS(500));
+        sk6812_clear();
+    }
+
+    ESP_LOGI(TAG, "Python demo task finished (rc=%d), waiting for user exit", rc);
+
+    /* Stay in PYTHON_DEMO state until user presses a button (handled by input_task) */
+    while (atomic_load(&g_app_state) == APP_STATE_PYTHON_DEMO) {
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+
+    vTaskDelete(NULL);
+}
+
+static void action_python_demo(void) {
+    ESP_LOGI(TAG, "Launching Python Demo...");
+    atomic_store(&g_app_state, APP_STATE_PYTHON_DEMO);
+
+    /* Spawn a task with 24KB stack (MicroPython needs ≥16KB) */
+    xTaskCreatePinnedToCore(python_demo_task, "py_demo", 24576 / sizeof(StackType_t),
+                            NULL, 5, NULL, PRO_CPU_NUM);
 }
 
 /* ── Rainbow helper ──────────────────────────────────────────────────────── */
@@ -619,7 +761,11 @@ static void display_task(void *arg) {
         } else if (state == APP_STATE_WLAN_SPECTRUM) {
             /* WLAN spectrum mode: continuous rendering */
             wlan_spectrum_screen_draw(&g_wlan_spectrum_screen);
-            vTaskDelay(pdMS_TO_TICKS(30));  /* ~33 FPS */
+            vTaskDelay(pdMS_TO_TICKS(100));  /* 10 FPS - slower updates for WiFi scanning */
+        } else if (state == APP_STATE_WLAN_LIST) {
+            /* WLAN networks list mode: continuous rendering */
+            wlan_list_screen_draw(&g_wlan_list_screen);
+            vTaskDelay(pdMS_TO_TICKS(100));  /* 10 FPS */
         } else if (state == APP_STATE_ABOUT) {
             /* About screen: completely static redraw only once */
             if (last_state != APP_STATE_ABOUT) {
@@ -636,6 +782,99 @@ static void display_task(void *arg) {
             if (xQueueReceive(g_disp_queue, &cmd, pdMS_TO_TICKS(30)) == pdTRUE) {
                 color_select_screen_draw(&g_color_screen);
             }
+        } else if (state == APP_STATE_HACKY_BIRD) {
+            /* Hacky Bird game: continuous rendering */
+            if (!g_hacky_bird_game_over) {
+                /* Check if flap button is currently pressed */
+                bool flap = buttons_is_pressed(BTN_A) || buttons_is_pressed(BTN_STICK);
+                
+                /* Update game state */
+                hacky_bird_update(flap);
+                
+                /* Check if game ended */
+                if (!hacky_bird_is_active()) {
+                    g_hacky_bird_game_over = true;
+                    
+                    /* Draw game over screen */
+                    uint16_t score = hacky_bird_get_score();
+                    st7789_fill(0x5D1F);  // Sky blue
+                    st7789_draw_string(SCREEN_WIDTH/2 - 40, SCREEN_HEIGHT/2 - 30, 
+                                     "GAME OVER", 0xFFFF, 0x5D1F, 2);
+                    
+                    char score_str[32];
+                    snprintf(score_str, sizeof(score_str), "Score: %d", score);
+                    st7789_draw_string(SCREEN_WIDTH/2 - 40, SCREEN_HEIGHT/2, 
+                                     score_str, 0xFFFF, 0x5D1F, 2);
+                    
+                    st7789_draw_string(SCREEN_WIDTH/2 - 70, SCREEN_HEIGHT/2 + 30, 
+                                     "Press any key", 0xFFFF, 0x5D1F, 1);
+                }
+                
+                /* Draw game state */
+                if (!g_hacky_bird_game_over) {
+                    hacky_bird_draw();
+                }
+            }
+            vTaskDelay(pdMS_TO_TICKS(16));  /* ~60 FPS for smooth gameplay */
+        } else if (state == APP_STATE_SPACE_SHOOTER) {
+            /* Space Shooter game: continuous rendering */
+            /* Get button states */
+            bool move_left = buttons_is_pressed(BTN_LEFT) || buttons_is_pressed(BTN_STICK);
+            bool move_right = buttons_is_pressed(BTN_RIGHT);
+            bool shoot = buttons_is_pressed(BTN_A);
+            
+            /* Update game state */
+            space_shooter_update(move_left, move_right, shoot);
+            
+            /* Draw game state */
+            space_shooter_draw();
+            
+            vTaskDelay(pdMS_TO_TICKS(16));  /* ~60 FPS for smooth gameplay */
+        } else if (state == APP_STATE_SNAKE) {
+            /* Snake game: variable speed based on game state */
+            static uint32_t last_update = 0;
+            uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;
+            uint32_t delay = snake_get_speed_delay();
+            
+            if (now - last_update >= delay) {
+                /* Handle direction input */
+                if (buttons_is_pressed(BTN_UP)) {
+                    snake_set_direction(SNAKE_DIR_UP);
+                } else if (buttons_is_pressed(BTN_DOWN)) {
+                    snake_set_direction(SNAKE_DIR_DOWN);
+                } else if (buttons_is_pressed(BTN_LEFT)) {
+                    snake_set_direction(SNAKE_DIR_LEFT);
+                } else if (buttons_is_pressed(BTN_RIGHT)) {
+                    snake_set_direction(SNAKE_DIR_RIGHT);
+                }
+                
+                /* Update game logic */
+                snake_update();
+                
+                /* LED effect when food is eaten */
+                if (snake_ate_food_this_frame()) {
+                    // Flash green on all LEDs briefly
+                    sk6812_color_t green = {0, 255, 0};
+                    for (int i = 0; i < 10; i++) {
+                        sk6812_set(i, green);
+                    }
+                    sk6812_show();
+                    
+                    // Clear LEDs after a brief moment (handled by next frame)
+                    vTaskDelay(pdMS_TO_TICKS(50));
+                    sk6812_clear();
+                }
+                
+                /* Draw game state */
+                snake_draw();
+                
+                last_update = now;
+            }
+            
+            vTaskDelay(pdMS_TO_TICKS(16));  /* Check input at 60 FPS */
+        } else if (state == APP_STATE_PYTHON_DEMO) {
+            /* Python demo: rendering is done by python_demo_task, just wait */
+            vTaskDelay(pdMS_TO_TICKS(100));
         } else {
             /* Unknown state: fallback to idle */
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -664,21 +903,9 @@ static void input_task(void *arg) {
             if (ev.id == BTN_B) {
                 /* B button: toggle max hold */
                 audio_spectrum_toggle_max_hold(&g_audio_screen);
-            } else if (ev.id == BTN_START) {
-                /* START button: toggle gain adjustment mode */
-                audio_spectrum_toggle_gain_mode(&g_audio_screen);
-            } else if (g_audio_screen.gain_adjust_mode) {
-                /* In gain adjust mode: joystick left/right to change gain */
-                if (ev.id == BTN_LEFT) {
-                    audio_spectrum_adjust_gain(&g_audio_screen, -1);
-                } else if (ev.id == BTN_RIGHT) {
-                    audio_spectrum_adjust_gain(&g_audio_screen, 1);
-                } else if (ev.id == BTN_SELECT || ev.id == BTN_A) {
-                    /* Exit gain mode */
-                    audio_spectrum_toggle_gain_mode(&g_audio_screen);
-                }
             } else if (ev.id == BTN_SELECT || ev.id == BTN_A || ev.id == BTN_STICK ||
-                ev.id == BTN_UP || ev.id == BTN_DOWN) {
+                ev.id == BTN_UP || ev.id == BTN_DOWN || ev.id == BTN_LEFT || 
+                ev.id == BTN_RIGHT || ev.id == BTN_START) {
                 /* Any other button: exit spectrum mode */
                 ESP_LOGI(TAG, "Exiting audio spectrum");
                 audio_spectrum_screen_exit();
@@ -726,13 +953,23 @@ static void input_task(void *arg) {
                 request_redraw(DISP_CMD_REDRAW_FULL);
             }
         } else if (state == APP_STATE_WLAN_SPECTRUM) {
-            /* WLAN spectrum mode: handle button actions */
-            wlan_spectrum_screen_handle_button(&g_wlan_spectrum_screen, ev.id);
-            
-            /* Exit on SELECT or A (double-press) */
-            if (ev.id == BTN_SELECT || ev.id == BTN_A) {
+            /* WLAN spectrum mode: any button exits */
+            if (ev.id == BTN_SELECT || ev.id == BTN_A || ev.id == BTN_B ||
+                ev.id == BTN_UP || ev.id == BTN_DOWN || ev.id == BTN_LEFT || 
+                ev.id == BTN_RIGHT || ev.id == BTN_STICK) {
                 ESP_LOGI(TAG, "Exiting WLAN spectrum analyzer");
                 wlan_spectrum_screen_exit();
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            }
+        } else if (state == APP_STATE_WLAN_LIST) {
+            /* WLAN list mode: handle scrolling */
+            if (ev.id == BTN_UP || ev.id == BTN_DOWN) {
+                wlan_list_screen_handle_button(&g_wlan_list_screen, ev.id);
+            } else {
+                /* Any other button exits */
+                ESP_LOGI(TAG, "Exiting WLAN networks list");
+                wlan_list_screen_exit();
                 atomic_store(&g_app_state, APP_STATE_MENU);
                 request_redraw(DISP_CMD_REDRAW_FULL);
             }
@@ -769,6 +1006,45 @@ static void input_task(void *arg) {
                 /* Update selection display */
                 request_redraw(DISP_CMD_REDRAW_ITEM);
             }
+        } else if (state == APP_STATE_HACKY_BIRD) {
+            /* Hacky Bird game: handle button actions */
+            if (g_hacky_bird_game_over) {
+                /* Game over: any button exits back to menu */
+                ESP_LOGI(TAG, "Exiting Hacky Bird (final score: %d)", hacky_bird_get_score());
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+                sk6812_clear();  // Turn off LEDs
+            } else {
+                /* Game active: A or STICK to flap, B to exit */
+                if (ev.id == BTN_B) {
+                    ESP_LOGI(TAG, "Exiting Hacky Bird (user quit)");
+                    atomic_store(&g_app_state, APP_STATE_MENU);
+                    request_redraw(DISP_CMD_REDRAW_FULL);
+                    sk6812_clear();  // Turn off LEDs
+                }
+                /* Flap will be handled in display_task on each frame */
+            }
+        } else if (state == APP_STATE_SPACE_SHOOTER) {
+            /* Space Shooter game: B to exit */
+            if (ev.id == BTN_B) {
+                ESP_LOGI(TAG, "Exiting Space Shooter (final score: %lu)", space_shooter_get_score());
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            }
+            /* Movement and shooting are handled continuously in display_task */
+        } else if (state == APP_STATE_SNAKE) {
+            /* Snake game: B to exit */
+            if (ev.id == BTN_B) {
+                ESP_LOGI(TAG, "Exiting Snake (final score: %lu)", snake_get_score());
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            }
+            /* Direction input is handled continuously in display_task */
+        } else if (state == APP_STATE_PYTHON_DEMO) {
+            /* Python demo: any button exits back to menu */
+            ESP_LOGI(TAG, "Exiting Python Demo");
+            atomic_store(&g_app_state, APP_STATE_MENU);
+            request_redraw(DISP_CMD_REDRAW_FULL);
         } else {
             /* Menu mode */
             switch (ev.id) {
@@ -841,14 +1117,14 @@ void app_main(void) {
         ESP_LOGW(TAG, "Failed to mount Python apps filesystem: %s", esp_err_to_name(fs_ret));
     }
 
-    /* ── MicroPython runner init ── */
+    /* ── MicroPython runner init (bridge only, no background task) ── */
     esp_err_t mp_ret = micropython_runner_init();
     if (mp_ret == ESP_OK) {
-        ESP_LOGI(TAG, "MicroPython runner initialized on CPU1");
+        ESP_LOGI(TAG, "MicroPython runner initialized (on-demand mode)");
     } else {
         ESP_LOGW(TAG, "Failed to initialize MicroPython runner: %s", esp_err_to_name(mp_ret));
     }
-
+    
     /* ── Build menus with icons and submenus ── */
     
     /* Diagnostics submenu */
@@ -858,10 +1134,17 @@ void app_main(void) {
     menu_add_item(&g_diag_menu, 'S', "Sensor Readout", action_sensor_readout, NULL);
     menu_add_item(&g_diag_menu, 'V', "Signal Strength", action_signal_strength, NULL);
     menu_add_item(&g_diag_menu, 'Z', "WiFi Spectrum", action_wlan_spectrum, NULL);
+    menu_add_item(&g_diag_menu, 'N', "WiFi Networks", action_wlan_list, NULL);
 
     /* Tools submenu */
     menu_init(&g_tools_menu, "Tools");
     menu_add_item(&g_tools_menu, '@', "Audio Spectrum", action_audio_spectrum, NULL);
+    
+    /* Games submenu */
+    menu_init(&g_games_menu, "Games");
+    menu_add_item(&g_games_menu, 'H', "Hacky Bird", action_hacky_bird, NULL);
+    menu_add_item(&g_games_menu, 'S', "Space Shooter", action_space_shooter, NULL);
+    menu_add_item(&g_games_menu, 'N', "Snake", action_snake, NULL);
     
     /* LED Animation submenu */
     menu_init(&g_led_menu, "LED Animation");
@@ -886,13 +1169,17 @@ void app_main(void) {
     menu_add_item(&g_settings_menu, 't', "Text Color", action_text_color_select, NULL);
     menu_add_item(&g_settings_menu, 'L', "LED Animation", NULL, &g_led_menu);
 
+    /* Development submenu */
+    menu_init(&g_dev_menu, "Development");
+    menu_add_item(&g_dev_menu, 'P', "Python Demo", action_python_demo, NULL);
+
     /* Main menu */
     menu_init(&g_menu, TITLE_STR);
     menu_add_item(&g_menu, '#', "Tools", NULL, &g_tools_menu);
-    menu_add_item(&g_menu, 'G', "Games", action_placeholder, NULL);
+    menu_add_item(&g_menu, 'G', "Games", NULL, &g_games_menu);
     menu_add_item(&g_menu, 'O', "Settings", NULL, &g_settings_menu);
     menu_add_item(&g_menu, 'D', "Diagnostics", NULL, &g_diag_menu);
-    menu_add_item(&g_menu, 'X', "Development", action_placeholder, NULL);
+    menu_add_item(&g_menu, 'X', "Development", NULL, &g_dev_menu);
     menu_add_item(&g_menu, '?', "About", action_about, NULL);
 
     g_current_menu = &g_menu;    /* ── Tasks (all on CPU0; CPU1 reserved for MicroPython) ── */

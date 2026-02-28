@@ -1,5 +1,0 @@
-Command: make -j 18 all
-/home/llatva/git/d26badge-freertos-fw/components/ui/ui_test_screen.c: In function 'scale_rgb565':
-/home/llatva/git/d26badge-freertos-fw/components/ui/ui_test_screen.c:23:19: warning: comparison is always false due to limited range of data type [-Wtype-limits]
-   23 |     if (scale_pct > 255) scale_pct = 255;
-      |                   ^

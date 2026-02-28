@@ -15,6 +15,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/__idf_ui.dir/text_input_screen.c.obj.d"
   "CMakeFiles/__idf_ui.dir/ui_test_screen.c.obj"
   "CMakeFiles/__idf_ui.dir/ui_test_screen.c.obj.d"
+  "CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj"
+  "CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj.d"
   "CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj"
   "CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj.d"
   "libui.a"

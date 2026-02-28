@@ -799,30 +799,6 @@ port/esp32s3/esp_cpu_intr.c.s:
 	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/build.make esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_cpu_intr.c.s
 .PHONY : port/esp32s3/esp_cpu_intr.c.s
 
-port/esp32s3/esp_memprot.obj: port/esp32s3/esp_memprot.c.obj
-.PHONY : port/esp32s3/esp_memprot.obj
-
-# target to build an object file
-port/esp32s3/esp_memprot.c.obj:
-	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/build.make esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj
-.PHONY : port/esp32s3/esp_memprot.c.obj
-
-port/esp32s3/esp_memprot.i: port/esp32s3/esp_memprot.c.i
-.PHONY : port/esp32s3/esp_memprot.i
-
-# target to preprocess a source file
-port/esp32s3/esp_memprot.c.i:
-	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/build.make esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.i
-.PHONY : port/esp32s3/esp_memprot.c.i
-
-port/esp32s3/esp_memprot.s: port/esp32s3/esp_memprot.c.s
-.PHONY : port/esp32s3/esp_memprot.s
-
-# target to generate assembly for a file
-port/esp32s3/esp_memprot.c.s:
-	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/build.make esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.s
-.PHONY : port/esp32s3/esp_memprot.c.s
-
 port/esp32s3/io_mux.obj: port/esp32s3/io_mux.c.obj
 .PHONY : port/esp32s3/io_mux.obj
 
@@ -1038,30 +1014,6 @@ port/esp_clk_tree_common.s: port/esp_clk_tree_common.c.s
 port/esp_clk_tree_common.c.s:
 	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/build.make esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_clk_tree_common.c.s
 .PHONY : port/esp_clk_tree_common.c.s
-
-port/esp_memprot_conv.obj: port/esp_memprot_conv.c.obj
-.PHONY : port/esp_memprot_conv.obj
-
-# target to build an object file
-port/esp_memprot_conv.c.obj:
-	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/build.make esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj
-.PHONY : port/esp_memprot_conv.c.obj
-
-port/esp_memprot_conv.i: port/esp_memprot_conv.c.i
-.PHONY : port/esp_memprot_conv.i
-
-# target to preprocess a source file
-port/esp_memprot_conv.c.i:
-	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/build.make esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.i
-.PHONY : port/esp_memprot_conv.c.i
-
-port/esp_memprot_conv.s: port/esp_memprot_conv.c.s
-.PHONY : port/esp_memprot_conv.s
-
-# target to generate assembly for a file
-port/esp_memprot_conv.c.s:
-	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/build.make esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.s
-.PHONY : port/esp_memprot_conv.c.s
 
 power_supply/brownout.obj: power_supply/brownout.c.obj
 .PHONY : power_supply/brownout.obj
@@ -1514,9 +1466,6 @@ help:
 	@echo "... port/esp32s3/esp_cpu_intr.obj"
 	@echo "... port/esp32s3/esp_cpu_intr.i"
 	@echo "... port/esp32s3/esp_cpu_intr.s"
-	@echo "... port/esp32s3/esp_memprot.obj"
-	@echo "... port/esp32s3/esp_memprot.i"
-	@echo "... port/esp32s3/esp_memprot.s"
 	@echo "... port/esp32s3/io_mux.obj"
 	@echo "... port/esp32s3/io_mux.i"
 	@echo "... port/esp32s3/io_mux.s"
@@ -1544,9 +1493,6 @@ help:
 	@echo "... port/esp_clk_tree_common.obj"
 	@echo "... port/esp_clk_tree_common.i"
 	@echo "... port/esp_clk_tree_common.s"
-	@echo "... port/esp_memprot_conv.obj"
-	@echo "... port/esp_memprot_conv.i"
-	@echo "... port/esp_memprot_conv.s"
 	@echo "... power_supply/brownout.obj"
 	@echo "... power_supply/brownout.i"
 	@echo "... power_supply/brownout.s"

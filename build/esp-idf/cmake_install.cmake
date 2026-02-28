@@ -599,6 +599,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("/home/llatva/git/d26badge-freertos-fw/build/esp-idf/pyapps_fs/cmake_install.cmake")
 endif()
 

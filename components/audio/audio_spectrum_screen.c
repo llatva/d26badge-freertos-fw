@@ -18,8 +18,9 @@
 #define SPECTRUM_Y      50
 #define SPECTRUM_W      312     /* 320 - 2*4 px margins */
 #define SPECTRUM_H      110     /* Height of spectrum area */
-#define BAR_WIDTH       2       /* Width of each frequency bar */
+#define BAR_WIDTH       3       /* Width of each frequency bar */
 #define BAR_SPACING     0       /* Gap between bars */
+#define MAX_DISPLAY_BINS 107    /* Display up to 20 kHz (20000/187.5 ≈ 107) */
 
 /* Colors */
 #define COLOR_BG        0x0000  /* Black */
@@ -59,37 +60,31 @@ void audio_spectrum_screen_update(audio_spectrum_screen_t *screen, uint8_t *new_
 void audio_spectrum_screen_draw(audio_spectrum_screen_t *screen) {
     static bool title_drawn = false;
     static uint8_t last_spectrum[AUDIO_FREQ_BINS] = {0};
-    char buf[32];
     
     /* Draw title, frequency markers, and indicators once */
     if (!title_drawn) {
         st7789_fill_rect(0, 0, 320, SPECTRUM_Y - 5, COLOR_BG);
-        st7789_draw_string(4, 8, "Audio Spectrum", COLOR_TEXT, COLOR_BG, 1);
+        st7789_draw_string(4, 8, "Audio Spectrum (0-20kHz)", COLOR_TEXT, COLOR_BG, 1);
         
         /* Frequency markers at top */
         st7789_draw_string(4, 20, "DC", COLOR_GRID, COLOR_BG, 1);
-        st7789_draw_string(135, 20, "12k", COLOR_GRID, COLOR_BG, 1);
-        st7789_draw_string(295, 20, "24k", COLOR_GRID, COLOR_BG, 1);
+        st7789_draw_string(135, 20, "10k", COLOR_GRID, COLOR_BG, 1);
+        st7789_draw_string(280, 20, "20k", COLOR_GRID, COLOR_BG, 1);
         
-        st7789_draw_string(4, 160, "EXIT: SELECT/A  HOLD: B  GAIN: START", COLOR_TEXT, COLOR_BG, 1);
+        st7789_draw_string(4, 160, "EXIT: SELECT/A     HOLD: B", COLOR_TEXT, COLOR_BG, 1);
         title_drawn = true;
     }
 
     /* Draw max hold status indicator (top right area) */
-    uint16_t status_x = 230;
-    st7789_fill_rect(status_x, 8, 90, 28, COLOR_BG);  /* Clear status area */
+    uint16_t status_x = 250;
+    st7789_fill_rect(status_x, 8, 70, 16, COLOR_BG);  /* Clear status area */
     
     if (screen->max_hold_enabled) {
         st7789_draw_string(status_x, 8, "HOLD", 0xF800, COLOR_BG, 1);  /* Red text */
     }
-    
-    /* Draw gain value (right side) */
-    snprintf(buf, sizeof(buf), "Gain:%2d", screen->gain);
-    uint16_t gain_color = screen->gain_adjust_mode ? 0xFFE0 : COLOR_TEXT;  /* Yellow if adjusting */
-    st7789_draw_string(status_x, 20, buf, gain_color, COLOR_BG, 1);
 
-    /* Only redraw spectrum area that actually changed */
-    for (int i = 0; i < AUDIO_FREQ_BINS; i++) {
+    /* Only redraw spectrum area that actually changed (up to 20 kHz) */
+    for (int i = 0; i < MAX_DISPLAY_BINS && i < AUDIO_FREQ_BINS; i++) {
         uint8_t mag = screen->spectrum[i];
         uint8_t peak = screen->peak_hold[i];
         uint8_t max_mag = screen->max_hold_enabled ? screen->max_hold[i] : 0;
@@ -137,8 +132,8 @@ void audio_spectrum_screen_draw(audio_spectrum_screen_t *screen) {
     if (screen->frame_count == 1) {
         st7789_fill_rect(0, SPECTRUM_Y + SPECTRUM_H + 4, 320, 12, COLOR_BG);
         st7789_draw_string(4, SPECTRUM_Y + SPECTRUM_H + 5, "DC", COLOR_TEXT, COLOR_BG, 1);
-        st7789_draw_string(140, SPECTRUM_Y + SPECTRUM_H + 5, "12k", COLOR_TEXT, COLOR_BG, 1);
-        st7789_draw_string(300, SPECTRUM_Y + SPECTRUM_H + 5, "24k", COLOR_TEXT, COLOR_BG, 1);
+        st7789_draw_string(140, SPECTRUM_Y + SPECTRUM_H + 5, "10k", COLOR_TEXT, COLOR_BG, 1);
+        st7789_draw_string(290, SPECTRUM_Y + SPECTRUM_H + 5, "20k", COLOR_TEXT, COLOR_BG, 1);
     }
 }
 
@@ -207,22 +202,6 @@ void audio_spectrum_toggle_max_hold(audio_spectrum_screen_t *screen) {
     }
     
     ESP_LOGI(TAG, "Max hold %s", screen->max_hold_enabled ? "enabled" : "disabled");
-}
-
-void audio_spectrum_toggle_gain_mode(audio_spectrum_screen_t *screen) {
-    screen->gain_adjust_mode = !screen->gain_adjust_mode;
-    ESP_LOGI(TAG, "Gain adjust mode %s", screen->gain_adjust_mode ? "enabled" : "disabled");
-}
-
-void audio_spectrum_adjust_gain(audio_spectrum_screen_t *screen, int8_t delta) {
-    int16_t new_gain = (int16_t)screen->gain + delta;
-    
-    /* Clamp gain between 0 and 20 */
-    if (new_gain < 0) new_gain = 0;
-    if (new_gain > 20) new_gain = 20;
-    
-    screen->gain = (uint8_t)new_gain;
-    ESP_LOGI(TAG, "Gain: %d", screen->gain);
 }
 
 void audio_spectrum_screen_exit(void) {

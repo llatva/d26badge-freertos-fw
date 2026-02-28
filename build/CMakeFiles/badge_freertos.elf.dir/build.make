@@ -190,6 +190,7 @@ badge_freertos.elf: esp-idf/buttons/libbuttons.a
 badge_freertos.elf: esp-idf/ui/libui.a
 badge_freertos.elf: esp-idf/menu_ui/libmenu_ui.a
 badge_freertos.elf: esp-idf/audio/libaudio.a
+badge_freertos.elf: esp-idf/games/libgames.a
 badge_freertos.elf: esp-idf/pyapps_fs/libpyapps_fs.a
 badge_freertos.elf: esp-idf/micropython_runner/libmicropython_runner.a
 badge_freertos.elf: esp-idf/main/libmain.a
@@ -201,11 +202,12 @@ badge_freertos.elf: esp-idf/console/libconsole.a
 badge_freertos.elf: esp-idf/protobuf-c/libprotobuf-c.a
 badge_freertos.elf: esp-idf/json/libjson.a
 badge_freertos.elf: esp-idf/menu_ui/libmenu_ui.a
+badge_freertos.elf: esp-idf/audio/libaudio.a
+badge_freertos.elf: esp-idf/games/libgames.a
 badge_freertos.elf: esp-idf/ui/libui.a
+badge_freertos.elf: esp-idf/st7789/libst7789.a
 badge_freertos.elf: esp-idf/sk6812/libsk6812.a
 badge_freertos.elf: esp-idf/buttons/libbuttons.a
-badge_freertos.elf: esp-idf/audio/libaudio.a
-badge_freertos.elf: esp-idf/st7789/libst7789.a
 badge_freertos.elf: esp-idf/pyapps_fs/libpyapps_fs.a
 badge_freertos.elf: esp-idf/fatfs/libfatfs.a
 badge_freertos.elf: esp-idf/wear_levelling/libwear_levelling.a

@@ -127,9 +127,29 @@ esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj: \
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/sensor_readout_screen.h \
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/signal_strength_screen.h \
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/wlan_spectrum_screen.h \
+ /home/llatva/git/d26badge-freertos-fw/components/ui/include/wlan_list_screen.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/esp_wifi.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/esp_wifi_types.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/esp_wifi_types_generic.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_event/include/esp_event_base.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_interface.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/local/esp_wifi_types_native.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/esp_wifi_types_generic.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_event/include/esp_event.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/esp_wifi_crypto_types.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/esp_wifi_default.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_ip_addr.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/endian.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_endian.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_types.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_defaults.h \
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/about_screen.h \
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/color_select_screen.h \
  /home/llatva/git/d26badge-freertos-fw/components/audio/include/audio.h \
+ /home/llatva/git/d26badge-freertos-fw/components/games/include/hacky_bird.h \
+ /home/llatva/git/d26badge-freertos-fw/components/games/include/space_shooter.h \
+ /home/llatva/git/d26badge-freertos-fw/components/games/include/snake.h \
  /home/llatva/git/d26badge-freertos-fw/components/micropython_runner/include/micropython_runner.h \
  /home/llatva/git/d26badge-freertos-fw/components/pyapps_fs/include/pyapps_fs.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log.h \

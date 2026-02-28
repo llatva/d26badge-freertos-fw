@@ -727,38 +727,10 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/sar_peri
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/sar_periph_ctrl.c.s"
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/sar_periph_ctrl.c -o CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/sar_periph_ctrl.c.s
 
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/flags.make
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj: /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/esp_memprot.c
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_48) "Building C object esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj"
-	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj -MF CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj.d -o CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj -c /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/esp_memprot.c
-
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.i"
-	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/esp_memprot.c > CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.i
-
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.s"
-	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/esp_memprot.c -o CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.s
-
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/flags.make
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj: /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp_memprot_conv.c
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_49) "Building C object esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj"
-	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj -MF CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj.d -o CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj -c /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp_memprot_conv.c
-
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.i"
-	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp_memprot_conv.c > CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.i
-
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.s"
-	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp_memprot_conv.c -o CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.s
-
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/flags.make
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj: /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_50) "Building C object esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_48) "Building C object esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj"
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj -MF CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj.d -o CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj -c /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c
 
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.i: cmake_force
@@ -772,7 +744,7 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/po
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/flags.make
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj: /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_51) "Building C object esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_49) "Building C object esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj"
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj -MF CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj.d -o CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj -c /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c
 
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.i: cmake_force
@@ -786,7 +758,7 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/po
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/flags.make
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj: /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/lowpower/port/esp32s3/sleep_cpu.c
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_52) "Building C object esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_50) "Building C object esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj"
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj -MF CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj.d -o CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj -c /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/lowpower/port/esp32s3/sleep_cpu.c
 
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.i: cmake_force
@@ -846,8 +818,6 @@ __idf_esp_hw_support_OBJECTS = \
 "CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/rtc_time.c.obj" \
 "CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/chip_info.c.obj" \
 "CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/sar_periph_ctrl.c.obj" \
-"CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj" \
-"CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj" \
 "CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj" \
 "CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj" \
 "CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj"
@@ -902,14 +872,12 @@ esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__
 esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/rtc_time.c.obj
 esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/chip_info.c.obj
 esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/sar_periph_ctrl.c.obj
-esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj
-esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj
 esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_config.c.obj
 esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/mspi_timing_tuning/port/esp32s3/mspi_timing_by_mspi_delay.c.obj
 esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/lowpower/port/esp32s3/sleep_cpu.c.obj
 esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/build.make
 esp-idf/esp_hw_support/libesp_hw_support.a: esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_53) "Linking C static library libesp_hw_support.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/llatva/git/d26badge-freertos-fw/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_51) "Linking C static library libesp_hw_support.a"
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && $(CMAKE_COMMAND) -P CMakeFiles/__idf_esp_hw_support.dir/cmake_clean_target.cmake
 	cd /home/llatva/git/d26badge-freertos-fw/build/esp-idf/esp_hw_support && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/__idf_esp_hw_support.dir/link.txt --verbose=$(VERBOSE)
 

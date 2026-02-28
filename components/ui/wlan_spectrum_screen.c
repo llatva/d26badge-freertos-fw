@@ -1,5 +1,5 @@
 /*
- * WLAN Spectrum Analyzer implementation – displays WiFi channels and signal strength
+ * WLAN Spectrum Analyzer implementation – scans all WiFi channels and displays power in dBm
  */
 
 #include "wlan_spectrum_screen.h"
@@ -7,7 +7,11 @@
 #include "badge_settings.h"
 #include "buttons.h"
 #include "esp_wifi.h"
+#include "esp_event.h"
+#include "nvs_flash.h"
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -19,126 +23,207 @@
 #define COLOR_GOOD      0x07E0  /* Green */
 #define COLOR_STRONG    0xFFE0  /* Yellow */
 
-/* WiFi channel frequencies and bands */
-static const char *channel_labels[] = {
-    "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"
-};
+/* WiFi scanning state */
+static TaskHandle_t s_scan_task = NULL;
+static bool s_scanning = false;
+static wlan_spectrum_screen_t *s_active_screen = NULL;
+
+/* Background WiFi scanning task */
+static void wifi_scan_task(void *arg) {
+    wlan_spectrum_screen_t *screen = (wlan_spectrum_screen_t *)arg;
+    wifi_scan_config_t scan_config = {
+        .ssid = NULL,
+        .bssid = NULL,
+        .channel = 0,  /* Will be set per channel */
+        .show_hidden = true,
+        .scan_type = WIFI_SCAN_TYPE_ACTIVE,
+        .scan_time.active.min = 50,
+        .scan_time.active.max = 100
+    };
+
+    ESP_LOGI(TAG, "WiFi scan task started");
+
+    while (s_scanning) {
+        /* Scan each channel individually */
+        for (uint8_t ch = 1; ch <= 13; ch++) {
+            if (!s_scanning) break;
+            
+            scan_config.channel = ch;
+            
+            /* Start scan on this channel */
+            esp_err_t err = esp_wifi_scan_start(&scan_config, true);  /* Blocking */
+            if (err == ESP_OK) {
+                uint16_t ap_count = 0;
+                esp_wifi_scan_get_ap_num(&ap_count);
+                
+                if (ap_count > 0) {
+                    wifi_ap_record_t *ap_list = malloc(ap_count * sizeof(wifi_ap_record_t));
+                    if (ap_list) {
+                        esp_wifi_scan_get_ap_records(&ap_count, ap_list);
+                        
+                        /* Find strongest signal on this channel */
+                        int8_t max_rssi = -100;
+                        for (uint16_t i = 0; i < ap_count; i++) {
+                            if (ap_list[i].primary == ch && ap_list[i].rssi > max_rssi) {
+                                max_rssi = ap_list[i].rssi;
+                            }
+                        }
+                        screen->channel_rssi[ch - 1] = max_rssi;
+                        free(ap_list);
+                    }
+                } else {
+                    screen->channel_rssi[ch - 1] = -100;  /* No signal */
+                }
+            } else {
+                screen->channel_rssi[ch - 1] = -100;
+            }
+            
+            vTaskDelay(pdMS_TO_TICKS(10));  /* Small delay between channels */
+        }
+        
+        vTaskDelay(pdMS_TO_TICKS(100));  /* Delay before next full scan cycle */
+    }
+
+    ESP_LOGI(TAG, "WiFi scan task stopped");
+    vTaskDelete(NULL);
+}
 
 void wlan_spectrum_screen_init(wlan_spectrum_screen_t *screen) {
     if (!screen) return;
     
     memset(screen, 0, sizeof(*screen));
     screen->num_channels = 13;  /* Support channels 1-13 (2.4 GHz) */
-    screen->selected_channel = 6;
     
-    /* Initialize with some test data */
-    wlan_spectrum_screen_update_channels(screen);
+    /* Initialize all channels to -100 dBm (no signal) */
+    for (uint8_t i = 0; i < MAX_WIFI_CHANNELS; i++) {
+        screen->channel_rssi[i] = -100;
+    }
+    
+    s_active_screen = screen;
     
     ESP_LOGI(TAG, "WLAN spectrum analyzer screen initialized");
 }
 
-void wlan_spectrum_screen_update_channels(wlan_spectrum_screen_t *screen) {
-    if (!screen) return;
-    
-    /* TODO: In production, perform actual WiFi scan here
-     * For now, use simulated data with some variation */
-    for (uint8_t i = 0; i < screen->num_channels; i++) {
-        /* Create a realistic spectrum pattern: peak around channel 6-7 */
-        uint8_t distance = (i > 6) ? (i - 6) : (6 - i);
-        uint8_t base_strength = 70 - (distance * 8);
-        
-        /* Add some variation */
-        uint8_t variation = ((screen->frame_count + i * 7) % 20);
-        if (variation > 10) variation = 20 - variation;
-        
-        screen->channel_rssi[i] = (base_strength + variation > 100) ? 100 : (base_strength + variation);
+void wlan_spectrum_screen_start_scan(wlan_spectrum_screen_t *screen) {
+    if (s_scanning) {
+        ESP_LOGW(TAG, "Scan already running");
+        return;
     }
+    
+    /* Initialize NVS if needed (required for WiFi) */
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_LOGI(TAG, "NVS needs erasing, reinitializing");
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize NVS: %s", esp_err_to_name(ret));
+        return;
+    }
+    
+    /* Initialize WiFi in station mode for scanning */
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    esp_err_t err = esp_wifi_init(&cfg);
+    if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_INIT) {
+        ESP_LOGE(TAG, "WiFi init failed: %s", esp_err_to_name(err));
+        return;
+    }
+    
+    esp_wifi_set_mode(WIFI_MODE_STA);
+    esp_wifi_start();
+    
+    s_scanning = true;
+    xTaskCreatePinnedToCore(
+        wifi_scan_task,
+        "wifi_scan",
+        4096,
+        screen,
+        5,
+        &s_scan_task,
+        0  /* CPU0 */
+    );
+}
+
+void wlan_spectrum_screen_stop_scan(void) {
+    s_scanning = false;
+    if (s_scan_task != NULL) {
+        vTaskDelay(pdMS_TO_TICKS(200));  /* Wait for task to finish */
+        s_scan_task = NULL;
+    }
+    
+    /* Stop WiFi */
+    esp_wifi_stop();
+    esp_wifi_deinit();
 }
 
 void wlan_spectrum_screen_draw(wlan_spectrum_screen_t *scr) {
     uint16_t ACCENT = settings_get_accent_color();
     uint16_t TEXT   = settings_get_text_color();
-    st7789_fill(COLOR_BG);
+    static bool first_draw = true;
     
-    st7789_draw_string(4, 10, "WiFi Spectrum", ACCENT, COLOR_BG, 2);
-    st7789_fill_rect(0, 28, 320, 1, ACCENT);
-    
-    char details_str[48];
-    snprintf(details_str, sizeof(details_str), "Ch %s: %d%% signal",
-             channel_labels[scr->selected_channel],
-             scr->channel_rssi[scr->selected_channel]);
-    st7789_draw_string(4, 110, details_str, TEXT, COLOR_BG, 1);
-    
-    st7789_draw_string(4, 125, "LEFT/RIGHT: select channel", TEXT, COLOR_BG, 1);
-    st7789_draw_string(4, 138, "SELECT/A: scan | any button: exit", TEXT, COLOR_BG, 1);
+    if (first_draw) {
+        st7789_fill(COLOR_BG);
+        st7789_draw_string(4, 8, "WiFi Spectrum (dBm)", ACCENT, COLOR_BG, 2);
+        st7789_fill_rect(0, 26, 320, 1, ACCENT);
+        st7789_draw_string(4, 155, "Scanning all channels...", TEXT, COLOR_BG, 1);
+        first_draw = false;
+    }
     
     /* Draw spectrum bars for each channel */
-    uint8_t channels_per_row = 13;
-    uint16_t bar_width = 320 / channels_per_row;
-    uint16_t bar_max_height = 60;
+    uint16_t bar_width = 24;
+    uint16_t bar_max_height = 100;
     uint16_t bar_start_y = 35;
+    uint16_t x_offset = 2;
     
     for (uint8_t i = 0; i < scr->num_channels; i++) {
-        uint16_t x = (i * bar_width) + 1;
-        uint8_t strength = scr->channel_rssi[i];
-        uint16_t bar_height = (strength * bar_max_height) / 100;
+        uint16_t x = x_offset + (i * bar_width);
+        int8_t rssi = scr->channel_rssi[i];
+        
+        /* Convert dBm to bar height: -100 dBm (min) to -30 dBm (strong) */
+        int16_t normalized = rssi + 100;  /* 0 to 70 range */
+        if (normalized < 0) normalized = 0;
+        if (normalized > 70) normalized = 70;
+        uint16_t bar_height = (normalized * bar_max_height) / 70;
         uint16_t y = bar_start_y + bar_max_height - bar_height;
         
         /* Color based on signal strength */
         uint16_t color;
-        if (strength < 30) {
+        if (rssi < -80) {
             color = COLOR_WEAK;
-        } else if (strength < 60) {
+        } else if (rssi < -60) {
             color = COLOR_GOOD;
         } else {
             color = COLOR_STRONG;
         }
         
-        /* Highlight selected channel */
-        if (i == scr->selected_channel) {
-            st7789_fill_rect(x - 1, y - 2, bar_width - 2, bar_height + 4, COLOR_TEXT);
-            st7789_fill_rect(x, y, bar_width - 2, bar_height, color);
-        } else {
+        /* Clear old bar */
+        st7789_fill_rect(x, bar_start_y, bar_width - 2, bar_max_height, COLOR_BG);
+        
+        /* Draw new bar */
+        if (bar_height > 0) {
             st7789_fill_rect(x, y, bar_width - 2, bar_height, color);
         }
-    }
-    
-    /* Draw channel numbers */
-    for (uint8_t i = 0; i < scr->num_channels; i++) {
-        uint16_t x = (i * bar_width) + (bar_width / 2) - 2;
-        uint16_t y = bar_start_y + bar_max_height + 5;
-        st7789_draw_string(x, y, (char *)channel_labels[i], COLOR_TEXT, COLOR_BG, 1);
+        
+        /* Draw channel number */
+        char ch_str[4];
+        snprintf(ch_str, sizeof(ch_str), "%d", i + 1);
+        uint16_t text_x = x + (bar_width / 2) - 3;
+        st7789_draw_string(text_x, bar_start_y + bar_max_height + 4, ch_str, COLOR_TEXT, COLOR_BG, 1);
+        
+        /* Draw dBm value below */
+        if (rssi > -100) {
+            char dbm_str[6];
+            snprintf(dbm_str, sizeof(dbm_str), "%d", rssi);
+            st7789_draw_string(text_x, bar_start_y + bar_max_height + 14, dbm_str, COLOR_WEAK, COLOR_BG, 1);
+        }
     }
     
     scr->frame_count++;
 }
 
-void wlan_spectrum_screen_handle_button(wlan_spectrum_screen_t *screen, int button_id) {
-    if (!screen) return;
-    
-    if (button_id == BTN_LEFT) {
-        /* Previous channel */
-        if (screen->selected_channel > 0) {
-            screen->selected_channel--;
-        } else {
-            screen->selected_channel = screen->num_channels - 1;  /* Wrap around */
-        }
-    } else if (button_id == BTN_RIGHT) {
-        /* Next channel */
-        if (screen->selected_channel < screen->num_channels - 1) {
-            screen->selected_channel++;
-        } else {
-            screen->selected_channel = 0;  /* Wrap around */
-        }
-    } else if (button_id == BTN_A || button_id == BTN_SELECT) {
-        /* Perform WiFi scan (would be async in production) */
-        ESP_LOGI(TAG, "WiFi scan requested on channel %s", 
-                 channel_labels[screen->selected_channel]);
-        wlan_spectrum_screen_update_channels(screen);
-    }
-}
-
 void wlan_spectrum_screen_exit(void) {
+    wlan_spectrum_screen_stop_scan();
     st7789_fill(0x0000);  /* Black */
     ESP_LOGI(TAG, "Exited WLAN spectrum screen");
 }

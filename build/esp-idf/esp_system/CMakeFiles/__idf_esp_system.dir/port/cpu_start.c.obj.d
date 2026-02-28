@@ -80,22 +80,6 @@ esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/cpu_start.c.obj: \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/esp32s3/include/esp32s3/rom/ets_sys.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/esp32s3/include/esp32s3/rom/rsa_pss.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_err.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/soc/esp32s3/soc_memprot_types.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/config/include/freertos/FreeRTOSConfig.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/config/xtensa/include/freertos/FreeRTOSConfig_arch.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_config.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/hal.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/core.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/xtensa-versions.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/core-isa.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/core-matmap.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/tie.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/system.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_context.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/corebits.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/xtruntime-frames.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_types.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/assist_debug_reg.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/esp32s3/include/esp32s3/rom/opi_flash.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/esp32s3/include/esp32s3/rom/spi_flash.h \
@@ -172,6 +156,16 @@ esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/port/cpu_start.c.obj: \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/esp32s3/include/hal/cpu_utility_ll.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_cpu.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_api.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/hal.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_context.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/tie.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/corebits.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/system.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/xtruntime-frames.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/core.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/xtensa-versions.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/core-isa.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/core-matmap.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xt_utils.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/extreg.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/specreg.h \

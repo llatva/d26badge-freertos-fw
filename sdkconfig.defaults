@@ -31,11 +31,18 @@ CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
 # Logging
 CONFIG_LOG_DEFAULT_LEVEL_INFO=y
 
-# SPI DMA channel (auto)
-CONFIG_SPI_MASTER_IN_IRAM=y
+# SPI: keep ISR out of IRAM to save space (IRAM is tight with MicroPython)
+# CONFIG_SPI_MASTER_IN_IRAM is not set
 
-# RMT (for SK6812 LEDs)
+# RMT (for SK6812 LEDs) - keep out of IRAM to save space
 CONFIG_RMT_RECV_FUNC_IN_IRAM=n
+
+# Task watchdog: don't check CPU1 idle task (MicroPython owns CPU1)
+# CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1 is not set
+
+# Memory protection: disable because IRAM/DRAM boundary is very tight
+# with MicroPython core linked in; PMS can't establish proper split
+# CONFIG_ESP_SYSTEM_MEMPROT_FEATURE is not set
 
 # USB-JTAG / Serial monitor
 CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y

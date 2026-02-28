@@ -103,6 +103,37 @@ esp-idf/micropython_runner/CMakeFiles/__idf_micropython_runner.dir/micropython_r
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/FreeRTOS-Kernel/include/freertos/event_groups.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/FreeRTOS-Kernel/include/freertos/timers.h \
  /home/llatva/git/d26badge-freertos-fw/components/micropython_runner/include/mp_bridge.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/cstack.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/mpstate.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/mpconfig.h \
+ /home/llatva/git/d26badge-freertos-fw/components/micropython_runner/mpconfigport.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/mpthread.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/misc.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/nlr.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/setjmp.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/setjmp.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/obj.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/qstr.h \
+ /home/llatva/git/d26badge-freertos-fw/build/genhdr/qstrdefs.generated.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/mpprint.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/runtime0.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/objlist.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/objexcept.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/objtuple.h \
+ /home/llatva/git/d26badge-freertos-fw/build/genhdr/root_pointers.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/compile.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/lexer.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/reader.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/parse.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/emitglue.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/bc.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/runtime.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/pystack.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/gc.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/mphal.h \
+ /home/llatva/git/d26badge-freertos-fw/components/micropython_runner/mphalport.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/extmod/virtpin.h \
+ /home/llatva/git/d26badge-freertos-fw/micropython/py/builtin.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_config.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_level.h \

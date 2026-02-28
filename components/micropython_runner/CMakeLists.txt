@@ -1,144 +1,137 @@
-set(MICROPY_DIR "${CMAKE_SOURCE_DIR}/micropython")
-set(MICROPY_PORT_DIR "${MICROPY_DIR}/ports/esp32")
+# CMakeLists.txt for micropython_runner component
+#
+# Integrates MicroPython core into an ESP-IDF component using
+# MicroPython's own py.cmake + mkrules.cmake for proper qstr,
+# moduledefs, and root_pointers generation.
 
-# MicroPython core source files
-set(MICROPY_SOURCE_PY
-    ${MICROPY_DIR}/py/argcheck.c
-    ${MICROPY_DIR}/py/asmarm.c
-    ${MICROPY_DIR}/py/asmbase.c
-    ${MICROPY_DIR}/py/asmthumb.c
-    ${MICROPY_DIR}/py/asmx64.c
-    ${MICROPY_DIR}/py/asmx86.c
-    ${MICROPY_DIR}/py/asmxtensa.c
-    ${MICROPY_DIR}/py/bc.c
-    ${MICROPY_DIR}/py/binary.c
-    ${MICROPY_DIR}/py/builtinevex.c
-    ${MICROPY_DIR}/py/builtinhelp.c
-    ${MICROPY_DIR}/py/builtinimport.c
-    ${MICROPY_DIR}/py/compile.c
-    ${MICROPY_DIR}/py/emitbc.c
-    ${MICROPY_DIR}/py/emitcommon.c
-    ${MICROPY_DIR}/py/emitglue.c
-    ${MICROPY_DIR}/py/emitinlinethumb.c
-    ${MICROPY_DIR}/py/emitinlinextensa.c
-    ${MICROPY_DIR}/py/emitnative.c
-    ${MICROPY_DIR}/py/formatfloat.c
-    ${MICROPY_DIR}/py/frozenmod.c
-    ${MICROPY_DIR}/py/gc.c
-    ${MICROPY_DIR}/py/lexer.c
-    ${MICROPY_DIR}/py/malloc.c
-    ${MICROPY_DIR}/py/map.c
-    ${MICROPY_DIR}/py/modarray.c
-    ${MICROPY_DIR}/py/modbuiltins.c
-    ${MICROPY_DIR}/py/modcollections.c
-    ${MICROPY_DIR}/py/modgc.c
-    ${MICROPY_DIR}/py/modio.c
-    ${MICROPY_DIR}/py/modmath.c
-    ${MICROPY_DIR}/py/modmicropython.c
-    ${MICROPY_DIR}/py/modstruct.c
-    ${MICROPY_DIR}/py/modsys.c
-    ${MICROPY_DIR}/py/modthread.c
-    ${MICROPY_DIR}/py/moderrno.c
-    ${MICROPY_DIR}/py/mpprint.c
-    ${MICROPY_DIR}/py/mpstate.c
-    ${MICROPY_DIR}/py/mpz.c
-    ${MICROPY_DIR}/py/nativeglue.c
-    ${MICROPY_DIR}/py/obj.c
-    ${MICROPY_DIR}/py/objarray.c
-    ${MICROPY_DIR}/py/objattrtuple.c
-    ${MICROPY_DIR}/py/objbool.c
-    ${MICROPY_DIR}/py/objboundmeth.c
-    ${MICROPY_DIR}/py/objcell.c
-    ${MICROPY_DIR}/py/objclosure.c
-    ${MICROPY_DIR}/py/objcomplex.c
-    ${MICROPY_DIR}/py/objdeque.c
-    ${MICROPY_DIR}/py/objdict.c
-    ${MICROPY_DIR}/py/objenumerate.c
-    ${MICROPY_DIR}/py/objexcept.c
-    ${MICROPY_DIR}/py/objfilter.c
-    ${MICROPY_DIR}/py/objfloat.c
-    ${MICROPY_DIR}/py/objfun.c
-    ${MICROPY_DIR}/py/objgenerator.c
-    ${MICROPY_DIR}/py/objgetitemiter.c
-    ${MICROPY_DIR}/py/objint.c
-    ${MICROPY_DIR}/py/objint_longlong.c
-    ${MICROPY_DIR}/py/objint_mpz.c
-    ${MICROPY_DIR}/py/objlist.c
-    ${MICROPY_DIR}/py/objmap.c
-    ${MICROPY_DIR}/py/objmodule.c
-    ${MICROPY_DIR}/py/objnamedtuple.c
-    ${MICROPY_DIR}/py/objnone.c
-    ${MICROPY_DIR}/py/objobject.c
-    ${MICROPY_DIR}/py/objpolyiter.c
-    ${MICROPY_DIR}/py/objproperty.c
-    ${MICROPY_DIR}/py/objrange.c
-    ${MICROPY_DIR}/py/objreversed.c
-    ${MICROPY_DIR}/py/objset.c
-    ${MICROPY_DIR}/py/objsingleton.c
-    ${MICROPY_DIR}/py/objslice.c
-    ${MICROPY_DIR}/py/objstr.c
-    ${MICROPY_DIR}/py/objstringio.c
-    ${MICROPY_DIR}/py/objstrunicode.c
-    ${MICROPY_DIR}/py/objtuple.c
-    ${MICROPY_DIR}/py/objtype.c
-    ${MICROPY_DIR}/py/objzip.c
-    ${MICROPY_DIR}/py/opmethods.c
-    ${MICROPY_DIR}/py/pairheap.c
-    ${MICROPY_DIR}/py/parse.c
-    ${MICROPY_DIR}/py/parsenum.c
-    ${MICROPY_DIR}/py/parsenumbase.c
-    ${MICROPY_DIR}/py/persistentcode.c
-    ${MICROPY_DIR}/py/profile.c
-    ${MICROPY_DIR}/py/pystack.c
-    ${MICROPY_DIR}/py/qstr.c
-    ${MICROPY_DIR}/py/reader.c
-    ${MICROPY_DIR}/py/repl.c
-    ${MICROPY_DIR}/py/runtime.c
-    ${MICROPY_DIR}/py/runtime_utils.c
-    ${MICROPY_DIR}/py/scheduler.c
-    ${MICROPY_DIR}/py/scope.c
-    ${MICROPY_DIR}/py/sequence.c
-    ${MICROPY_DIR}/py/showbc.c
-    ${MICROPY_DIR}/py/smallint.c
-    ${MICROPY_DIR}/py/stackctrl.c
-    ${MICROPY_DIR}/py/stream.c
-    ${MICROPY_DIR}/py/unicode.c
-    ${MICROPY_DIR}/py/vm.c
-    ${MICROPY_DIR}/py/vstr.c
-    ${MICROPY_DIR}/py/warning.c
+# Derive repo root from component directory (components/micropython_runner -> repo root)
+get_filename_component(BADGE_REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+
+set(MICROPY_DIR "${BADGE_REPO_ROOT}/micropython")
+set(MICROPY_PY_DIR "${MICROPY_DIR}/py")
+
+# Include MicroPython's source list (sets MICROPY_SOURCE_PY, MICROPY_INC_CORE)
+include(${MICROPY_DIR}/py/py.cmake)
+
+# Our own source files
+set(RUNNER_SRCS
+    "${CMAKE_CURRENT_LIST_DIR}/micropython_runner.c"
+    "${CMAKE_CURRENT_LIST_DIR}/mp_bridge.c"
+    "${CMAKE_CURRENT_LIST_DIR}/mphalport.c"
+    "${CMAKE_CURRENT_LIST_DIR}/modbadge.c"
 )
 
+# Shared runtime helpers that MicroPython needs
+set(MICROPY_SOURCE_SHARED
+    "${MICROPY_DIR}/shared/runtime/interrupt_char.c"
+    "${MICROPY_DIR}/shared/runtime/stdout_helpers.c"
+    "${MICROPY_DIR}/shared/runtime/sys_stdio_mphal.c"
+)
+
+# Port-specific qstr definitions
+set(MICROPY_QSTRDEFS_PORT
+    "${CMAKE_CURRENT_LIST_DIR}/qstrdefsport.h"
+)
+
+# Files to scan for Q() macros (qstr auto-collection)
+set(MICROPY_SOURCE_QSTR
+    ${MICROPY_SOURCE_PY}
+    ${MICROPY_SOURCE_SHARED}
+    ${RUNNER_SRCS}
+)
+
+# Register the ESP-IDF component
 idf_component_register(
     SRCS
-        "micropython_runner.c"
-        "mp_bridge.c"
-        "modbadge.c"
-        "mphalport.c"
+        ${RUNNER_SRCS}
         ${MICROPY_SOURCE_PY}
+        ${MICROPY_SOURCE_SHARED}
     INCLUDE_DIRS
         "include"
         "."
-        "genhdr"
         "${MICROPY_DIR}"
-        "${MICROPY_DIR}/py"
-        "${MICROPY_PORT_DIR}"
     REQUIRES
         freertos
         esp_system
         esp_common
-        esp_timer
         nvs_flash
+        heap
+        soc
+        esp_timer
 )
 
-# Add MicroPython compile definitions
-target_compile_definitions(${COMPONENT_LIB} PRIVATE
-    MICROPY_QSTR_EXTRA_POOL=mp_qstr_frozen_const_pool
-    MICROPY_MODULE_FROZEN_MPY=1
-    FFCONF_H=\"${MICROPY_PORT_DIR}/esp32_common.cmake\"
+# Set the MicroPython target for mkrules.cmake
+set(MICROPY_TARGET ${COMPONENT_LIB})
+
+# Additional include directories for MicroPython headers
+target_include_directories(${COMPONENT_LIB} PUBLIC
+    "${MICROPY_DIR}"
+    "${CMAKE_CURRENT_LIST_DIR}"
 )
 
-# Add include directories for MicroPython build
-target_include_directories(${COMPONENT_LIB} PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}
+# The build directory where genhdr/ will be generated
+target_include_directories(${COMPONENT_LIB} PUBLIC
+    "${CMAKE_BINARY_DIR}"
 )
 
+# ─── Build MICROPY_CPP_FLAGS explicitly ───
+# We must set MICROPY_CPP_FLAGS before including mkrules.cmake so that
+# it does NOT try get_target_property(COMPILE_DEFINITIONS) which returns
+# -NOTFOUND when empty.  We also limit the include set to only the
+# components MicroPython sources actually reference, keeping the
+# preprocessor command line short.
+
+# Start with our own include directories
+set(MICROPY_CPP_FLAGS
+    -I${PROJECT_DIR}/build/config
+    -I${CMAKE_CURRENT_LIST_DIR}/include
+    -I${CMAKE_CURRENT_LIST_DIR}
+    -I${MICROPY_DIR}
+    -I${CMAKE_BINARY_DIR}
+)
+
+# Only gather includes from the components we actually depend on
+set(_MP_NEEDED_COMPONENTS
+    freertos esp_system esp_common nvs_flash heap soc esp_timer
+    newlib esp_hw_support esp_rom hal log xtensa esp_event
+    esp_driver_gpio driver esp_partition spi_flash
+)
+foreach(comp ${_MP_NEEDED_COMPONENTS})
+    if(TARGET __idf_${comp})
+        get_target_property(_inc __idf_${comp} INCLUDE_DIRECTORIES)
+        if(_inc)
+            foreach(_d ${_inc})
+                # Skip generator expressions
+                string(FIND "${_d}" "$<" _genexpr_pos)
+                if(_genexpr_pos EQUAL -1 AND NOT "${_d}" STREQUAL "")
+                    list(APPEND MICROPY_CPP_FLAGS -I${_d})
+                endif()
+            endforeach()
+        endif()
+        get_target_property(_inc2 __idf_${comp} INTERFACE_INCLUDE_DIRECTORIES)
+        if(_inc2)
+            foreach(_d ${_inc2})
+                string(FIND "${_d}" "$<" _genexpr_pos)
+                if(_genexpr_pos EQUAL -1 AND NOT "${_d}" STREQUAL "")
+                    list(APPEND MICROPY_CPP_FLAGS -I${_d})
+                endif()
+            endforeach()
+        endif()
+    endif()
+endforeach()
+
+# Remove duplicates to shorten the command line
+list(REMOVE_DUPLICATES MICROPY_CPP_FLAGS)
+
+# Include MicroPython's mkrules.cmake – this sets up the custom commands
+# to auto-generate qstrdefs.generated.h, moduledefs.h, root_pointers.h,
+# and mpversion.h at build time.
+include(${MICROPY_DIR}/py/mkrules.cmake)
+
+# Suppress warnings in MicroPython core source files
+set_source_files_properties(${MICROPY_SOURCE_PY} PROPERTIES
+    COMPILE_FLAGS "-Wno-unused-variable -Wno-unused-function -Wno-sign-compare -Wno-old-style-definition -Wno-missing-field-initializers -Wno-maybe-uninitialized -Wno-shadow"
+)
+set_source_files_properties(${MICROPY_SOURCE_SHARED} PROPERTIES
+    COMPILE_FLAGS "-Wno-unused-variable -Wno-unused-function -Wno-sign-compare -Wno-old-style-definition -Wno-missing-field-initializers -Wno-maybe-uninitialized"
+)

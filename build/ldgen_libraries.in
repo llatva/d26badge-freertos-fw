@@ -171,11 +171,13 @@ $<TARGET_FILE:__idf_sk6812>
 $<TARGET_FILE:idf::menu_ui>
 $<TARGET_FILE:__idf_ui>
 $<TARGET_FILE:idf::audio>
+$<TARGET_FILE:idf::games>
 $<TARGET_FILE:idf::pyapps_fs>
 $<TARGET_FILE:__idf_fatfs>
 $<TARGET_FILE:idf::micropython_runner>
 $<TARGET_FILE:idf::main>
 $<TARGET_FILE:__idf_menu_ui>
 $<TARGET_FILE:__idf_audio>
+$<TARGET_FILE:__idf_games>
 $<TARGET_FILE:__idf_pyapps_fs>
 $<TARGET_FILE:__idf_micropython_runner>

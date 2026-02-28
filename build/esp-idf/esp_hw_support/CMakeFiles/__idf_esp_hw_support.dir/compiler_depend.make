@@ -2455,90 +2455,6 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_cpu_
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_api.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_context.h
 
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/esp_memprot.c.obj: /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/esp_memprot.c \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdarg.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdbool.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stddef.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdint.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/_ansi.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/_newlib_version.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/alloca.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/assert.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/inttypes.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_default_types.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_types.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/ieeefp.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/stdlib.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/newlib.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdint.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdio.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdlib.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/string.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/strings.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_intsup.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_locale.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_stdint.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_types.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/cdefs.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/config.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/features.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/lock.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/reent.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/stdio.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/string.h \
-  config/sdkconfig.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_assert.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_attr.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_bit_defs.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_compiler.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_err.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_cpu.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_fault.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_intr_alloc.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_intr_types.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_err.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_types.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_private/esp_memprot_internal.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/soc/esp32s3/soc_memprot_types.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/esp32s3/include/esp32s3/rom/ets_sys.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_sys.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/config/include/freertos/FreeRTOSConfig.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/config/xtensa/include/freertos/FreeRTOSConfig_arch.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/esp32s3/include/hal/memprot_ll.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/include/hal/memprot_types.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/assert.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/stdio.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/lock.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/reent.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/ext_mem_defs.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/interrupts.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/memprot_defs.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/periph_defs.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/reset_reasons.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/soc.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/soc_caps.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/reg_base.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/sensitive_reg.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/core-isa.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/core-matmap.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/core.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/extreg.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/specreg.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/system.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/tie.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xt_instr_macros.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xt_utils.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/corebits.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/hal.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/xtensa-versions.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/xtruntime-core-state.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/xtruntime-frames.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa/xtruntime.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_api.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_config.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/include/xtensa_context.h
-
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32s3/io_mux.c.obj: /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/io_mux.c \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/limits.h \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdarg.h \
@@ -3337,49 +3253,6 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_clk_tree_com
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/reg_base.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/rtc_cntl_reg.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/system_reg.h
-
-esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp_memprot_conv.c.obj: /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp_memprot_conv.c \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdarg.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stddef.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdint.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/_ansi.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/_newlib_version.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/alloca.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/assert.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_default_types.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_types.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/ieeefp.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/stdlib.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/newlib.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdint.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdio.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdlib.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_intsup.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_locale.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_stdint.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_types.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/cdefs.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/config.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/features.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/lock.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/reent.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/stdio.h \
-  config/sdkconfig.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_assert.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_bit_defs.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_compiler.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_err.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_err.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_types.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/include/hal/memprot_types.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/assert.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/stdio.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/lock.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/reent.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/memprot_defs.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/soc.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/soc_caps.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/reg_base.h
 
 esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/power_supply/brownout.c.obj: /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/power_supply/brownout.c \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdarg.h \
@@ -5001,6 +4874,8 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/spi_share_hw_ctrl.c.o
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/revision.c:
 
+/home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/include/hal/psdet_types.h:
+
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/include/hal/brownout_hal.h:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/esp32s3/include/hal/brownout_ll.h:
@@ -5008,8 +4883,6 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/spi_share_hw_ctrl.c.o
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_system/include/esp_private/system_internal.h:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/power_supply/include/esp_brownout.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp_memprot_conv.c:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp_clk_tree_common.c:
 
@@ -5056,24 +4929,6 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/spi_share_hw_ctrl.c.o
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/rtc_clk.c:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_private/io_mux.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/esp32s3/include/hal/memprot_ll.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/esp32s3/include/esp32s3/rom/ets_sys.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/soc/esp32s3/soc_memprot_types.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_private/esp_memprot_internal.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/include/hal/psdet_types.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_types.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot_err.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_memprot.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/esp_memprot.c:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/esp_clk_tree.c:
 
@@ -5273,8 +5128,6 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/spi_share_hw_ctrl.c.o
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/register/soc/interrupt_core0_reg.h:
 
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_fault.h:
-
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/xtensa/esp32s3/include/xtensa/config/extreg.h:
 
 /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/param.h:
@@ -5415,8 +5268,6 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/spi_share_hw_ctrl.c.o
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/include/soc/efuse_periph.h:
 
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/include/hal/memprot_types.h:
-
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/mspi_timing_tuning/port/esp32s3/mspi_timing_tuning_configs.h:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_attr.h:
@@ -5446,8 +5297,6 @@ esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/spi_share_hw_ctrl.c.o
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/port/esp32s3/chip_info.c:
 
 /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/lock.h:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/memprot_defs.h:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/efuse/include/esp_efuse.h:
 

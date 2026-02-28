@@ -367,6 +367,30 @@ ui_test_screen.c.s:
 	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/ui/CMakeFiles/__idf_ui.dir/build.make esp-idf/ui/CMakeFiles/__idf_ui.dir/ui_test_screen.c.s
 .PHONY : ui_test_screen.c.s
 
+wlan_list_screen.obj: wlan_list_screen.c.obj
+.PHONY : wlan_list_screen.obj
+
+# target to build an object file
+wlan_list_screen.c.obj:
+	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/ui/CMakeFiles/__idf_ui.dir/build.make esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj
+.PHONY : wlan_list_screen.c.obj
+
+wlan_list_screen.i: wlan_list_screen.c.i
+.PHONY : wlan_list_screen.i
+
+# target to preprocess a source file
+wlan_list_screen.c.i:
+	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/ui/CMakeFiles/__idf_ui.dir/build.make esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.i
+.PHONY : wlan_list_screen.c.i
+
+wlan_list_screen.s: wlan_list_screen.c.s
+.PHONY : wlan_list_screen.s
+
+# target to generate assembly for a file
+wlan_list_screen.c.s:
+	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/ui/CMakeFiles/__idf_ui.dir/build.make esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.s
+.PHONY : wlan_list_screen.c.s
+
 wlan_spectrum_screen.obj: wlan_spectrum_screen.c.obj
 .PHONY : wlan_spectrum_screen.obj
 
@@ -428,6 +452,9 @@ help:
 	@echo "... ui_test_screen.obj"
 	@echo "... ui_test_screen.i"
 	@echo "... ui_test_screen.s"
+	@echo "... wlan_list_screen.obj"
+	@echo "... wlan_list_screen.i"
+	@echo "... wlan_list_screen.s"
 	@echo "... wlan_spectrum_screen.obj"
 	@echo "... wlan_spectrum_screen.i"
 	@echo "... wlan_spectrum_screen.s"

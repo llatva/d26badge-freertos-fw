@@ -911,6 +911,13 @@
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/audio/CMakeFiles/install.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/audio/CMakeFiles/install/local.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/audio/CMakeFiles/install/strip.dir
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/CMakeFiles/__idf_games.dir
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/CMakeFiles/edit_cache.dir
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/CMakeFiles/rebuild_cache.dir
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/CMakeFiles/list_install_components.dir
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/CMakeFiles/install.dir
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/CMakeFiles/install/local.dir
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/games/CMakeFiles/install/strip.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/pyapps_fs/CMakeFiles/__idf_pyapps_fs.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/pyapps_fs/CMakeFiles/edit_cache.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/pyapps_fs/CMakeFiles/rebuild_cache.dir
@@ -919,6 +926,7 @@
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/pyapps_fs/CMakeFiles/install/local.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/pyapps_fs/CMakeFiles/install/strip.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/micropython_runner/CMakeFiles/__idf_micropython_runner.dir
+/home/llatva/git/d26badge-freertos-fw/build/esp-idf/micropython_runner/CMakeFiles/BUILD_VERSION_HEADER.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/micropython_runner/CMakeFiles/edit_cache.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/micropython_runner/CMakeFiles/rebuild_cache.dir
 /home/llatva/git/d26badge-freertos-fw/build/esp-idf/micropython_runner/CMakeFiles/list_install_components.dir

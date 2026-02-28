@@ -2125,6 +2125,19 @@ __idf_audio/fast:
 .PHONY : __idf_audio/fast
 
 #=============================================================================
+# Target rules for targets named __idf_games
+
+# Build rule for target.
+__idf_games: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 __idf_games
+.PHONY : __idf_games
+
+# fast build rule for target.
+__idf_games/fast:
+	$(MAKE) $(MAKESILENT) -f esp-idf/games/CMakeFiles/__idf_games.dir/build.make esp-idf/games/CMakeFiles/__idf_games.dir/build
+.PHONY : __idf_games/fast
+
+#=============================================================================
 # Target rules for targets named __idf_pyapps_fs
 
 # Build rule for target.
@@ -2149,6 +2162,19 @@ __idf_micropython_runner: cmake_check_build_system
 __idf_micropython_runner/fast:
 	$(MAKE) $(MAKESILENT) -f esp-idf/micropython_runner/CMakeFiles/__idf_micropython_runner.dir/build.make esp-idf/micropython_runner/CMakeFiles/__idf_micropython_runner.dir/build
 .PHONY : __idf_micropython_runner/fast
+
+#=============================================================================
+# Target rules for targets named BUILD_VERSION_HEADER
+
+# Build rule for target.
+BUILD_VERSION_HEADER: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 BUILD_VERSION_HEADER
+.PHONY : BUILD_VERSION_HEADER
+
+# fast build rule for target.
+BUILD_VERSION_HEADER/fast:
+	$(MAKE) $(MAKESILENT) -f esp-idf/micropython_runner/CMakeFiles/BUILD_VERSION_HEADER.dir/build.make esp-idf/micropython_runner/CMakeFiles/BUILD_VERSION_HEADER.dir/build
+.PHONY : BUILD_VERSION_HEADER/fast
 
 #=============================================================================
 # Target rules for targets named __idf_main
@@ -2199,6 +2225,7 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... BUILD_VERSION_HEADER"
 	@echo "... __ldgen_output_sections.ld"
 	@echo "... _project_elf_src"
 	@echo "... apidoc"
@@ -2311,6 +2338,7 @@ help:
 	@echo "... __idf_espcoredump"
 	@echo "... __idf_fatfs"
 	@echo "... __idf_freertos"
+	@echo "... __idf_games"
 	@echo "... __idf_hal"
 	@echo "... __idf_heap"
 	@echo "... __idf_http_parser"
