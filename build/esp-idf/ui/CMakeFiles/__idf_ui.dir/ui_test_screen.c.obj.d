@@ -117,18 +117,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/ui_test_screen.c.obj: \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_etm.h \
  /home/llatva/git/d26badge-freertos-fw/components/sk6812/include/sk6812.h \
  /home/llatva/git/d26badge-freertos-fw/components/buttons/include/buttons.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_config.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_level.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_color.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_buffer.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_timestamp.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_write.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_format.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_args.h \
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/string.h \
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/strings.h \
- /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/string.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_attr.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_private/log_attr.h \
- /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/math.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/string.h

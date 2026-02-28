@@ -1,5 +1,19 @@
 /*
- * WLAN Networks List screen – shows detected WiFi networks with SSID, channel, and RSSI
+ * WLAN Networks List screen – scans and displays nearby WiFi networks.
+ *
+ * WiFi is expected to already be initialised in STA mode by app_main().
+ * This module only starts/stops scanning and renders results.
+ *
+ * Layout (320 × 170):
+ *   ┌────────────────────────────────────────────────┐  y=0
+ *   │  WiFi Networks          Found: N               │  y=2  (title)
+ *   ├────────────────────────────────────────────────┤  y=18 (divider)
+ *   │  SSID_NAME           Ch 6   -45 dBm  L         │  y=20..
+ *   │  …                                             │
+ *   │  (up to 9 visible rows with scrolling)          │
+ *   ├────────────────────────────────────────────────┤  y=156
+ *   │  UP/DOWN: scroll   B: exit                     │
+ *   └────────────────────────────────────────────────┘
  */
 
 #include "wlan_list_screen.h"
@@ -7,8 +21,6 @@
 #include "badge_settings.h"
 #include "buttons.h"
 #include "esp_wifi.h"
-#include "esp_event.h"
-#include "nvs_flash.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -17,207 +29,183 @@
 
 #define TAG "wlan_list"
 
-#define COLOR_BG        0x0000  /* Black */
-#define COLOR_TEXT      0xFFFF  /* White */
-#define COLOR_WEAK      0x4208  /* Dark gray */
-#define COLOR_GOOD      0x07E0  /* Green */
-#define COLOR_STRONG    0xFFE0  /* Yellow */
+/* ── Colours ─────────────────────────────────────────────────────────────── */
+#define COL_BG       0x0000u   /* black */
+#define COL_WHITE    0xFFFFu
+#define COL_WEAK     0xF800u   /* red — poor signal */
+#define COL_MED      0xFFE0u   /* yellow — moderate signal */
+#define COL_GOOD     0x07E0u   /* green — strong signal */
+#define COL_DIM      0x4208u   /* dark gray */
 
-/* WiFi scanning state */
-static TaskHandle_t s_scan_task = NULL;
-static bool s_scanning = false;
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+#define TITLE_Y       2
+#define DIVIDER_Y     18
+#define LIST_Y_START  21
+#define ROW_H         15
+#define MAX_VISIBLE   9        /* rows that fit between divider and footer */
+#define FOOTER_Y      156
 
-/* Background WiFi scanning task */
+/* ── Scan task ───────────────────────────────────────────────────────────── */
+static volatile bool s_scanning = false;
+static TaskHandle_t  s_scan_task = NULL;
+
 static void wifi_scan_task(void *arg) {
     wlan_list_screen_t *screen = (wlan_list_screen_t *)arg;
-    wifi_scan_config_t scan_config = {
-        .ssid = NULL,
-        .bssid = NULL,
-        .channel = 0,  /* All channels */
+
+    wifi_scan_config_t cfg = {
+        .ssid        = NULL,
+        .bssid       = NULL,
+        .channel     = 0,          /* all channels */
         .show_hidden = true,
-        .scan_type = WIFI_SCAN_TYPE_ACTIVE,
+        .scan_type   = WIFI_SCAN_TYPE_ACTIVE,
         .scan_time.active.min = 100,
-        .scan_time.active.max = 300
+        .scan_time.active.max = 300,
     };
 
-    ESP_LOGI(TAG, "WiFi list scan task started");
+    ESP_LOGI(TAG, "Scan task started");
 
     while (s_scanning) {
-        /* Start full WiFi scan */
-        esp_err_t err = esp_wifi_scan_start(&scan_config, true);  /* Blocking */
-        if (err == ESP_OK) {
-            uint16_t ap_count = 0;
-            esp_wifi_scan_get_ap_num(&ap_count);
-            
-            if (ap_count > 0) {
-                if (ap_count > MAX_WLAN_NETWORKS) {
-                    ap_count = MAX_WLAN_NETWORKS;
-                }
-                
-                wifi_ap_record_t *ap_list = malloc(ap_count * sizeof(wifi_ap_record_t));
-                if (ap_list) {
-                    esp_wifi_scan_get_ap_records(&ap_count, ap_list);
-                    
-                    /* Update screen with AP list */
-                    screen->num_networks = ap_count;
-                    for (uint16_t i = 0; i < ap_count; i++) {
-                        strncpy(screen->networks[i].ssid, (char *)ap_list[i].ssid, 32);
-                        screen->networks[i].ssid[32] = '\0';
-                        screen->networks[i].rssi = ap_list[i].rssi;
-                        screen->networks[i].channel = ap_list[i].primary;
-                        screen->networks[i].auth = ap_list[i].authmode;
-                    }
-                    
-                    free(ap_list);
-                }
-            } else {
-                screen->num_networks = 0;
+        esp_err_t err = esp_wifi_scan_start(&cfg, true);   /* blocking */
+        if (err != ESP_OK) {
+            ESP_LOGW(TAG, "scan_start failed: %s", esp_err_to_name(err));
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            continue;
+        }
+
+        uint16_t ap_count = 0;
+        esp_wifi_scan_get_ap_num(&ap_count);
+
+        if (ap_count > MAX_WLAN_NETWORKS) ap_count = MAX_WLAN_NETWORKS;
+
+        if (ap_count > 0) {
+            wifi_ap_record_t ap_buf[MAX_WLAN_NETWORKS];
+            esp_wifi_scan_get_ap_records(&ap_count, ap_buf);
+
+            /* Copy results into screen struct (safe: display only reads) */
+            for (uint16_t i = 0; i < ap_count; i++) {
+                strncpy(screen->networks[i].ssid, (char *)ap_buf[i].ssid, 32);
+                screen->networks[i].ssid[32] = '\0';
+                screen->networks[i].rssi    = ap_buf[i].rssi;
+                screen->networks[i].channel = ap_buf[i].primary;
+                screen->networks[i].auth    = ap_buf[i].authmode;
             }
         }
-        
-        vTaskDelay(pdMS_TO_TICKS(2000));  /* Scan every 2 seconds */
+        screen->num_networks = ap_count;
+        screen->scan_done    = true;
+
+        vTaskDelay(pdMS_TO_TICKS(3000));   /* re-scan every 3 s */
     }
 
-    ESP_LOGI(TAG, "WiFi list scan task stopped");
+    ESP_LOGI(TAG, "Scan task ending");
+    s_scan_task = NULL;
     vTaskDelete(NULL);
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+ *  PUBLIC API
+ * ══════════════════════════════════════════════════════════════════════════ */
+
 void wlan_list_screen_init(wlan_list_screen_t *screen) {
     if (!screen) return;
-    
     memset(screen, 0, sizeof(*screen));
-    screen->scroll_offset = 0;
-    
-    ESP_LOGI(TAG, "WLAN networks list screen initialized");
+    screen->needs_full_draw = true;
 }
 
 void wlan_list_screen_start_scan(wlan_list_screen_t *screen) {
-    if (s_scanning) {
-        ESP_LOGW(TAG, "Scan already running");
-        return;
-    }
-    
-    /* Initialize NVS if needed (required for WiFi) */
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_LOGI(TAG, "NVS needs erasing, reinitializing");
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize NVS: %s", esp_err_to_name(ret));
-        return;
-    }
-    
-    /* Initialize WiFi in station mode for scanning */
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    esp_err_t err = esp_wifi_init(&cfg);
-    if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_INIT) {
-        ESP_LOGE(TAG, "WiFi init failed: %s", esp_err_to_name(err));
-        return;
-    }
-    
-    esp_wifi_set_mode(WIFI_MODE_STA);
-    esp_wifi_start();
-    
+    if (s_scanning) return;           /* already running */
     s_scanning = true;
-    xTaskCreatePinnedToCore(
-        wifi_scan_task,
-        "wifi_list_scan",
-        4096,
-        screen,
-        5,
-        &s_scan_task,
-        0  /* CPU0 */
-    );
+    xTaskCreatePinnedToCore(wifi_scan_task, "wl_scan", 4096,
+                            screen, 3, &s_scan_task, PRO_CPU_NUM);
 }
 
 void wlan_list_screen_stop_scan(void) {
     s_scanning = false;
-    if (s_scan_task != NULL) {
-        vTaskDelay(pdMS_TO_TICKS(200));  /* Wait for task to finish */
-        s_scan_task = NULL;
+    /* Wait up to 2 s for the task to self-delete */
+    for (int i = 0; i < 40 && s_scan_task != NULL; i++) {
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
-    
-    /* Stop WiFi */
-    esp_wifi_stop();
-    esp_wifi_deinit();
+    /* Abort any in-progress scan so WiFi is quiet */
+    esp_wifi_scan_stop();
+}
+
+/* ── Signal-strength colour helper ───────────────────────────────────────── */
+static inline uint16_t rssi_color(int8_t rssi) {
+    if (rssi >= -55) return COL_GOOD;
+    if (rssi >= -75) return COL_MED;
+    return COL_WEAK;
 }
 
 void wlan_list_screen_draw(wlan_list_screen_t *screen) {
-    uint16_t ACCENT = settings_get_accent_color();
-    uint16_t TEXT   = settings_get_text_color();
-    
-    st7789_fill(COLOR_BG);
-    
-    /* Title */
-    st7789_draw_string(4, 4, "WiFi Networks", ACCENT, COLOR_BG, 2);
-    st7789_fill_rect(0, 22, 320, 1, ACCENT);
-    
-    /* Status line */
-    char status_str[32];
-    snprintf(status_str, sizeof(status_str), "Found: %d networks", screen->num_networks);
-    st7789_draw_string(4, 26, status_str, TEXT, COLOR_BG, 1);
-    
-    /* Display networks (max 8 visible at once) */
-    uint16_t y = 40;
-    uint16_t line_height = 16;
-    uint8_t max_visible = 8;
-    
-    for (uint8_t i = screen->scroll_offset; i < screen->num_networks && i < screen->scroll_offset + max_visible; i++) {
-        wlan_network_info_t *net = &screen->networks[i];
-        
-        /* Determine color based on signal strength */
-        uint16_t color;
-        if (net->rssi < -80) {
-            color = COLOR_WEAK;
-        } else if (net->rssi < -60) {
-            color = COLOR_GOOD;
-        } else {
-            color = COLOR_STRONG;
-        }
-        
-        /* Draw SSID (truncate if too long) */
-        char ssid_display[24];
-        strncpy(ssid_display, net->ssid, 20);
-        ssid_display[20] = '\0';
-        st7789_draw_string(4, y, ssid_display, color, COLOR_BG, 1);
-        
-        /* Draw channel */
-        char ch_str[8];
-        snprintf(ch_str, sizeof(ch_str), "Ch%d", net->channel);
-        st7789_draw_string(170, y, ch_str, TEXT, COLOR_BG, 1);
-        
-        /* Draw RSSI */
-        char rssi_str[10];
-        snprintf(rssi_str, sizeof(rssi_str), "%ddBm", net->rssi);
-        st7789_draw_string(220, y, rssi_str, color, COLOR_BG, 1);
-        
-        /* Draw lock icon if encrypted */
-        if (net->auth != WIFI_AUTH_OPEN) {
-            st7789_draw_string(280, y, "L", TEXT, COLOR_BG, 1);
-        }
-        
-        y += line_height;
+    uint16_t accent = settings_get_accent_color();
+    uint16_t text   = settings_get_text_color();
+    bool full = screen->needs_full_draw;
+
+    /* ── Full draw: title, divider, footer ──────────────────────────── */
+    if (full) {
+        st7789_fill(COL_BG);
+        st7789_draw_string(4, TITLE_Y, "WiFi Networks", accent, COL_BG, 1);
+        st7789_fill_rect(0, DIVIDER_Y, ST7789_WIDTH, 1, accent);
+        st7789_draw_string(4, FOOTER_Y, "UP/DOWN scroll  B=exit", COL_DIM, COL_BG, 1);
+        screen->needs_full_draw = false;
     }
-    
-    /* Bottom instructions */
-    st7789_draw_string(4, 155, "UP/DOWN: scroll  Any: exit", TEXT, COLOR_BG, 1);
+
+    /* ── Status: network count (right-aligned) ──────────────────────── */
+    {
+        char buf[20];
+        if (!screen->scan_done) {
+            snprintf(buf, sizeof(buf), "Scanning...");
+        } else {
+            snprintf(buf, sizeof(buf), "Found: %d", screen->num_networks);
+        }
+        /* Clear old text area then draw */
+        st7789_fill_rect(200, TITLE_Y, 120, 14, COL_BG);
+        st7789_draw_string(200, TITLE_Y, buf, text, COL_BG, 1);
+    }
+
+    /* ── Network rows ───────────────────────────────────────────────── */
+    uint8_t n = screen->num_networks;
+    for (uint8_t vi = 0; vi < MAX_VISIBLE; vi++) {
+        uint16_t y = LIST_Y_START + vi * ROW_H;
+        uint8_t idx = screen->scroll_offset + vi;
+
+        /* Clear row */
+        st7789_fill_rect(0, y, ST7789_WIDTH, ROW_H, COL_BG);
+
+        if (idx >= n) continue;
+
+        wlan_network_info_t *net = &screen->networks[idx];
+        uint16_t col = rssi_color(net->rssi);
+
+        /* SSID (truncated to 20 chars) */
+        char ssid_buf[22];
+        strncpy(ssid_buf, net->ssid, 20);
+        ssid_buf[20] = '\0';
+        if (ssid_buf[0] == '\0') strncpy(ssid_buf, "<hidden>", sizeof(ssid_buf));
+        st7789_draw_string(4, y, ssid_buf, col, COL_BG, 1);
+
+        /* Channel */
+        char ch_buf[8];
+        snprintf(ch_buf, sizeof(ch_buf), "Ch%d", net->channel);
+        st7789_draw_string(180, y, ch_buf, text, COL_BG, 1);
+
+        /* RSSI */
+        char rssi_buf[10];
+        snprintf(rssi_buf, sizeof(rssi_buf), "%ddBm", net->rssi);
+        st7789_draw_string(230, y, rssi_buf, col, COL_BG, 1);
+
+        /* Lock indicator */
+        if (net->auth != WIFI_AUTH_OPEN) {
+            st7789_draw_string(300, y, "L", COL_DIM, COL_BG, 1);
+        }
+    }
 }
 
 void wlan_list_screen_handle_button(wlan_list_screen_t *screen, int button_id) {
     if (!screen) return;
-    
-    uint8_t max_visible = 8;
-    
     if (button_id == BTN_UP) {
-        /* Scroll up */
-        if (screen->scroll_offset > 0) {
-            screen->scroll_offset--;
-        }
+        if (screen->scroll_offset > 0) screen->scroll_offset--;
     } else if (button_id == BTN_DOWN) {
-        /* Scroll down */
-        if (screen->scroll_offset + max_visible < screen->num_networks) {
+        if (screen->scroll_offset + MAX_VISIBLE < screen->num_networks) {
             screen->scroll_offset++;
         }
     }
@@ -225,6 +213,5 @@ void wlan_list_screen_handle_button(wlan_list_screen_t *screen, int button_id) {
 
 void wlan_list_screen_exit(void) {
     wlan_list_screen_stop_scan();
-    st7789_fill(0x0000);  /* Black */
     ESP_LOGI(TAG, "Exited WLAN networks list screen");
 }

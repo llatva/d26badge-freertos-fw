@@ -76,6 +76,26 @@ esp_err_t micropython_stop_app(void);
  */
 bool micropython_is_running(void);
 
+/**
+ * @brief Start capturing Python print() output into a user-supplied buffer.
+ *
+ * Call before micropython_run_code().  Output is appended to @p buf
+ * (null-terminated) until the buffer is full or capture is stopped.
+ *
+ * @param buf   Destination buffer (caller-owned)
+ * @param size  Total capacity of @p buf (including space for '\0')
+ */
+void mp_hal_capture_start(char *buf, size_t size);
+
+/**
+ * @brief Stop capturing and return the number of bytes captured.
+ *
+ * The buffer passed to mp_hal_capture_start() is null-terminated.
+ *
+ * @return Number of characters captured (not counting '\0')
+ */
+size_t mp_hal_capture_stop(void);
+
 #ifdef __cplusplus
 }
 #endif

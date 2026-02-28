@@ -818,7 +818,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/ui_test_screen.c.obj: /home/llatva/git/d26bad
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_types.h \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/ieeefp.h \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/stdlib.h \
-  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/math.h \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/newlib.h \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/reent.h \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdint.h \
@@ -887,17 +886,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/ui_test_screen.c.obj: /home/llatva/git/d26bad
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/hal/include/hal/spi_types.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/heap/include/esp_heap_caps.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/heap/include/multi_heap.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_args.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_attr.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_buffer.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_color.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_config.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_format.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_level.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_timestamp.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_write.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_private/log_attr.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/assert.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/esp_newlib.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/stdio.h \
@@ -996,7 +984,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj: /home/llatva/git/d26b
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_defaults.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_ip_addr.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_types.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_partition/include/esp_partition.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_gpio.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_sys.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_system/include/esp_ipc.h \
@@ -1046,8 +1033,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_list_screen.c.obj: /home/llatva/git/d26b
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/stdio.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/lock.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/reent.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs_flash.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/clk_tree_defs.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/gpio_num.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/gpio_pins.h \
@@ -1113,7 +1098,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj: /home/llatva/git/
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/string.h \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/syslimits.h \
   config/sdkconfig.h \
-  /home/llatva/git/d26badge-freertos-fw/components/buttons/include/buttons.h \
   /home/llatva/git/d26badge-freertos-fw/components/st7789/include/st7789.h \
   /home/llatva/git/d26badge-freertos-fw/components/ui/include/badge_settings.h \
   /home/llatva/git/d26badge-freertos-fw/components/ui/include/wlan_spectrum_screen.h \
@@ -1141,7 +1125,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj: /home/llatva/git/
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_defaults.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_ip_addr.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_types.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_partition/include/esp_partition.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_gpio.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_sys.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_system/include/esp_ipc.h \
@@ -1191,8 +1174,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj: /home/llatva/git/
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/stdio.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/lock.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/reent.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs.h \
-  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs_flash.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/clk_tree_defs.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/gpio_num.h \
   /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/gpio_pins.h \
@@ -1499,8 +1480,6 @@ config/sdkconfig.h:
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/config/include/freertos/FreeRTOSConfig.h:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/freertos/config/xtensa/include/freertos/FreeRTOSConfig_arch.h:
-
-/home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/math.h:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_attr.h:
 

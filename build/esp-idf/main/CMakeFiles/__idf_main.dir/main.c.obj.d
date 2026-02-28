@@ -167,4 +167,25 @@ esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj: \
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/string.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_attr.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_private/log_attr.h \
- /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdatomic.h
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs_flash.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_partition/include/esp_partition.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdatomic.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/time.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/types.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/select.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/select.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_sigset.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_timeval.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/timespec.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_timespec.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_pthreadtypes.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/sched.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/types.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/time.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/time.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/signal.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/signal.h \
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/time.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/time.h \
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_time.h

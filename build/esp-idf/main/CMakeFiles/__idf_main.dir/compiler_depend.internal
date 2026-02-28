@@ -18,13 +18,17 @@ esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/limits.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_default_types.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_endian.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_time.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_types.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/endian.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/ieeefp.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/stdlib.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/time.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/types.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/math.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/newlib.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/reent.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/signal.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdint.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdio.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/stdlib.h
@@ -32,16 +36,27 @@ esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/strings.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_intsup.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_locale.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_pthreadtypes.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_sigset.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_stdint.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_timespec.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_timeval.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_types.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/cdefs.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/config.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/features.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/lock.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/reent.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/sched.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/select.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/signal.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/stdio.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/string.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/syslimits.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/time.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/timespec.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/types.h
+ /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/time.h
  /home/llatva/git/d26badge-freertos-fw/build/config/sdkconfig.h
  /home/llatva/git/d26badge-freertos-fw/components/audio/include/audio.h
  /home/llatva/git/d26badge-freertos-fw/components/audio/include/audio_spectrum_screen.h
@@ -90,6 +105,7 @@ esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_defaults.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_ip_addr.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_types.h
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_partition/include/esp_partition.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_gpio.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_sys.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_system/include/esp_ipc.h
@@ -139,6 +155,11 @@ esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/stdio.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/lock.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/reent.h
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/select.h
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/sys/time.h
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/newlib/platform_include/time.h
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs.h
+ /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs_flash.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/clk_tree_defs.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/gpio_num.h
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/soc/esp32s3/include/soc/gpio_pins.h

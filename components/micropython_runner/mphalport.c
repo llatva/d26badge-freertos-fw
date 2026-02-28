@@ -18,10 +18,45 @@
 #include "esp_random.h"
 #include "esp_cpu.h"
 
+/* ── Stdout capture buffer ─────────────────────────────────────────────── */
+static char  *s_capture_buf  = NULL;   /* externally provided buffer      */
+static size_t s_capture_size = 0;      /* total buffer capacity           */
+static size_t s_capture_pos  = 0;      /* current write position          */
+
+void mp_hal_capture_start(char *buf, size_t size)
+{
+    s_capture_buf  = buf;
+    s_capture_size = size;
+    s_capture_pos  = 0;
+    if (buf && size > 0) buf[0] = '\0';
+}
+
+size_t mp_hal_capture_stop(void)
+{
+    size_t n = s_capture_pos;
+    /* Null-terminate */
+    if (s_capture_buf && s_capture_size > 0) {
+        s_capture_buf[(n < s_capture_size) ? n : s_capture_size - 1] = '\0';
+    }
+    s_capture_buf  = NULL;
+    s_capture_size = 0;
+    s_capture_pos  = 0;
+    return n;
+}
+
 mp_uint_t mp_hal_stdout_tx_strn(const char *str, size_t len) {
-    /* Route Python print() output to ESP_LOGI so it appears on serial monitor */
+    /* Always route to serial monitor */
     fwrite(str, 1, len, stdout);
     fflush(stdout);
+
+    /* Also capture if buffer is active */
+    if (s_capture_buf && s_capture_pos < s_capture_size - 1) {
+        size_t avail = s_capture_size - 1 - s_capture_pos;  /* leave room for '\0' */
+        size_t n = (len < avail) ? len : avail;
+        memcpy(s_capture_buf + s_capture_pos, str, n);
+        s_capture_pos += n;
+        s_capture_buf[s_capture_pos] = '\0';
+    }
     return len;
 }
 

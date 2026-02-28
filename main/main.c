@@ -60,9 +60,15 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "esp_log.h"
+#include "esp_wifi.h"
+#include "esp_netif.h"
+#include "esp_event.h"
+#include "esp_heap_caps.h"
+#include "nvs_flash.h"
 #include <string.h>
 #include <stdatomic.h>
-#include <stdatomic.h>
+#include <time.h>
+#include <sys/time.h>
 
 #define TAG "main"
 
@@ -113,6 +119,7 @@ typedef enum {
     APP_STATE_SPACE_SHOOTER,
     APP_STATE_SNAKE,
     APP_STATE_PYTHON_DEMO,
+    APP_STATE_TIME_DATE_SET,
 } app_state_t;
 
 static atomic_int g_app_state = APP_STATE_IDLE;
@@ -170,12 +177,12 @@ static void action_signal_strength(void);
 static void action_wlan_spectrum(void);
 static void action_wlan_list(void);
 static void action_about(void);
-static void action_placeholder(void);
 static void action_color_select(void);  /* New action for color select */
 static void action_hacky_bird(void);    /* Hacky Bird game */
 static void action_space_shooter(void); /* Space Shooter game */
 static void action_snake(void);         /* Snake game */
 static void action_python_demo(void);   /* Python demo */
+static void action_time_date_set(void); /* Time/date setting */
 
 /* ── Menu action callbacks ───────────────────────────────────────────────── */
 static void action_led_off(void)      { atomic_store(&g_led_mode, LED_MODE_OFF);      }
@@ -283,82 +290,417 @@ static void action_snake(void) {
 
 /* ── Python demo ─────────────────────────────────────────────────────────── */
 
-/* Embedded Python demo script.
- * Uses print() for serial output and basic math to prove the VM works.
- * The badge module is not used here because display_task owns the SPI bus;
- * instead we show Python output on the display from C after the script runs.
+/*
+ * Multi-page interactive MicroPython demo with real stdout capture.
+ * LEFT/RIGHT switch between demos, B exits.
+ * Each demo runs a Python script and displays the actual captured output.
  */
-static const char *PYTHON_DEMO_CODE =
-    "print('=== MicroPython Demo ===')\n"
-    "print('Hello from MicroPython on ESP32-S3!')\n"
-    "print()\n"
-    "\n"
-    "# Basic arithmetic\n"
-    "result = 0\n"
-    "for i in range(1, 11):\n"
-    "    result += i\n"
-    "print('Sum 1..10 =', result)\n"
-    "\n"
-    "# List comprehension\n"
-    "squares = [x*x for x in range(1, 6)]\n"
-    "print('Squares:', squares)\n"
-    "\n"
-    "# String formatting\n"
-    "badge_name = 'Disobey 2026'\n"
-    "print('Badge:', badge_name)\n"
-    "print('Name length:', len(badge_name))\n"
-    "\n"
-    "# Dictionary\n"
-    "info = {'cpu': 'ESP32-S3', 'leds': 8, 'display': '320x170'}\n"
-    "for k, v in info.items():\n"
-    "    print(' ', k, ':', v)\n"
-    "\n"
-    "print()\n"
-    "print('MicroPython is working!')\n"
-;
 
-/* Task wrapper: runs the demo in a dedicated task with enough stack */
+#define PY_CAPTURE_SIZE  2048   /* stdout capture buffer size */
+#define PY_NUM_DEMOS     6
+
+static const char *PY_DEMO_TITLES[PY_NUM_DEMOS] = {
+    "Fibonacci",
+    "Prime Sieve",
+    "Classes & OOP",
+    "Generators",
+    "Mandelbrot",
+    "Badge Info",
+};
+
+static const char *PY_DEMO_SCRIPTS[PY_NUM_DEMOS] = {
+    /* 0: Fibonacci – recursive + iterative with timing */
+    "import time\n"
+    "def fib_recursive(n):\n"
+    "    if n <= 1: return n\n"
+    "    return fib_recursive(n-1) + fib_recursive(n-2)\n"
+    "\n"
+    "def fib_iter(n):\n"
+    "    a, b = 0, 1\n"
+    "    for _ in range(n):\n"
+    "        a, b = b, a + b\n"
+    "    return a\n"
+    "\n"
+    "print('Fibonacci Sequence')\n"
+    "print('~' * 30)\n"
+    "seq = [fib_iter(i) for i in range(15)]\n"
+    "print('F(0..14):', seq)\n"
+    "print()\n"
+    "t0 = time.ticks_ms()\n"
+    "r = fib_recursive(20)\n"
+    "dt = time.ticks_diff(time.ticks_ms(), t0)\n"
+    "print('F(20) recursive:', r)\n"
+    "print('  Time:', dt, 'ms')\n"
+    "t0 = time.ticks_ms()\n"
+    "r = fib_iter(100)\n"
+    "dt = time.ticks_diff(time.ticks_ms(), t0)\n"
+    "print('F(100) iterative:', r)\n"
+    "print('  Time:', dt, 'ms')\n"
+    "print()\n"
+    "# Golden ratio approximation\n"
+    "a, b = fib_iter(30), fib_iter(29)\n"
+    "print('Golden ratio ~=', a / b)\n"
+    ,
+
+    /* 1: Prime Sieve */
+    "def sieve(limit):\n"
+    "    is_prime = [True] * (limit + 1)\n"
+    "    is_prime[0] = is_prime[1] = False\n"
+    "    for i in range(2, int(limit**0.5) + 1):\n"
+    "        if is_prime[i]:\n"
+    "            for j in range(i*i, limit+1, i):\n"
+    "                is_prime[j] = False\n"
+    "    return [i for i in range(limit+1) if is_prime[i]]\n"
+    "\n"
+    "import time\n"
+    "print('Sieve of Eratosthenes')\n"
+    "print('~' * 30)\n"
+    "t0 = time.ticks_ms()\n"
+    "primes = sieve(1000)\n"
+    "dt = time.ticks_diff(time.ticks_ms(), t0)\n"
+    "print('Primes up to 1000:', len(primes))\n"
+    "print('First 20:', primes[:20])\n"
+    "print('Last 10: ', primes[-10:])\n"
+    "print('Time:', dt, 'ms')\n"
+    "print()\n"
+    "# Twin primes\n"
+    "twins = [(p, p+2) for p in primes if p+2 in primes]\n"
+    "print('Twin primes:', len(twins))\n"
+    "print('First 8:', twins[:8])\n"
+    ,
+
+    /* 2: Classes & OOP */
+    "class Vector:\n"
+    "    def __init__(self, x, y):\n"
+    "        self.x = x\n"
+    "        self.y = y\n"
+    "    def __add__(self, o):\n"
+    "        return Vector(self.x+o.x, self.y+o.y)\n"
+    "    def __mul__(self, s):\n"
+    "        return Vector(self.x*s, self.y*s)\n"
+    "    def mag(self):\n"
+    "        return (self.x**2 + self.y**2)**0.5\n"
+    "    def __repr__(self):\n"
+    "        return 'Vec(%g,%g)' % (self.x, self.y)\n"
+    "\n"
+    "class Particle:\n"
+    "    def __init__(self, pos, vel):\n"
+    "        self.pos = pos\n"
+    "        self.vel = vel\n"
+    "    def step(self, dt):\n"
+    "        self.pos = self.pos + self.vel * dt\n"
+    "    def __repr__(self):\n"
+    "        return 'P@%s v=%s' % (self.pos, self.vel)\n"
+    "\n"
+    "print('Classes & OOP')\n"
+    "print('~' * 30)\n"
+    "v1 = Vector(3, 4)\n"
+    "v2 = Vector(1, -2)\n"
+    "print('v1 =', v1, ' |v1| =', '%.2f' % v1.mag())\n"
+    "print('v2 =', v2)\n"
+    "print('v1+v2 =', v1 + v2)\n"
+    "print('v1*3  =', v1 * 3)\n"
+    "print()\n"
+    "p = Particle(Vector(0,0), Vector(10,5))\n"
+    "print('Simulating particle:')\n"
+    "for i in range(5):\n"
+    "    p.step(0.1)\n"
+    "    print(' t=%.1f  %s' % ((i+1)*0.1, p))\n"
+    ,
+
+    /* 3: Generators & Functional */
+    "def countdown(n):\n"
+    "    while n > 0:\n"
+    "        yield n\n"
+    "        n -= 1\n"
+    "\n"
+    "def take(gen, n):\n"
+    "    result = []\n"
+    "    for x in gen:\n"
+    "        result.append(x)\n"
+    "        if len(result) >= n:\n"
+    "            break\n"
+    "    return result\n"
+    "\n"
+    "def collatz(n):\n"
+    "    seq = [n]\n"
+    "    while n != 1:\n"
+    "        n = n // 2 if n % 2 == 0 else 3 * n + 1\n"
+    "        seq.append(n)\n"
+    "    return seq\n"
+    "\n"
+    "print('Generators & Functional')\n"
+    "print('~' * 30)\n"
+    "print('Countdown:', list(countdown(5)))\n"
+    "print()\n"
+    "# Map/filter/reduce\n"
+    "nums = list(range(1, 11))\n"
+    "sq   = list(map(lambda x: x**2, nums))\n"
+    "evn  = list(filter(lambda x: x%2==0, sq))\n"
+    "print('Numbers:', nums)\n"
+    "print('Squared:', sq)\n"
+    "print('Even sq:', evn)\n"
+    "print()\n"
+    "# Collatz conjecture\n"
+    "for start in [7, 27]:\n"
+    "    c = collatz(start)\n"
+    "    print('Collatz(%d): %d steps' % (start, len(c)))\n"
+    "    print(' ', c[:12], '...' if len(c)>12 else '')\n"
+    ,
+
+    /* 4: Mandelbrot (ASCII art) */
+    "print('Mandelbrot Set')\n"
+    "print('~' * 30)\n"
+    "W, H = 38, 9\n"
+    "chars = ' .:-=+*#%@'\n"
+    "for row in range(H):\n"
+    "    y0 = (row / H) * 2.4 - 1.2\n"
+    "    line = ''\n"
+    "    for col in range(W):\n"
+    "        x0 = (col / W) * 3.5 - 2.5\n"
+    "        x, y, it = 0.0, 0.0, 0\n"
+    "        while x*x + y*y < 4 and it < 30:\n"
+    "            x, y = x*x - y*y + x0, 2*x*y + y0\n"
+    "            it += 1\n"
+    "        line += chars[min(it * len(chars) // 31, len(chars)-1)]\n"
+    "    print(line)\n"
+    "print()\n"
+    "print('x: [-2.5, 1.0]  y: [-1.2, 1.2]')\n"
+    "print('30 iterations, 38x9 chars')\n"
+    ,
+
+    /* 5: Badge Info */
+    "import sys\n"
+    "import gc\n"
+    "print('Badge System Info')\n"
+    "print('~' * 30)\n"
+    "print('MicroPython:', sys.version)\n"
+    "print('Platform:   ', sys.platform)\n"
+    "print('Byte order: ', sys.byteorder)\n"
+    "print('Max int:    ', sys.maxsize)\n"
+    "print()\n"
+    "gc.collect()\n"
+    "free = gc.mem_free()\n"
+    "used = gc.mem_alloc()\n"
+    "total = free + used\n"
+    "pct = used * 100 // total\n"
+    "print('Memory:')\n"
+    "print('  Total: %d bytes' % total)\n"
+    "print('  Used:  %d bytes (%d%%)' % (used, pct))\n"
+    "print('  Free:  %d bytes' % free)\n"
+    "bar_w = 20\n"
+    "filled = used * bar_w // total\n"
+    "print('  [' + '#'*filled + '.'*(bar_w-filled) + ']')\n"
+    "print()\n"
+    "# Feature test\n"
+    "features = []\n"
+    "try:\n"
+    "    1+1j\n"
+    "    features.append('complex')\n"
+    "except: pass\n"
+    "try:\n"
+    "    {1,2,3}\n"
+    "    features.append('set')\n"
+    "except: pass\n"
+    "try:\n"
+    "    b'\\x00'\n"
+    "    features.append('bytes')\n"
+    "except: pass\n"
+    "features.append('generators')\n"
+    "features.append('closures')\n"
+    "print('Features:', ', '.join(features))\n"
+    "print('Modules: ', list(sys.modules.keys()))\n"
+    ,
+};
+
+/* LED colour themes per demo */
+static const sk6812_color_t PY_DEMO_COLORS[PY_NUM_DEMOS] = {
+    {  0, 120,  60},  /* Fibonacci:  teal    */
+    {120,  80,   0},  /* Primes:     amber   */
+    { 80,   0, 120},  /* Classes:    purple  */
+    {  0,  60, 120},  /* Generators: blue    */
+    {120,   0,  40},  /* Mandelbrot: crimson */
+    {  0, 100,  20},  /* Badge info: green   */
+};
+
+/* Helper: count lines in a string */
+static int count_lines(const char *s)
+{
+    int n = 0;
+    while (*s) { if (*s == '\n') n++; s++; }
+    return n;
+}
+
+/* Helper: get pointer to line N (0-based) in a string */
+static const char *get_line(const char *s, int line_idx, int *out_len)
+{
+    int cur = 0;
+    while (cur < line_idx && *s) {
+        if (*s == '\n') cur++;
+        s++;
+    }
+    const char *start = s;
+    while (*s && *s != '\n') s++;
+    *out_len = (int)(s - start);
+    return start;
+}
+
+/* Task wrapper: interactive multi-demo Python showcase */
 static void python_demo_task(void *arg)
 {
     ESP_LOGI(TAG, "Python demo task started");
 
-    /* Draw "running" screen */
-    st7789_fill(0x0000);  /* black */
-    st7789_draw_string(10, 10, "MicroPython Demo", 0x07E0, 0x0000, 2);  /* green title */
-    st7789_draw_string(10, 40, "Running Python code...", 0xFFFF, 0x0000, 1);
-
-    /* Execute the Python demo */
-    int rc = micropython_run_code(PYTHON_DEMO_CODE);
-
-    /* Show result on display */
-    if (rc == 0) {
-        st7789_draw_string(10, 60, "Result: SUCCESS", 0x07E0, 0x0000, 1);   /* green */
-        st7789_draw_string(10, 80, "Sum 1..10 = 55", 0xFFFF, 0x0000, 1);
-        st7789_draw_string(10, 96, "Squares: [1,4,9,16,25]", 0xFFFF, 0x0000, 1);
-        st7789_draw_string(10, 112, "Badge: Disobey 2026", 0xFFFF, 0x0000, 1);
-        st7789_draw_string(10, 128, "CPU: ESP32-S3", 0xFFFF, 0x0000, 1);
-        st7789_draw_string(10, 150, "MicroPython is working!", 0x07E0, 0x0000, 1);
-    } else {
-        st7789_draw_string(10, 60, "Result: ERROR", 0xF800, 0x0000, 1);     /* red */
-        st7789_draw_string(10, 80, "Check serial console", 0xFFFF, 0x0000, 1);
+    char *capture_buf = heap_caps_malloc(PY_CAPTURE_SIZE, MALLOC_CAP_8BIT);
+    if (!capture_buf) {
+        ESP_LOGE(TAG, "Failed to allocate capture buffer");
+        atomic_store(&g_app_state, APP_STATE_MENU);
+        vTaskDelete(NULL);
+        return;
     }
 
-    /* Flash LEDs green briefly to celebrate */
-    if (rc == 0) {
-        sk6812_color_t green = {0, 60, 0};
-        sk6812_fill(green);
-        sk6812_show();
-        vTaskDelay(pdMS_TO_TICKS(500));
-        sk6812_clear();
-    }
+    int demo_idx = 0;
+    int scroll_offset = 0;
+    bool needs_run = true;
+    bool needs_draw = true;
+    int rc = 0;
+    int total_lines = 0;
 
-    ESP_LOGI(TAG, "Python demo task finished (rc=%d), waiting for user exit", rc);
+    /* Display lines: 170px height. Title=16px(scale2) + 2px gap + status=16px = 34px top.
+     * Bottom: "< B:exit >" = 16px. Usable: 170 - 34 - 16 = 120px => 7 lines at 16px */
+    const int DISPLAY_LINES = 7;
+    const int OUTPUT_Y_START = 36;
 
-    /* Stay in PYTHON_DEMO state until user presses a button (handled by input_task) */
     while (atomic_load(&g_app_state) == APP_STATE_PYTHON_DEMO) {
-        vTaskDelay(pdMS_TO_TICKS(100));
+        /* Run the current demo if needed */
+        if (needs_run) {
+            needs_run = false;
+            scroll_offset = 0;
+
+            /* Draw running screen */
+            st7789_fill(0x0000);
+            st7789_draw_string(10, 10, PY_DEMO_TITLES[demo_idx], 0x07E0, 0x0000, 2);
+
+            /* Show demo index */
+            char idx_str[16];
+            snprintf(idx_str, sizeof(idx_str), "[%d/%d]", demo_idx + 1, PY_NUM_DEMOS);
+            st7789_draw_string(320 - 8 * strlen(idx_str) - 4, 14, idx_str, 0x7BEF, 0x0000, 1);
+
+            st7789_draw_string(10, 40, "Running...", 0xFFE0, 0x0000, 1);
+
+            /* Set LED colour for this demo */
+            sk6812_color_t col = PY_DEMO_COLORS[demo_idx];
+            for (int i = 0; i < SK6812_LED_COUNT; i++) {
+                uint8_t bright = (i * 255) / SK6812_LED_COUNT;
+                sk6812_set(i, sk6812_scale(col, bright / 3 + 20));
+            }
+            sk6812_show();
+
+            /* Run with capture */
+            mp_hal_capture_start(capture_buf, PY_CAPTURE_SIZE);
+            rc = micropython_run_code(PY_DEMO_SCRIPTS[demo_idx]);
+            mp_hal_capture_stop();
+
+            total_lines = count_lines(capture_buf);
+            if (total_lines == 0 && capture_buf[0]) total_lines = 1;
+            needs_draw = true;
+        }
+
+        /* Draw output */
+        if (needs_draw) {
+            needs_draw = false;
+
+            st7789_fill(0x0000);
+
+            /* Title bar */
+            st7789_draw_string(10, 2, PY_DEMO_TITLES[demo_idx], 0x07E0, 0x0000, 2);
+            char idx_str[16];
+            snprintf(idx_str, sizeof(idx_str), "[%d/%d]", demo_idx + 1, PY_NUM_DEMOS);
+            st7789_draw_string(320 - 8 * strlen(idx_str) - 4, 6, idx_str, 0x7BEF, 0x0000, 1);
+
+            /* Status */
+            if (rc == 0) {
+                char status[32];
+                snprintf(status, sizeof(status), "OK  %d lines", total_lines);
+                st7789_draw_string(10, 20, status, 0x07E0, 0x0000, 1);
+            } else {
+                st7789_draw_string(10, 20, "ERROR - check serial", 0xF800, 0x0000, 1);
+            }
+
+            /* Output lines */
+            for (int i = 0; i < DISPLAY_LINES; i++) {
+                int line_idx = scroll_offset + i;
+                if (line_idx >= total_lines) break;
+
+                int len;
+                const char *line = get_line(capture_buf, line_idx, &len);
+
+                /* Truncate to screen width (40 chars at scale 1) */
+                char line_buf[41];
+                int show = (len > 40) ? 40 : len;
+                memcpy(line_buf, line, show);
+                line_buf[show] = '\0';
+
+                uint16_t color = 0xFFFF;  /* white */
+                /* Highlight title lines (starting with ~) in cyan */
+                if (show > 0 && line_buf[0] == '~') color = 0x07FF;
+
+                st7789_draw_string(4, OUTPUT_Y_START + i * 16, line_buf, color, 0x0000, 1);
+            }
+
+            /* Scroll indicator */
+            if (total_lines > DISPLAY_LINES) {
+                int bar_h = 120 * DISPLAY_LINES / total_lines;
+                if (bar_h < 8) bar_h = 8;
+                int bar_y = OUTPUT_Y_START;
+                if (total_lines > DISPLAY_LINES) {
+                    bar_y = OUTPUT_Y_START + (120 - bar_h) * scroll_offset / (total_lines - DISPLAY_LINES);
+                }
+                /* Draw thin scrollbar on right edge */
+                for (int y = bar_y; y < bar_y + bar_h && y < OUTPUT_Y_START + 120; y++) {
+                    st7789_draw_string(316, y, "|", 0x4208, 0x0000, 1);
+                }
+            }
+
+            /* Bottom nav bar */
+            st7789_draw_string(4, 156, "<", 0xFFE0, 0x0000, 1);
+            st7789_draw_string(100, 156, "B:exit", 0xF800, 0x0000, 1);
+            st7789_draw_string(220, 156, "U/D:scroll", 0x7BEF, 0x0000, 1);
+            st7789_draw_string(310, 156, ">", 0xFFE0, 0x0000, 1);
+        }
+
+        /* Poll buttons */
+        if (buttons_is_pressed(BTN_LEFT)) {
+            demo_idx = (demo_idx - 1 + PY_NUM_DEMOS) % PY_NUM_DEMOS;
+            needs_run = true;
+            while (buttons_is_pressed(BTN_LEFT)) vTaskDelay(pdMS_TO_TICKS(30));
+        }
+        if (buttons_is_pressed(BTN_RIGHT)) {
+            demo_idx = (demo_idx + 1) % PY_NUM_DEMOS;
+            needs_run = true;
+            while (buttons_is_pressed(BTN_RIGHT)) vTaskDelay(pdMS_TO_TICKS(30));
+        }
+        if (buttons_is_pressed(BTN_UP)) {
+            if (scroll_offset > 0) { scroll_offset--; needs_draw = true; }
+            vTaskDelay(pdMS_TO_TICKS(120));
+        }
+        if (buttons_is_pressed(BTN_DOWN)) {
+            if (scroll_offset < total_lines - DISPLAY_LINES) { scroll_offset++; needs_draw = true; }
+            vTaskDelay(pdMS_TO_TICKS(120));
+        }
+        if (buttons_is_pressed(BTN_B)) {
+            break;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 
+    /* Clean up */
+    heap_caps_free(capture_buf);
+    sk6812_clear();
+
+    ESP_LOGI(TAG, "Python demo exiting");
+    atomic_store(&g_app_state, APP_STATE_MENU);
+    request_redraw(DISP_CMD_REDRAW_FULL);
     vTaskDelete(NULL);
 }
 
@@ -366,9 +708,139 @@ static void action_python_demo(void) {
     ESP_LOGI(TAG, "Launching Python Demo...");
     atomic_store(&g_app_state, APP_STATE_PYTHON_DEMO);
 
-    /* Spawn a task with 24KB stack (MicroPython needs ≥16KB) */
-    xTaskCreatePinnedToCore(python_demo_task, "py_demo", 24576 / sizeof(StackType_t),
+    /* Spawn a task with 32KB stack (MicroPython needs ≥16KB + capture overhead) */
+    xTaskCreatePinnedToCore(python_demo_task, "py_demo", 32768 / sizeof(StackType_t),
                             NULL, 5, NULL, PRO_CPU_NUM);
+}
+
+/* ── Time/Date Setting ───────────────────────────────────────────────────── */
+
+/*
+ * Interactive time/date editor.
+ *
+ * Fields:  HOUR  MINUTE  YEAR  MONTH  DAY
+ * LEFT/RIGHT  – move cursor between fields
+ * UP/DOWN     – increment/decrement the selected field
+ * A           – confirm and apply
+ * B           – cancel and go back
+ */
+
+#define TD_NUM_FIELDS  5
+#define TD_FIELD_HOUR  0
+#define TD_FIELD_MIN   1
+#define TD_FIELD_YEAR  2
+#define TD_FIELD_MON   3
+#define TD_FIELD_DAY   4
+
+static int      s_td_fields[TD_NUM_FIELDS];     /* current values       */
+static int      s_td_cursor;                     /* selected field 0..4  */
+static bool     s_td_needs_draw;
+
+static const char *TD_LABELS[TD_NUM_FIELDS] = {
+    "Hour", "Min", "Year", "Month", "Day"
+};
+
+/* Days in month (handles leap year for year in s_td_fields[TD_FIELD_YEAR]) */
+static int td_days_in_month(int mon, int year) {
+    static const int dim[] = {31,28,31,30,31,30,31,31,30,31,30,31};
+    if (mon < 1 || mon > 12) return 31;
+    int d = dim[mon - 1];
+    if (mon == 2 && ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0))
+        d = 29;
+    return d;
+}
+
+static void td_clamp(void) {
+    if (s_td_fields[TD_FIELD_HOUR] < 0)  s_td_fields[TD_FIELD_HOUR] = 23;
+    if (s_td_fields[TD_FIELD_HOUR] > 23) s_td_fields[TD_FIELD_HOUR] = 0;
+    if (s_td_fields[TD_FIELD_MIN]  < 0)  s_td_fields[TD_FIELD_MIN]  = 59;
+    if (s_td_fields[TD_FIELD_MIN]  > 59) s_td_fields[TD_FIELD_MIN]  = 0;
+    if (s_td_fields[TD_FIELD_YEAR] < 2024) s_td_fields[TD_FIELD_YEAR] = 2030;
+    if (s_td_fields[TD_FIELD_YEAR] > 2030) s_td_fields[TD_FIELD_YEAR] = 2024;
+    if (s_td_fields[TD_FIELD_MON]  < 1)  s_td_fields[TD_FIELD_MON]  = 12;
+    if (s_td_fields[TD_FIELD_MON]  > 12) s_td_fields[TD_FIELD_MON]  = 1;
+    int max_day = td_days_in_month(s_td_fields[TD_FIELD_MON], s_td_fields[TD_FIELD_YEAR]);
+    if (s_td_fields[TD_FIELD_DAY] < 1)       s_td_fields[TD_FIELD_DAY] = max_day;
+    if (s_td_fields[TD_FIELD_DAY] > max_day) s_td_fields[TD_FIELD_DAY] = 1;
+}
+
+static void td_draw(void) {
+    st7789_fill(0x0000);
+
+    /* Title */
+    st7789_draw_string(60, 4, "Set Time & Date", 0x07E0, 0x0000, 2);
+
+    /* Decorative line */
+    st7789_fill_rect(0, 38, 320, 1, 0x4208);
+
+    /* ── Time row: HH : MM ── */
+    char buf[8];
+
+    /* Hour */
+    uint16_t h_fg = (s_td_cursor == TD_FIELD_HOUR) ? 0x0000 : 0xFFFF;
+    uint16_t h_bg = (s_td_cursor == TD_FIELD_HOUR) ? 0xFFE0 : 0x0000;
+    snprintf(buf, sizeof(buf), "%02d", s_td_fields[TD_FIELD_HOUR]);
+    st7789_draw_string(80, 50, buf, h_fg, h_bg, 4);
+
+    /* Colon */
+    st7789_draw_string(146, 50, ":", 0xFFFF, 0x0000, 4);
+
+    /* Minute */
+    uint16_t m_fg = (s_td_cursor == TD_FIELD_MIN) ? 0x0000 : 0xFFFF;
+    uint16_t m_bg = (s_td_cursor == TD_FIELD_MIN) ? 0xFFE0 : 0x0000;
+    snprintf(buf, sizeof(buf), "%02d", s_td_fields[TD_FIELD_MIN]);
+    st7789_draw_string(176, 50, buf, m_fg, m_bg, 4);
+
+    /* ── Date row: YYYY-MM-DD ── */
+    int y_x = 32;
+
+    /* Year */
+    uint16_t y_fg = (s_td_cursor == TD_FIELD_YEAR) ? 0x0000 : 0xB7E0;
+    uint16_t y_bg = (s_td_cursor == TD_FIELD_YEAR) ? 0x07FF : 0x0000;
+    snprintf(buf, sizeof(buf), "%04d", s_td_fields[TD_FIELD_YEAR]);
+    st7789_draw_string(y_x, 118, buf, y_fg, y_bg, 2);
+
+    st7789_draw_string(y_x + 64, 118, "-", 0xB7E0, 0x0000, 2);
+
+    /* Month */
+    uint16_t mo_fg = (s_td_cursor == TD_FIELD_MON) ? 0x0000 : 0xB7E0;
+    uint16_t mo_bg = (s_td_cursor == TD_FIELD_MON) ? 0x07FF : 0x0000;
+    snprintf(buf, sizeof(buf), "%02d", s_td_fields[TD_FIELD_MON]);
+    st7789_draw_string(y_x + 80, 118, buf, mo_fg, mo_bg, 2);
+
+    st7789_draw_string(y_x + 112, 118, "-", 0xB7E0, 0x0000, 2);
+
+    /* Day */
+    uint16_t d_fg = (s_td_cursor == TD_FIELD_DAY) ? 0x0000 : 0xB7E0;
+    uint16_t d_bg = (s_td_cursor == TD_FIELD_DAY) ? 0x07FF : 0x0000;
+    snprintf(buf, sizeof(buf), "%02d", s_td_fields[TD_FIELD_DAY]);
+    st7789_draw_string(y_x + 128, 118, buf, d_fg, d_bg, 2);
+
+    /* Field label */
+    st7789_draw_string(y_x + 176, 122, TD_LABELS[s_td_cursor], 0x7BEF, 0x0000, 1);
+
+    /* Navigation hints */
+    st7789_draw_string(4, 152, "U/D:adjust", 0x7BEF, 0x0000, 1);
+    st7789_draw_string(110, 152, "A:set", 0x07E0, 0x0000, 1);
+    st7789_draw_string(200, 152, "B:cancel", 0xF800, 0x0000, 1);
+}
+
+static void action_time_date_set(void) {
+    ESP_LOGI(TAG, "Launching Time/Date Setting...");
+
+    /* Read current system time into fields */
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    s_td_fields[TD_FIELD_HOUR] = t->tm_hour;
+    s_td_fields[TD_FIELD_MIN]  = t->tm_min;
+    s_td_fields[TD_FIELD_YEAR] = t->tm_year + 1900;
+    s_td_fields[TD_FIELD_MON]  = t->tm_mon + 1;
+    s_td_fields[TD_FIELD_DAY]  = t->tm_mday;
+    s_td_cursor = TD_FIELD_HOUR;
+    s_td_needs_draw = true;
+
+    atomic_store(&g_app_state, APP_STATE_TIME_DATE_SET);
+    request_redraw(DISP_CMD_REDRAW_FULL);
 }
 
 /* ── Rainbow helper ──────────────────────────────────────────────────────── */
@@ -748,8 +1220,14 @@ static void display_task(void *arg) {
             text_input_draw(&g_text_input_screen);
             vTaskDelay(pdMS_TO_TICKS(30));  /* ~33 FPS */
         } else if (state == APP_STATE_UI_TEST) {
-            /* UI test mode: continuous rendering */
+            /* UI test mode: continuous rendering, polls buttons internally */
             ui_test_screen_draw(&g_ui_test_screen);
+            if (ui_test_screen_wants_exit(&g_ui_test_screen)) {
+                ESP_LOGI(TAG, "Exiting UI test screen");
+                ui_test_screen_clear();
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            }
             vTaskDelay(pdMS_TO_TICKS(30));  /* ~33 FPS */
         } else if (state == APP_STATE_SENSOR_READOUT) {
             /* Sensor readout mode: continuous rendering */
@@ -876,6 +1354,13 @@ static void display_task(void *arg) {
         } else if (state == APP_STATE_PYTHON_DEMO) {
             /* Python demo: rendering is done by python_demo_task, just wait */
             vTaskDelay(pdMS_TO_TICKS(100));
+        } else if (state == APP_STATE_TIME_DATE_SET) {
+            /* Time/date setting: redraw on request */
+            if (s_td_needs_draw) {
+                s_td_needs_draw = false;
+                td_draw();
+            }
+            vTaskDelay(pdMS_TO_TICKS(50));
         } else {
             /* Unknown state: fallback to idle */
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -925,18 +1410,10 @@ static void input_task(void *arg) {
                 request_redraw(DISP_CMD_REDRAW_FULL);
             }
         } else if (state == APP_STATE_UI_TEST) {
-            /* UI test mode: handle button actions */
-            ui_test_screen_handle_button(&g_ui_test_screen, ev.id);
-            
-            /* Exit on SELECT or A (when not in a mode that uses them) */
-            if (ev.id == BTN_SELECT || ev.id == BTN_A) {
-                if (!g_ui_test_screen.updating) {
-                    ESP_LOGI(TAG, "Exiting UI test screen");
-                    ui_test_screen_clear();
-                    atomic_store(&g_app_state, APP_STATE_MENU);
-                    request_redraw(DISP_CMD_REDRAW_FULL);
-                }
-            }
+            /* UI test polls buttons internally via buttons_is_pressed().
+             * All button events are intentionally ignored here so every
+             * button can be tested without side-effects.
+             * Exit is detected in the draw loop via wants_exit flag. */
         } else if (state == APP_STATE_SENSOR_READOUT) {
             /* Sensor readout mode: any button exits back to menu */
             if (ev.id == BTN_SELECT || ev.id == BTN_A || ev.id == BTN_STICK ||
@@ -954,21 +1431,18 @@ static void input_task(void *arg) {
                 request_redraw(DISP_CMD_REDRAW_FULL);
             }
         } else if (state == APP_STATE_WLAN_SPECTRUM) {
-            /* WLAN spectrum mode: any button exits */
-            if (ev.id == BTN_SELECT || ev.id == BTN_A || ev.id == BTN_B ||
-                ev.id == BTN_UP || ev.id == BTN_DOWN || ev.id == BTN_LEFT || 
-                ev.id == BTN_RIGHT || ev.id == BTN_STICK) {
+            /* WLAN spectrum mode: B exits */
+            if (ev.id == BTN_B || ev.id == BTN_LEFT) {
                 ESP_LOGI(TAG, "Exiting WLAN spectrum analyzer");
                 wlan_spectrum_screen_exit();
                 atomic_store(&g_app_state, APP_STATE_MENU);
                 request_redraw(DISP_CMD_REDRAW_FULL);
             }
         } else if (state == APP_STATE_WLAN_LIST) {
-            /* WLAN list mode: handle scrolling */
+            /* WLAN list mode: UP/DOWN scroll, B exits */
             if (ev.id == BTN_UP || ev.id == BTN_DOWN) {
                 wlan_list_screen_handle_button(&g_wlan_list_screen, ev.id);
-            } else {
-                /* Any other button exits */
+            } else if (ev.id == BTN_B || ev.id == BTN_LEFT) {
                 ESP_LOGI(TAG, "Exiting WLAN networks list");
                 wlan_list_screen_exit();
                 atomic_store(&g_app_state, APP_STATE_MENU);
@@ -1042,10 +1516,49 @@ static void input_task(void *arg) {
             }
             /* Direction input is handled continuously in display_task */
         } else if (state == APP_STATE_PYTHON_DEMO) {
-            /* Python demo: any button exits back to menu */
-            ESP_LOGI(TAG, "Exiting Python Demo");
-            atomic_store(&g_app_state, APP_STATE_MENU);
-            request_redraw(DISP_CMD_REDRAW_FULL);
+            /* Python demo handles its own input via polling – ignore queue events */
+        } else if (state == APP_STATE_TIME_DATE_SET) {
+            /* Time/date setting: UP/DOWN adjust field, LEFT/RIGHT move cursor, A confirm, B cancel */
+            if (ev.id == BTN_UP) {
+                s_td_fields[s_td_cursor]++;
+                td_clamp();
+                s_td_needs_draw = true;
+            } else if (ev.id == BTN_DOWN) {
+                s_td_fields[s_td_cursor]--;
+                td_clamp();
+                s_td_needs_draw = true;
+            } else if (ev.id == BTN_LEFT) {
+                s_td_cursor = (s_td_cursor - 1 + TD_NUM_FIELDS) % TD_NUM_FIELDS;
+                s_td_needs_draw = true;
+            } else if (ev.id == BTN_RIGHT) {
+                s_td_cursor = (s_td_cursor + 1) % TD_NUM_FIELDS;
+                s_td_needs_draw = true;
+            } else if (ev.id == BTN_A || ev.id == BTN_START) {
+                /* Apply the new time */
+                struct tm new_time = {0};
+                new_time.tm_hour = s_td_fields[TD_FIELD_HOUR];
+                new_time.tm_min  = s_td_fields[TD_FIELD_MIN];
+                new_time.tm_sec  = 0;
+                new_time.tm_year = s_td_fields[TD_FIELD_YEAR] - 1900;
+                new_time.tm_mon  = s_td_fields[TD_FIELD_MON] - 1;
+                new_time.tm_mday = s_td_fields[TD_FIELD_DAY];
+                new_time.tm_isdst = -1;
+                time_t t = mktime(&new_time);
+                struct timeval tv = { .tv_sec = t, .tv_usec = 0 };
+                settimeofday(&tv, NULL);
+                ESP_LOGI(TAG, "System time set to %04d-%02d-%02d %02d:%02d",
+                         s_td_fields[TD_FIELD_YEAR], s_td_fields[TD_FIELD_MON],
+                         s_td_fields[TD_FIELD_DAY], s_td_fields[TD_FIELD_HOUR],
+                         s_td_fields[TD_FIELD_MIN]);
+                /* Reset idle screen so it picks up the new time */
+                idle_screen_reset();
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            } else if (ev.id == BTN_B) {
+                ESP_LOGI(TAG, "Time/date setting cancelled");
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            }
         } else {
             /* Menu mode */
             switch (ev.id) {
@@ -1135,6 +1648,24 @@ void app_main(void) {
     buttons_init(g_btn_queue);
     settings_init();
 
+    /* ── WiFi subsystem init (needed for spectrum/list screens) ── */
+    {
+        esp_err_t ret = nvs_flash_init();
+        if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+            ESP_ERROR_CHECK(nvs_flash_erase());
+            ret = nvs_flash_init();
+        }
+        ESP_ERROR_CHECK(ret);
+        ESP_ERROR_CHECK(esp_netif_init());
+        ESP_ERROR_CHECK(esp_event_loop_create_default());
+        esp_netif_create_default_wifi_sta();
+        wifi_init_config_t wifi_cfg = WIFI_INIT_CONFIG_DEFAULT();
+        ESP_ERROR_CHECK(esp_wifi_init(&wifi_cfg));
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+        ESP_ERROR_CHECK(esp_wifi_start());
+        ESP_LOGI(TAG, "WiFi STA started (ready for scanning)");
+    }
+
     /* ── Filesystem init for Python apps ── */
     esp_err_t fs_ret = pyapps_fs_init();
     if (fs_ret == ESP_OK) {
@@ -1156,7 +1687,6 @@ void app_main(void) {
     /* Diagnostics submenu */
     menu_init(&g_diag_menu, "Diagnostics");
     menu_add_item(&g_diag_menu, 'T', NULL, "UI Test", action_ui_test, NULL);
-    menu_add_item(&g_diag_menu, 'W', NULL, "WLAN Test", action_placeholder, NULL);
     menu_add_item(&g_diag_menu, 'S', NULL, "Sensor Readout", action_sensor_readout, NULL);
     menu_add_item(&g_diag_menu, 'V', NULL, "Signal Strength", action_signal_strength, NULL);
     menu_add_item(&g_diag_menu, 'Z', NULL, "WiFi Spectrum", action_wlan_spectrum, NULL);
@@ -1194,6 +1724,7 @@ void app_main(void) {
     menu_add_item(&g_settings_menu, 'c', NULL, "Accent Color", action_color_select, NULL);
     menu_add_item(&g_settings_menu, 't', NULL, "Text Color", action_text_color_select, NULL);
     menu_add_item(&g_settings_menu, 'L', NULL, "LED Animation", NULL, &g_led_menu);
+    menu_add_item(&g_settings_menu, 'T', NULL, "Set Time & Date", action_time_date_set, NULL);
 
     /* Development submenu */
     menu_init(&g_dev_menu, "Development");

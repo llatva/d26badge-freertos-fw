@@ -22,7 +22,7 @@ void about_screen_draw(void) {
     
     /* Body */
     st7789_draw_string(4, 45, "Disobey Badge 2025/26", TEXT, COLOR_BG, 1);
-    st7789_draw_string(4, 60, "Firmware: v0.5.1 (FreeRTOS)", TEXT, COLOR_BG, 1);
+    st7789_draw_string(4, 60, "FW: v0.6.1 (FreeRTOS) by hzb", TEXT, COLOR_BG, 1);
     
     st7789_draw_string(4, 75, "Hardware:", ACCENT, COLOR_BG, 1);
     st7789_draw_string(4, 88, "- ESP32-S3 (WROOM-1-N16R8)", TEXT, COLOR_BG, 1);

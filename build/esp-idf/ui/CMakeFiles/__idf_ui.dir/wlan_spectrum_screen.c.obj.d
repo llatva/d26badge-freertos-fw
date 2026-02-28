@@ -116,7 +116,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj: \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_driver_gpio/include/driver/gpio_etm.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_etm.h \
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/badge_settings.h \
- /home/llatva/git/d26badge-freertos-fw/components/buttons/include/buttons.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/esp_wifi.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/esp_wifi_types.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_wifi/include/esp_wifi_types_generic.h \
@@ -133,9 +132,6 @@ esp-idf/ui/CMakeFiles/__idf_ui.dir/wlan_spectrum_screen.c.obj: \
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/machine/_endian.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_types.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_netif/include/esp_netif_defaults.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs_flash.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/nvs_flash/include/nvs.h \
- /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_partition/include/esp_partition.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_config.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_level.h \

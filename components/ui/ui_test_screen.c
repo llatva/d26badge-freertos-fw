@@ -1,236 +1,203 @@
 /*
- * UI Test screen implementation – tests LEDs, buttons, display
+ * UI Test screen – comprehensive hardware testing for Disobey Badge 2025/26.
+ *
+ * Single screen that tests everything at once:
+ *
+ *   ┌──────────────────────────────────────────────┐  y=0
+ *   │  "HW TEST"  title + "B+START=exit"           │
+ *   ├──────────────────────────────────────────────┤  y=18
+ *   │  6 colour bars  R G B Y M C                  │  y=18..57  (6×7px)
+ *   ├──────────────────────────────────────────────┤  y=60
+ *   │  "BUTTONS:" label                            │  y=62
+ *   │  ┌──────┐  ┌──────┐  ┌──────┐  … 9 boxes    │  y=78..164
+ *   │  │  UP  │  │ DOWN │  │ LEFT │  etc.          │
+ *   │  └──────┘  └──────┘  └──────┘                │
+ *   └──────────────────────────────────────────────┘
+ *
+ *   Button boxes light up in accent colour when pressed.
+ *   LEDs cycle through a rainbow on the SK6812 chain.
+ *   Exit: press B + START simultaneously.
+ *
+ *   Incremental redraw: only buttons that changed state are redrawn.
+ *   First frame draws everything.
  */
 
 #include "ui_test_screen.h"
 #include "st7789.h"
 #include "sk6812.h"
 #include "buttons.h"
-#include "esp_log.h"
 #include <string.h>
-#include <stdio.h>
-#include <math.h>
 
-#define TAG "ui_test"
+/* ── Colours ─────────────────────────────────────────────────────────────── */
+#define COL_BG       0x0000u   /* black */
+#define COL_WHITE    0xFFFFu
+#define COL_GRAY     0x4208u   /* dim gray for inactive button box */
+#define COL_DK_GRAY  0x2104u   /* darker gray for box text when inactive */
+#define COL_GREEN    0x07E0u   /* bright green for pressed button */
+#define COL_ACCENT   0x07FFu   /* cyan accent for pressed button */
+#define COL_RED      0xF800u
+#define COL_BLUE     0x001Fu
+#define COL_YELLOW   0xFFE0u
+#define COL_MAGENTA  0xF81Fu
+#define COL_CYAN     0x07FFu
 
-/* Colors */
-#define COLOR_BG        0x0000  /* Black */
-#define COLOR_TEXT      0xFFFF  /* White */
+/* ── Layout constants ────────────────────────────────────────────────────── */
+#define TITLE_Y         1
+#define BAR_Y           20
+#define BAR_H           6
+#define BAR_GAP         1
+#define NUM_BARS        6
 
-/* Helper: scale an RGB565 color by a percentage (0-255) */
-static inline uint16_t scale_rgb565(uint16_t color, uint8_t scale_pct) {
-    /* Clamp scale_pct to 0-255 */
-    if (scale_pct > 255) scale_pct = 255;
-    
-    /* Extract RGB565 components */
-    uint8_t r = (color >> 11) & 0x1F;
-    uint8_t g = (color >> 5) & 0x3F;
-    uint8_t b = color & 0x1F;
-    
-    /* Scale each component (scale_pct is 0-255, so divide by 255) */
-    r = (r * scale_pct) / 255;
-    g = (g * scale_pct) / 255;
-    b = (b * scale_pct) / 255;
-    
-    /* Repack as RGB565 */
-    return (r << 11) | (g << 5) | b;
+#define BTN_LABEL_Y     62
+#define BTN_AREA_Y      78
+
+/* Button box dimensions — 3 columns × 3 rows */
+#define BOX_COLS        5
+#define BOX_ROWS        2
+#define BOX_W           58
+#define BOX_H           40
+#define BOX_PAD_X       6      /* horizontal gap */
+#define BOX_PAD_Y       5      /* vertical gap */
+#define BOX_X_START     3      /* left margin */
+
+/* Button ordering in the grid (matches visual layout) */
+/* Row 0: UP  DOWN  LEFT  RIGHT  STICK */
+/* Row 1: A   B     START SELECT       */
+static const uint8_t btn_grid[BOX_ROWS][BOX_COLS] = {
+    { BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_STICK },
+    { BTN_A,  BTN_B,    BTN_START, BTN_SELECT, 0xFF /* empty */ }
+};
+
+static const char *btn_names[] = {
+    "UP", "DOWN", "LEFT", "RIGHT", "STICK",
+    "A", "B", "START", "SELECT"
+};
+
+/* Colour bar colours */
+static const uint16_t bar_colors[NUM_BARS] = {
+    COL_RED, 0x07E0, COL_BLUE, COL_YELLOW, COL_MAGENTA, COL_CYAN
+};
+
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
+
+static void draw_button_box(uint8_t row, uint8_t col, uint8_t btn_id, bool pressed) {
+    uint16_t x = BOX_X_START + col * (BOX_W + BOX_PAD_X);
+    uint16_t y = BTN_AREA_Y + row * (BOX_H + BOX_PAD_Y);
+
+    uint16_t bg = pressed ? COL_GREEN : COL_GRAY;
+    uint16_t fg = pressed ? COL_BG   : COL_DK_GRAY;
+
+    /* Fill box */
+    st7789_fill_rect(x, y, BOX_W, BOX_H, bg);
+
+    /* Draw 1px border (brighter when pressed) */
+    uint16_t border = pressed ? COL_WHITE : COL_DK_GRAY;
+    st7789_fill_rect(x, y, BOX_W, 1, border);                   /* top */
+    st7789_fill_rect(x, y + BOX_H - 1, BOX_W, 1, border);      /* bottom */
+    st7789_fill_rect(x, y, 1, BOX_H, border);                   /* left */
+    st7789_fill_rect(x + BOX_W - 1, y, 1, BOX_H, border);      /* right */
+
+    /* Centre the label inside the box */
+    const char *name = btn_names[btn_id];
+    uint8_t len = (uint8_t)strlen(name);
+    uint16_t tx = x + (BOX_W - len * 8) / 2;
+    uint16_t ty = y + (BOX_H - 16) / 2;
+    st7789_draw_string(tx, ty, name, fg, bg, 1);
 }
 
-/* Test modes */
-#define TEST_MODE_LED_RAINBOW   0
-#define TEST_MODE_LED_INDIVIDUAL 1
-#define TEST_MODE_COLOR_PATTERNS 2
-#define TEST_MODE_BUTTON_TEST   3
-#define NUM_TEST_MODES  4
-
-static uint8_t s_last_button = 0xFF;
-static const char *s_button_names[] = {
-    "UP", "DOWN", "LEFT", "RIGHT", "STICK", "A", "B", "START", "SELECT"
-};
+/* ── Public API ──────────────────────────────────────────────────────────── */
 
 void ui_test_screen_init(ui_test_screen_t *screen) {
     memset(screen, 0, sizeof(*screen));
-    screen->mode = TEST_MODE_LED_RAINBOW;
-    screen->frame_count = 0;
-}
-
-const char *ui_test_get_button_name(int button_id) {
-    if (button_id >= 0 && button_id < 9) {
-        return s_button_names[button_id];
-    }
-    return "???";
-}
-
-void ui_test_screen_handle_button(ui_test_screen_t *screen, int button_id) {
-    if (button_id == BTN_SELECT || button_id == BTN_A) {
-        /* Exit test */
-        screen->updating = false;
-        return;
-    }
-    
-    if (button_id == BTN_RIGHT || button_id == BTN_DOWN) {
-        /* Next test mode */
-        screen->mode = (screen->mode + 1) % NUM_TEST_MODES;
-        screen->phase = 0;
-        screen->frame_count = 0;
-        ESP_LOGI(TAG, "Switched to test mode %d", screen->mode);
-    } else if (button_id == BTN_LEFT || button_id == BTN_UP) {
-        /* Previous test mode */
-        screen->mode = (screen->mode == 0) ? (NUM_TEST_MODES - 1) : (screen->mode - 1);
-        screen->phase = 0;
-        screen->frame_count = 0;
-        ESP_LOGI(TAG, "Switched to test mode %d", screen->mode);
-    } else {
-        /* Record which button was pressed */
-        s_last_button = button_id;
-    }
-}
-
-static void draw_led_rainbow(ui_test_screen_t *screen) {
-    st7789_fill(COLOR_BG);
-    st7789_draw_string(4, 10, "LED Test: Rainbow", COLOR_TEXT, COLOR_BG, 1);
-    st7789_draw_string(4, 30, "Cycling rainbow through LEDs", COLOR_TEXT, COLOR_BG, 1);
-
-    /* Draw LED representation */
-    for (uint8_t i = 0; i < SK6812_LED_COUNT; i++) {
-        uint8_t hue = ((i * 32 + screen->phase) & 0xFF);
-        
-        /* Simple HSV to RGB conversion */
-        uint8_t region = hue / 43;
-        uint8_t remainder = (hue % 43) * 6;
-        
-        uint8_t r = 0, g = 0, b = 0;
-        switch (region) {
-            case 0: r = 255; g = remainder; break;
-            case 1: r = 255 - remainder; g = 255; break;
-            case 2: g = 255; b = remainder; break;
-            case 3: g = 255 - remainder; b = 255; break;
-            case 4: r = remainder; b = 255; break;
-            case 5: r = 255; b = 255 - remainder; break;
-        }
-        
-        /* Draw LED as small square */
-        uint16_t x = 10 + (i % 4) * 35;
-        uint16_t y = 55 + (i / 4) * 25;
-        uint16_t color = (((r >> 3) & 0x1F) << 11) | (((g >> 2) & 0x3F) << 5) | ((b >> 3) & 0x1F);
-        st7789_fill_rect(x, y, 30, 20, color);
-        
-        char buf[4];
-        snprintf(buf, sizeof(buf), "%d", i);
-        st7789_draw_string(x + 8, y + 5, buf, COLOR_BG, color, 1);
-    }
-
-    st7789_draw_string(4, 155, "LEFT/UP: prev  RIGHT/DOWN: next  SELECT: exit", COLOR_TEXT, COLOR_BG, 1);
-    screen->phase++;
-}
-
-static void draw_led_individual(ui_test_screen_t *screen) {
-    st7789_fill(COLOR_BG);
-    st7789_draw_string(4, 10, "LED Test: Individual", COLOR_TEXT, COLOR_BG, 1);
-    st7789_draw_string(4, 30, "Each LED glows in sequence", COLOR_TEXT, COLOR_BG, 1);
-
-    uint8_t active_led = screen->phase % SK6812_LED_COUNT;
-    
-    /* Draw LED grid with one glowing */
-    for (uint8_t i = 0; i < SK6812_LED_COUNT; i++) {
-        uint16_t x = 10 + (i % 4) * 35;
-        uint16_t y = 55 + (i / 4) * 25;
-        
-        uint16_t color;
-        if (i == active_led) {
-            /* Active LED: bright white */
-            color = 0xFFFF;
-        } else {
-            /* Inactive LED: dim gray */
-            color = 0x4208;
-        }
-        
-        st7789_fill_rect(x, y, 30, 20, color);
-        
-        char buf[4];
-        snprintf(buf, sizeof(buf), "%d", i);
-        st7789_draw_string(x + 8, y + 5, buf, COLOR_BG, color, 1);
-    }
-
-    st7789_draw_string(4, 155, "LEFT/UP: prev  RIGHT/DOWN: next  SELECT: exit", COLOR_TEXT, COLOR_BG, 1);
-    screen->phase++;
-}
-
-static void draw_color_patterns(ui_test_screen_t *screen) {
-    st7789_fill(COLOR_BG);
-    st7789_draw_string(4, 10, "Display Test: Color Patterns", COLOR_TEXT, COLOR_BG, 1);
-
-    uint8_t pattern = (screen->phase / 20) % 6;
-    
-    uint16_t y_start = 35;
-    uint16_t h_per_pattern = (170 - y_start - 20) / 6;
-    
-    static const uint16_t colors[] = {
-        0xF800, /* Red */
-        0x07E0, /* Green */
-        0x001F, /* Blue */
-        0xFFE0, /* Yellow */
-        0xF81F, /* Magenta */
-        0x07FF  /* Cyan */
-    };
-    
-    for (uint8_t i = 0; i < 6; i++) {
-        uint16_t y = y_start + i * h_per_pattern;
-        uint16_t color = colors[i];
-        
-        /* Add brightness modulation to active pattern */
-        if (i == pattern) {
-            uint8_t brightness = 100 + (int8_t)(55 * sinf(screen->phase / 10.0f));
-            color = scale_rgb565(color, brightness);
-        }
-        
-        st7789_fill_rect(0, y, 320, h_per_pattern, color);
-    }
-
-    st7789_draw_string(4, 150, "TV test pattern. LEFT/UP/RIGHT/DOWN: prev/next", COLOR_BG, COLOR_BG, 1);
-    screen->phase++;
-}
-
-static void draw_button_test(ui_test_screen_t *screen) {
-    st7789_fill(COLOR_BG);
-    st7789_draw_string(4, 10, "Button Test", COLOR_TEXT, COLOR_BG, 1);
-
-    st7789_draw_string(4, 35, "Press any button to test", COLOR_TEXT, COLOR_BG, 1);
-    
-    if (s_last_button != 0xFF) {
-        const char *btn_name = ui_test_get_button_name(s_last_button);
-        char buf[32];
-        snprintf(buf, sizeof(buf), "Last pressed: %s", btn_name);
-        st7789_draw_string(4, 55, buf, 0x07E0, COLOR_BG, 2);
-    }
-
-    /* Draw button layout visualization */
-    st7789_draw_string(4, 90, "Keypad Layout:", COLOR_TEXT, COLOR_BG, 1);
-    st7789_draw_string(4, 105, "  UP DOWN LEFT RIGHT    [STICK]", COLOR_TEXT, COLOR_BG, 1);
-    st7789_draw_string(4, 120, "  A    B    START SELECT", COLOR_TEXT, COLOR_BG, 1);
-
-    st7789_draw_string(4, 150, "LEFT/UP: prev mode  RIGHT/DOWN: next  SELECT: exit", COLOR_TEXT, COLOR_BG, 1);
+    screen->needs_full_draw = true;
+    screen->wants_exit = false;
+    /* Set btn_prev to all-0xFF so every button is "dirty" on first frame */
+    memset(screen->btn_prev, 0xFF, sizeof(screen->btn_prev));
 }
 
 void ui_test_screen_draw(ui_test_screen_t *screen) {
-    switch (screen->mode) {
-    case TEST_MODE_LED_RAINBOW:
-        draw_led_rainbow(screen);
-        break;
-    case TEST_MODE_LED_INDIVIDUAL:
-        draw_led_individual(screen);
-        break;
-    case TEST_MODE_COLOR_PATTERNS:
-        draw_color_patterns(screen);
-        break;
-    case TEST_MODE_BUTTON_TEST:
-        draw_button_test(screen);
-        break;
+    /* ── 1. Poll all buttons ─────────────────────────────────────────── */
+    for (uint8_t i = 0; i < BTN_COUNT; i++) {
+        screen->btn_state[i] = buttons_is_pressed((btn_id_t)i);
     }
-    
-    screen->frame_count++;
+
+    /* ── 2. Check exit combo: B + START held simultaneously ────────── */
+    if (screen->btn_state[BTN_B] && screen->btn_state[BTN_START]) {
+        screen->wants_exit = true;
+        return;
+    }
+
+    bool full = screen->needs_full_draw;
+
+    /* ── 3. Full draw: static elements ───────────────────────────────── */
+    if (full) {
+        st7789_fill(COL_BG);
+
+        /* Title */
+        st7789_draw_string(4, TITLE_Y, "HW TEST", COL_WHITE, COL_BG, 1);
+        st7789_draw_string(170, TITLE_Y, "Hold B+START = exit", COL_DK_GRAY, COL_BG, 1);
+
+        /* Colour bars (static — drawn once) */
+        uint16_t bar_total_h = NUM_BARS * BAR_H + (NUM_BARS - 1) * BAR_GAP;
+        (void)bar_total_h;
+        for (uint8_t i = 0; i < NUM_BARS; i++) {
+            uint16_t y = BAR_Y + i * (BAR_H + BAR_GAP);
+            st7789_fill_rect(0, y, ST7789_WIDTH, BAR_H, bar_colors[i]);
+        }
+
+        /* "BUTTONS:" label */
+        st7789_draw_string(4, BTN_LABEL_Y, "BUTTONS:", COL_WHITE, COL_BG, 1);
+
+        screen->needs_full_draw = false;
+    }
+
+    /* ── 4. Draw button boxes (incremental) ─────────────────────────── */
+    for (uint8_t row = 0; row < BOX_ROWS; row++) {
+        for (uint8_t col = 0; col < BOX_COLS; col++) {
+            uint8_t btn_id = btn_grid[row][col];
+            if (btn_id == 0xFF) continue;  /* empty cell */
+
+            bool pressed = screen->btn_state[btn_id];
+            bool prev    = screen->btn_prev[btn_id];
+
+            /* Only redraw if state changed (or first frame) */
+            if (full || pressed != prev) {
+                draw_button_box(row, col, btn_id, pressed);
+            }
+        }
+    }
+
+    /* ── 5. Drive SK6812 LEDs with rainbow ──────────────────────────── */
+    for (uint8_t i = 0; i < SK6812_LED_COUNT; i++) {
+        uint8_t hue = (uint8_t)(i * (256 / SK6812_LED_COUNT) + screen->phase);
+        uint8_t region = hue / 43;
+        uint8_t rem    = (hue % 43) * 6;
+        uint8_t r = 0, g = 0, b = 0;
+        switch (region) {
+            case 0: r = 255; g = rem;         break;
+            case 1: r = 255 - rem; g = 255;   break;
+            case 2: g = 255; b = rem;         break;
+            case 3: g = 255 - rem; b = 255;   break;
+            case 4: r = rem; b = 255;         break;
+            default: r = 255; b = 255 - rem;  break;
+        }
+        /* Dim to ~25% brightness so it's not blinding */
+        sk6812_set(i, (sk6812_color_t){ r / 4, g / 4, b / 4 });
+    }
+    sk6812_show();
+
+    /* ── 6. Save state for next frame ────────────────────────────────── */
+    memcpy(screen->btn_prev, screen->btn_state, sizeof(screen->btn_prev));
+    screen->phase += 2;
+}
+
+bool ui_test_screen_wants_exit(const ui_test_screen_t *screen) {
+    return screen->wants_exit;
 }
 
 void ui_test_screen_clear(void) {
+    /* Turn off LEDs */
+    sk6812_clear();
+    sk6812_show();
     st7789_fill(0x0000);
 }

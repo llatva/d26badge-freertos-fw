@@ -1,5 +1,7 @@
 /*
  * WLAN Networks List screen – shows detected WiFi networks
+ *
+ * WiFi must be initialised in STA mode before using this screen.
  */
 
 #pragma once
@@ -9,7 +11,7 @@
 #include "esp_wifi.h"
 
 /* Maximum number of WiFi networks to track */
-#define MAX_WLAN_NETWORKS 50
+#define MAX_WLAN_NETWORKS 32
 
 /* WiFi network information */
 typedef struct {
@@ -19,11 +21,13 @@ typedef struct {
     wifi_auth_mode_t auth;   /* Authentication mode */
 } wlan_network_info_t;
 
-/* Screen for displaying WiFi networks list */
+/* Screen state */
 typedef struct {
-    wlan_network_info_t networks[MAX_WLAN_NETWORKS];  /* Detected networks */
-    uint16_t num_networks;                             /* Number of detected networks */
-    uint8_t scroll_offset;                             /* Scroll position */
+    wlan_network_info_t networks[MAX_WLAN_NETWORKS];
+    uint16_t num_networks;
+    uint8_t  scroll_offset;
+    bool     needs_full_draw;
+    bool     scan_done;       /* true after first scan completes */
 } wlan_list_screen_t;
 
 /**

@@ -1,5 +1,7 @@
 /*
  * WLAN Spectrum Analyzer screen – displays WiFi channels and signal strength
+ *
+ * WiFi must be initialised in STA mode before using this screen.
  */
 
 #pragma once
@@ -10,11 +12,12 @@
 /* Maximum number of WiFi channels to display */
 #define MAX_WIFI_CHANNELS 14
 
-/* Screen for displaying WiFi channel spectrum */
+/* Screen state */
 typedef struct {
-    int8_t channel_rssi[MAX_WIFI_CHANNELS];   /* Signal strength per channel in dBm */
-    uint32_t frame_count;                      /* Frames rendered */
-    uint8_t num_channels;                      /* Number of channels to display */
+    int8_t   channel_rssi[MAX_WIFI_CHANNELS];  /* best RSSI per channel (dBm) */
+    uint32_t frame_count;
+    uint8_t  num_channels;                     /* always 13 for 2.4 GHz */
+    bool     needs_full_draw;
 } wlan_spectrum_screen_t;
 
 /**
