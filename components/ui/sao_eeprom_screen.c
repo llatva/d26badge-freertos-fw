@@ -2,7 +2,7 @@
  * SAO EEPROM screen – reads I2C EEPROM at 0x50 and displays hex + ASCII dump.
  *
  * Uses ESP-IDF new I2C master API (v5.x).
- * GPIO9 = SDA, GPIO10 = SCL  (standard SAO connector on Disobey badge).
+ * GPIO10 = SDA, GPIO9 = SCL  (standard SAO connector on Disobey badge).
  *
  * The screen reads 256 bytes on init, then displays them in a scrollable
  * hex-dump view:  ADDR  HH HH HH HH HH HH HH HH  CCCCCCCC
@@ -20,8 +20,8 @@
 #define TAG "sao_eeprom"
 
 /* ── I2C configuration ───────────────────────────────────────────────────── */
-#define SAO_I2C_SDA_PIN      GPIO_NUM_9
-#define SAO_I2C_SCL_PIN      GPIO_NUM_10
+#define SAO_I2C_SDA_PIN      GPIO_NUM_10
+#define SAO_I2C_SCL_PIN      GPIO_NUM_9
 #define SAO_I2C_FREQ_HZ      100000       /* 100 kHz – safe for any EEPROM */
 #define SAO_EEPROM_ADDR      0x50         /* 7-bit address of AT24Cxx etc. */
 #define SAO_I2C_TIMEOUT_MS   100
@@ -133,7 +133,7 @@ void sao_eeprom_screen_draw(sao_eeprom_screen_t *scr)
         /* Error state */
         st7789_draw_string(4, 40, "No SAO EEPROM found", COLOR_ERR, COLOR_BG, 1);
         st7789_draw_string(4, 60, scr->error_msg, COLOR_ERR, COLOR_BG, 1);
-        st7789_draw_string(4, 90, "Addr: 0x50 (SDA=9 SCL=10)", 0x7BEF, COLOR_BG, 1);
+        st7789_draw_string(4, 90, "Addr: 0x50 (SDA=10 SCL=9)", 0x7BEF, COLOR_BG, 1);
         st7789_draw_string(4, 154, "B: back", ACCENT, COLOR_BG, 1);
         return;
     }
