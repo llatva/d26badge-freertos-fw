@@ -12,6 +12,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/llatva/git/d26badge-freertos-fw/components/ui/badge_settings.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/badge_settings.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/badge_settings.c.obj.d"
   "/home/llatva/git/d26badge-freertos-fw/components/ui/color_select_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/color_select_screen.c.obj.d"
   "/home/llatva/git/d26badge-freertos-fw/components/ui/idle_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/idle_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/idle_screen.c.obj.d"
+  "/home/llatva/git/d26badge-freertos-fw/components/ui/sao_eeprom_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/sao_eeprom_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/sao_eeprom_screen.c.obj.d"
   "/home/llatva/git/d26badge-freertos-fw/components/ui/sensor_readout_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/sensor_readout_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/sensor_readout_screen.c.obj.d"
   "/home/llatva/git/d26badge-freertos-fw/components/ui/signal_strength_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/signal_strength_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/signal_strength_screen.c.obj.d"
   "/home/llatva/git/d26badge-freertos-fw/components/ui/text_input_screen.c" "esp-idf/ui/CMakeFiles/__idf_ui.dir/text_input_screen.c.obj" "gcc" "esp-idf/ui/CMakeFiles/__idf_ui.dir/text_input_screen.c.obj.d"

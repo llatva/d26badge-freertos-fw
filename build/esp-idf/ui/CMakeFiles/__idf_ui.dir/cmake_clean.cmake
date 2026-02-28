@@ -7,6 +7,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/__idf_ui.dir/color_select_screen.c.obj.d"
   "CMakeFiles/__idf_ui.dir/idle_screen.c.obj"
   "CMakeFiles/__idf_ui.dir/idle_screen.c.obj.d"
+  "CMakeFiles/__idf_ui.dir/sao_eeprom_screen.c.obj"
+  "CMakeFiles/__idf_ui.dir/sao_eeprom_screen.c.obj.d"
   "CMakeFiles/__idf_ui.dir/sensor_readout_screen.c.obj"
   "CMakeFiles/__idf_ui.dir/sensor_readout_screen.c.obj.d"
   "CMakeFiles/__idf_ui.dir/signal_strength_screen.c.obj"

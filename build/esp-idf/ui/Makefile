@@ -271,6 +271,30 @@ idle_screen.c.s:
 	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/ui/CMakeFiles/__idf_ui.dir/build.make esp-idf/ui/CMakeFiles/__idf_ui.dir/idle_screen.c.s
 .PHONY : idle_screen.c.s
 
+sao_eeprom_screen.obj: sao_eeprom_screen.c.obj
+.PHONY : sao_eeprom_screen.obj
+
+# target to build an object file
+sao_eeprom_screen.c.obj:
+	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/ui/CMakeFiles/__idf_ui.dir/build.make esp-idf/ui/CMakeFiles/__idf_ui.dir/sao_eeprom_screen.c.obj
+.PHONY : sao_eeprom_screen.c.obj
+
+sao_eeprom_screen.i: sao_eeprom_screen.c.i
+.PHONY : sao_eeprom_screen.i
+
+# target to preprocess a source file
+sao_eeprom_screen.c.i:
+	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/ui/CMakeFiles/__idf_ui.dir/build.make esp-idf/ui/CMakeFiles/__idf_ui.dir/sao_eeprom_screen.c.i
+.PHONY : sao_eeprom_screen.c.i
+
+sao_eeprom_screen.s: sao_eeprom_screen.c.s
+.PHONY : sao_eeprom_screen.s
+
+# target to generate assembly for a file
+sao_eeprom_screen.c.s:
+	cd /home/llatva/git/d26badge-freertos-fw/build && $(MAKE) $(MAKESILENT) -f esp-idf/ui/CMakeFiles/__idf_ui.dir/build.make esp-idf/ui/CMakeFiles/__idf_ui.dir/sao_eeprom_screen.c.s
+.PHONY : sao_eeprom_screen.c.s
+
 sensor_readout_screen.obj: sensor_readout_screen.c.obj
 .PHONY : sensor_readout_screen.obj
 
@@ -440,6 +464,9 @@ help:
 	@echo "... idle_screen.obj"
 	@echo "... idle_screen.i"
 	@echo "... idle_screen.s"
+	@echo "... sao_eeprom_screen.obj"
+	@echo "... sao_eeprom_screen.i"
+	@echo "... sao_eeprom_screen.s"
 	@echo "... sensor_readout_screen.obj"
 	@echo "... sensor_readout_screen.i"
 	@echo "... sensor_readout_screen.s"

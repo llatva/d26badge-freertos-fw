@@ -55,6 +55,7 @@
 #include "snake.h"              /* Snake game */
 #include "micropython_runner.h"  /* MicroPython integration */
 #include "pyapps_fs.h"          /* Python apps filesystem */
+#include "sao_eeprom_screen.h"  /* SAO EEPROM reader */
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -120,6 +121,7 @@ typedef enum {
     APP_STATE_SNAKE,
     APP_STATE_PYTHON_DEMO,
     APP_STATE_TIME_DATE_SET,
+    APP_STATE_SAO_EEPROM,
 } app_state_t;
 
 static atomic_int g_app_state = APP_STATE_IDLE;
@@ -162,6 +164,7 @@ static signal_strength_screen_t g_signal_screen;
 static wlan_spectrum_screen_t g_wlan_spectrum_screen;
 static wlan_list_screen_t g_wlan_list_screen;
 static color_select_screen_t g_color_screen;  /* New color select screen */
+static sao_eeprom_screen_t g_sao_screen;      /* SAO EEPROM reader screen */
 static bool g_hacky_bird_game_over = false;   /* Flag for game over state */
 
 /* ── Forward declarations ────────────────────────────────────────────────── */
@@ -183,6 +186,7 @@ static void action_space_shooter(void); /* Space Shooter game */
 static void action_snake(void);         /* Snake game */
 static void action_python_demo(void);   /* Python demo */
 static void action_time_date_set(void); /* Time/date setting */
+static void action_sao_eeprom(void);   /* SAO EEPROM reader */
 
 /* ── Menu action callbacks ───────────────────────────────────────────────── */
 static void action_led_off(void)      { atomic_store(&g_led_mode, LED_MODE_OFF);      }
@@ -228,6 +232,12 @@ static void action_sensor_readout(void) {
     ESP_LOGI(TAG, "Launching Sensor Readout...");
     atomic_store(&g_app_state, APP_STATE_SENSOR_READOUT);
     sensor_readout_screen_init(&g_sensor_screen);
+}
+
+static void action_sao_eeprom(void) {
+    ESP_LOGI(TAG, "Launching SAO EEPROM reader...");
+    atomic_store(&g_app_state, APP_STATE_SAO_EEPROM);
+    sao_eeprom_screen_init(&g_sao_screen);
 }
 
 static void action_signal_strength(void) {
@@ -1233,6 +1243,10 @@ static void display_task(void *arg) {
             /* Sensor readout mode: continuous rendering */
             sensor_readout_screen_draw(&g_sensor_screen);
             vTaskDelay(pdMS_TO_TICKS(30));  /* ~33 FPS */
+        } else if (state == APP_STATE_SAO_EEPROM) {
+            /* SAO EEPROM: static data, redraw on scroll */
+            sao_eeprom_screen_draw(&g_sao_screen);
+            vTaskDelay(pdMS_TO_TICKS(50));
         } else if (state == APP_STATE_SIGNAL_STRENGTH) {
             /* Signal strength mode: continuous rendering */
             signal_strength_screen_draw(&g_signal_screen);
@@ -1421,6 +1435,17 @@ static void input_task(void *arg) {
                 ESP_LOGI(TAG, "Exiting sensor readout");
                 atomic_store(&g_app_state, APP_STATE_MENU);
                 request_redraw(DISP_CMD_REDRAW_FULL);
+            }
+        } else if (state == APP_STATE_SAO_EEPROM) {
+            /* SAO EEPROM: UP/DOWN scroll, B exits */
+            if (ev.id == BTN_B || ev.id == BTN_LEFT) {
+                ESP_LOGI(TAG, "Exiting SAO EEPROM screen");
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            } else if (ev.id == BTN_UP) {
+                sao_eeprom_screen_scroll_up(&g_sao_screen);
+            } else if (ev.id == BTN_DOWN) {
+                sao_eeprom_screen_scroll_down(&g_sao_screen);
             }
         } else if (state == APP_STATE_SIGNAL_STRENGTH) {
             /* Signal strength mode: any button exits back to menu */
@@ -1691,6 +1716,7 @@ void app_main(void) {
     menu_add_item(&g_diag_menu, 'V', NULL, "Signal Strength", action_signal_strength, NULL);
     menu_add_item(&g_diag_menu, 'Z', NULL, "WiFi Spectrum", action_wlan_spectrum, NULL);
     menu_add_item(&g_diag_menu, 'N', NULL, "WiFi Networks", action_wlan_list, NULL);
+    menu_add_item(&g_diag_menu, 'E', NULL, "SAO / EEPROM", action_sao_eeprom, NULL);
 
     /* Tools submenu */
     menu_init(&g_tools_menu, "Tools");

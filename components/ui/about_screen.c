@@ -27,7 +27,7 @@ void about_screen_draw(void) {
     st7789_draw_string(4, 75, "Hardware:", ACCENT, COLOR_BG, 1);
     st7789_draw_string(4, 88, "- ESP32-S3 (WROOM-1-N16R8)", TEXT, COLOR_BG, 1);
     st7789_draw_string(4, 100, "- ST7789 320x170 LCD", TEXT, COLOR_BG, 1);
-    st7789_draw_string(4, 112, "- 8x SK6812 NeoPixels", TEXT, COLOR_BG, 1);
+    st7789_draw_string(4, 112, "- 10x SK6812 NeoPixels", TEXT, COLOR_BG, 1);
 
     st7789_draw_string(4, 125, "Features:", ACCENT, COLOR_BG, 1);
     st7789_draw_string(4, 138, "- Multithreaded FreeRTOS", TEXT, COLOR_BG, 1);

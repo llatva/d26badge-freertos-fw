@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "badge_freertos",
-    "project_version":    "744b94b-dirty",
+    "project_version":    "2600863-dirty",
     "project_path":       "/home/llatva/git/d26badge-freertos-fw",
     "idf_path":           "/home/llatva/git/d26badge-freertos-fw/esp-idf",
     "build_dir":          "/home/llatva/git/d26badge-freertos-fw/build",
@@ -1640,12 +1640,12 @@
             "dir": "/home/llatva/git/d26badge-freertos-fw/components/ui",
             "type": "LIBRARY",
             "lib": "__idf_ui",
-            "reqs": [ "st7789", "buttons", "sk6812", "nvs_flash", "freertos", "esp_wifi", "esp_netif", "esp_event" ],
+            "reqs": [ "st7789", "buttons", "sk6812", "nvs_flash", "freertos", "esp_wifi", "esp_netif", "esp_event", "esp_driver_i2c" ],
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "/home/llatva/git/d26badge-freertos-fw/build/esp-idf/ui/libui.a",
-            "sources": [ "/home/llatva/git/d26badge-freertos-fw/components/ui/text_input_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/badge_settings.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/idle_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/about_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/ui_test_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/sensor_readout_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/signal_strength_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/wlan_spectrum_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/wlan_list_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/color_select_screen.c" ],
+            "sources": [ "/home/llatva/git/d26badge-freertos-fw/components/ui/text_input_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/badge_settings.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/idle_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/about_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/ui_test_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/sensor_readout_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/signal_strength_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/wlan_spectrum_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/wlan_list_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/color_select_screen.c", "/home/llatva/git/d26badge-freertos-fw/components/ui/sao_eeprom_screen.c" ],
             "include_dirs": [ "include" ]
         },
         "ulp": {
@@ -3192,7 +3192,7 @@
             "prefix": "idf",
             "dir": "/home/llatva/git/d26badge-freertos-fw/components/ui",
             "lib": "__idf_ui",
-            "reqs": [ "st7789", "buttons", "sk6812", "nvs_flash", "freertos", "esp_wifi", "esp_netif", "esp_event" ],
+            "reqs": [ "st7789", "buttons", "sk6812", "nvs_flash", "freertos", "esp_wifi", "esp_netif", "esp_event", "esp_driver_i2c" ],
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],

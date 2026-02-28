@@ -153,6 +153,7 @@ esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj: \
  /home/llatva/git/d26badge-freertos-fw/components/games/include/snake.h \
  /home/llatva/git/d26badge-freertos-fw/components/micropython_runner/include/micropython_runner.h \
  /home/llatva/git/d26badge-freertos-fw/components/pyapps_fs/include/pyapps_fs.h \
+ /home/llatva/git/d26badge-freertos-fw/components/ui/include/sao_eeprom_screen.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_config.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/log/include/esp_log_level.h \
