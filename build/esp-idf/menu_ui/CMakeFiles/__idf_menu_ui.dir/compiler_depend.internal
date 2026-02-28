@@ -39,6 +39,7 @@ esp-idf/menu_ui/CMakeFiles/__idf_menu_ui.dir/menu_ui.c.obj
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/string.h
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/syslimits.h
  /home/llatva/git/d26badge-freertos-fw/build/config/sdkconfig.h
+ /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_icons.h
  /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_ui.h
  /home/llatva/git/d26badge-freertos-fw/components/st7789/include/st7789.h
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/badge_settings.h

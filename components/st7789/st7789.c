@@ -247,6 +247,43 @@ void st7789_draw_string(uint16_t x, uint16_t y, const char *s, uint16_t fg, uint
     }
 }
 
+void st7789_draw_bitmap(uint16_t x, uint16_t y, const uint8_t *bitmap,
+                        uint8_t w, uint8_t h, uint16_t fg, uint16_t bg, uint8_t scale)
+{
+    if (scale < 1) scale = 1;
+    uint16_t out_w = (uint16_t)w * scale;
+    uint16_t out_h = (uint16_t)h * scale;
+
+    /* Pre-swap colours for big-endian wire format */
+    uint16_t fg_sw = (fg >> 8) | (fg << 8);
+    uint16_t bg_sw = (bg >> 8) | (bg << 8);
+
+    /* Bytes per row in the packed bitmap (rows padded to byte boundary) */
+    uint8_t row_bytes = (w + 7) / 8;
+
+    /* Use a static row buffer (max 32*4 = 128 pixels per output row) */
+    static uint16_t bmp_row[128];
+
+    set_window(x, y, x + out_w - 1, y + out_h - 1);
+
+    for (uint8_t row = 0; row < h; row++) {
+        /* Build one scaled output row */
+        uint16_t idx = 0;
+        for (uint8_t col = 0; col < w; col++) {
+            uint8_t byte_idx = col / 8;
+            uint8_t bit_mask = 0x80 >> (col & 7);
+            uint16_t c = (bitmap[row * row_bytes + byte_idx] & bit_mask) ? fg_sw : bg_sw;
+            for (uint8_t sc = 0; sc < scale; sc++) {
+                bmp_row[idx++] = c;
+            }
+        }
+        /* Send the same row 'scale' times for vertical scaling */
+        for (uint8_t sr = 0; sr < scale; sr++) {
+            spi_write_buf(bmp_row, idx * 2);
+        }
+    }
+}
+
 void st7789_set_backlight(bool on) {
     gpio_set_level(ST7789_PIN_BL, on ? 1 : 0);
 }

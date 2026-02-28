@@ -119,6 +119,7 @@ esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj: \
  /home/llatva/git/d26badge-freertos-fw/components/buttons/include/buttons.h \
  /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_ui.h \
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/badge_settings.h \
+ /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_icons.h \
  /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/version.h \
  /home/llatva/git/d26badge-freertos-fw/components/audio/include/audio_spectrum_screen.h \
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/text_input_screen.h \

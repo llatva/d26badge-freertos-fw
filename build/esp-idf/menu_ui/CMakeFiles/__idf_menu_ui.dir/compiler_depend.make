@@ -38,6 +38,7 @@ esp-idf/menu_ui/CMakeFiles/__idf_menu_ui.dir/menu_ui.c.obj: /home/llatva/git/d26
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/string.h \
   /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/syslimits.h \
   config/sdkconfig.h \
+  /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_icons.h \
   /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_ui.h \
   /home/llatva/git/d26badge-freertos-fw/components/st7789/include/st7789.h \
   /home/llatva/git/d26badge-freertos-fw/components/ui/include/badge_settings.h \
@@ -213,6 +214,10 @@ esp-idf/menu_ui/CMakeFiles/__idf_menu_ui.dir/menu_ui.c.obj: /home/llatva/git/d26
 
 /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_types.h:
 
+/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_sys.h:
+
+/home/llatva/git/d26badge-freertos-fw/components/menu_ui/menu_ui.c:
+
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_driver_gpio/include/driver/gpio.h:
 
 /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_locale.h:
@@ -262,6 +267,8 @@ esp-idf/menu_ui/CMakeFiles/__idf_menu_ui.dir/menu_ui.c.obj: /home/llatva/git/d26
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_idf_version.h:
 
 /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdbool.h:
+
+/home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_icons.h:
 
 /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/limits.h:
 
@@ -320,10 +327,6 @@ config/sdkconfig.h:
 /home/llatva/git/d26badge-freertos-fw/components/st7789/include/st7789.h:
 
 /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_hw_support/include/esp_intr_alloc.h:
-
-/home/llatva/git/d26badge-freertos-fw/components/menu_ui/menu_ui.c:
-
-/home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_rom/include/esp_rom_sys.h:
 
 /home/llatva/git/d26badge-freertos-fw/components/ui/include/badge_settings.h:
 

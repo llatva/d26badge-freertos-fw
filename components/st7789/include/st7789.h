@@ -70,6 +70,21 @@ uint16_t st7789_draw_char(uint16_t x, uint16_t y, char c, uint16_t fg, uint16_t 
 void st7789_draw_string(uint16_t x, uint16_t y, const char *s, uint16_t fg, uint16_t bg, uint8_t scale);
 
 /**
+ * @brief  Draw a 1-bit monochrome bitmap with scaling.
+ *
+ * @param x       Top-left X coordinate on screen
+ * @param y       Top-left Y coordinate on screen
+ * @param bitmap  Row-major packed bits (MSB first, rows padded to byte boundary)
+ * @param w       Bitmap width in pixels (must be <= 32)
+ * @param h       Bitmap height in pixels (must be <= 32)
+ * @param fg      Foreground colour (RGB565) for '1' bits
+ * @param bg      Background colour (RGB565) for '0' bits
+ * @param scale   Pixel scaling factor (1 = native, 2 = 2× etc.)
+ */
+void st7789_draw_bitmap(uint16_t x, uint16_t y, const uint8_t *bitmap,
+                        uint8_t w, uint8_t h, uint16_t fg, uint16_t bg, uint8_t scale);
+
+/**
  * @brief  Control backlight (true = on).
  */
 void st7789_set_backlight(bool on);

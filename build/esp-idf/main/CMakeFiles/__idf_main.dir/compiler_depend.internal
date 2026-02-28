@@ -49,6 +49,7 @@ esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
  /home/llatva/git/d26badge-freertos-fw/components/games/include/hacky_bird.h
  /home/llatva/git/d26badge-freertos-fw/components/games/include/snake.h
  /home/llatva/git/d26badge-freertos-fw/components/games/include/space_shooter.h
+ /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_icons.h
  /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_ui.h
  /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/version.h
  /home/llatva/git/d26badge-freertos-fw/components/micropython_runner/include/micropython_runner.h

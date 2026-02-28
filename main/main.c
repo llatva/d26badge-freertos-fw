@@ -35,6 +35,7 @@
 #include "sk6812.h"
 #include "buttons.h"
 #include "menu_ui.h"
+#include "menu_icons.h"
 #include "version.h"
 #include "audio_spectrum_screen.h"
 #include "text_input_screen.h"
@@ -1059,13 +1060,38 @@ static void input_task(void *arg) {
                 break;
 
             case BTN_LEFT:
+                if (g_current_menu->grid_mode) {
+                    /* Grid mode: navigate left within the grid */
+                    menu_navigate_left(g_current_menu);
+                    request_redraw(DISP_CMD_REDRAW_ITEM);
+                } else {
+                    /* List mode: back to parent or idle */
+                    if (menu_back(&g_current_menu)) {
+                        ESP_LOGI(TAG, "Navigated back to parent menu");
+                        request_redraw(DISP_CMD_REDRAW_FULL);
+                    } else {
+                        ESP_LOGI(TAG, "Exiting menu to idle screen");
+                        atomic_store(&g_app_state, APP_STATE_IDLE);
+                        request_redraw(DISP_CMD_REDRAW_FULL);
+                    }
+                }
+                break;
+
+            case BTN_RIGHT:
+                if (g_current_menu->grid_mode) {
+                    /* Grid mode: navigate right within the grid */
+                    menu_navigate_right(g_current_menu);
+                    request_redraw(DISP_CMD_REDRAW_ITEM);
+                }
+                /* List mode: no action for RIGHT */
+                break;
+
             case BTN_B:
-                /* Back to parent menu, or exit to idle if at root */
+                /* B always goes back / exits to idle */
                 if (menu_back(&g_current_menu)) {
                     ESP_LOGI(TAG, "Navigated back to parent menu");
                     request_redraw(DISP_CMD_REDRAW_FULL);
                 } else {
-                    /* Already at root menu, exit to idle */
                     ESP_LOGI(TAG, "Exiting menu to idle screen");
                     atomic_store(&g_app_state, APP_STATE_IDLE);
                     request_redraw(DISP_CMD_REDRAW_FULL);
@@ -1129,58 +1155,59 @@ void app_main(void) {
     
     /* Diagnostics submenu */
     menu_init(&g_diag_menu, "Diagnostics");
-    menu_add_item(&g_diag_menu, 'T', "UI Test", action_ui_test, NULL);
-    menu_add_item(&g_diag_menu, 'W', "WLAN Test", action_placeholder, NULL);
-    menu_add_item(&g_diag_menu, 'S', "Sensor Readout", action_sensor_readout, NULL);
-    menu_add_item(&g_diag_menu, 'V', "Signal Strength", action_signal_strength, NULL);
-    menu_add_item(&g_diag_menu, 'Z', "WiFi Spectrum", action_wlan_spectrum, NULL);
-    menu_add_item(&g_diag_menu, 'N', "WiFi Networks", action_wlan_list, NULL);
+    menu_add_item(&g_diag_menu, 'T', NULL, "UI Test", action_ui_test, NULL);
+    menu_add_item(&g_diag_menu, 'W', NULL, "WLAN Test", action_placeholder, NULL);
+    menu_add_item(&g_diag_menu, 'S', NULL, "Sensor Readout", action_sensor_readout, NULL);
+    menu_add_item(&g_diag_menu, 'V', NULL, "Signal Strength", action_signal_strength, NULL);
+    menu_add_item(&g_diag_menu, 'Z', NULL, "WiFi Spectrum", action_wlan_spectrum, NULL);
+    menu_add_item(&g_diag_menu, 'N', NULL, "WiFi Networks", action_wlan_list, NULL);
 
     /* Tools submenu */
     menu_init(&g_tools_menu, "Tools");
-    menu_add_item(&g_tools_menu, '@', "Audio Spectrum", action_audio_spectrum, NULL);
+    menu_add_item(&g_tools_menu, '@', NULL, "Audio Spectrum", action_audio_spectrum, NULL);
     
     /* Games submenu */
     menu_init(&g_games_menu, "Games");
-    menu_add_item(&g_games_menu, 'H', "Hacky Bird", action_hacky_bird, NULL);
-    menu_add_item(&g_games_menu, 'S', "Space Shooter", action_space_shooter, NULL);
-    menu_add_item(&g_games_menu, 'N', "Snake", action_snake, NULL);
+    menu_add_item(&g_games_menu, 'H', NULL, "Hacky Bird", action_hacky_bird, NULL);
+    menu_add_item(&g_games_menu, 'S', NULL, "Space Shooter", action_space_shooter, NULL);
+    menu_add_item(&g_games_menu, 'N', NULL, "Snake", action_snake, NULL);
     
     /* LED Animation submenu */
     menu_init(&g_led_menu, "LED Animation");
-    menu_add_item(&g_led_menu, 'b', "Accent Pulse", action_led_accent, NULL);
-    menu_add_item(&g_led_menu, 'r', "Rainbow", action_led_rainbow, NULL);
-    menu_add_item(&g_led_menu, 'd', "Disco Party", action_led_disco, NULL);
-    menu_add_item(&g_led_menu, 'p', "Police Strobe", action_led_police, NULL);
-    menu_add_item(&g_led_menu, 's', "Smooth Relax", action_led_relax, NULL);
-    menu_add_item(&g_led_menu, 'o', "Smooth Rotate", action_led_rotate, NULL);
-    menu_add_item(&g_led_menu, 'c', "LED Chase", action_led_chase, NULL);
-    menu_add_item(&g_led_menu, 'm', "Color Morph", action_led_morph, NULL);
-    menu_add_item(&g_led_menu, 'y', "Breath Cycle", action_led_breath_cyc, NULL);
-    menu_add_item(&g_led_menu, 'i', "Disobey Identity", action_led_identity, NULL);
-    menu_add_item(&g_led_menu, 'f', "Flame", action_led_flame, NULL);     /* New flame mode */
-    menu_add_item(&g_led_menu, 'v', "VU meter mode (MIC ON!)", action_led_vu, NULL);
-    menu_add_item(&g_led_menu, 'x', "Off", action_led_off, NULL);
+    menu_add_item(&g_led_menu, 'b', NULL, "Accent Pulse", action_led_accent, NULL);
+    menu_add_item(&g_led_menu, 'r', NULL, "Rainbow", action_led_rainbow, NULL);
+    menu_add_item(&g_led_menu, 'd', NULL, "Disco Party", action_led_disco, NULL);
+    menu_add_item(&g_led_menu, 'p', NULL, "Police Strobe", action_led_police, NULL);
+    menu_add_item(&g_led_menu, 's', NULL, "Smooth Relax", action_led_relax, NULL);
+    menu_add_item(&g_led_menu, 'o', NULL, "Smooth Rotate", action_led_rotate, NULL);
+    menu_add_item(&g_led_menu, 'c', NULL, "LED Chase", action_led_chase, NULL);
+    menu_add_item(&g_led_menu, 'm', NULL, "Color Morph", action_led_morph, NULL);
+    menu_add_item(&g_led_menu, 'y', NULL, "Breath Cycle", action_led_breath_cyc, NULL);
+    menu_add_item(&g_led_menu, 'i', NULL, "Disobey Identity", action_led_identity, NULL);
+    menu_add_item(&g_led_menu, 'f', NULL, "Flame", action_led_flame, NULL);
+    menu_add_item(&g_led_menu, 'v', NULL, "VU meter mode (MIC ON!)", action_led_vu, NULL);
+    menu_add_item(&g_led_menu, 'x', NULL, "Off", action_led_off, NULL);
 
     /* Settings submenu */
     menu_init(&g_settings_menu, "Settings");
-    menu_add_item(&g_settings_menu, 'n', "Edit Nickname", action_settings, NULL);
-    menu_add_item(&g_settings_menu, 'c', "Accent Color", action_color_select, NULL);
-    menu_add_item(&g_settings_menu, 't', "Text Color", action_text_color_select, NULL);
-    menu_add_item(&g_settings_menu, 'L', "LED Animation", NULL, &g_led_menu);
+    menu_add_item(&g_settings_menu, 'n', NULL, "Edit Nickname", action_settings, NULL);
+    menu_add_item(&g_settings_menu, 'c', NULL, "Accent Color", action_color_select, NULL);
+    menu_add_item(&g_settings_menu, 't', NULL, "Text Color", action_text_color_select, NULL);
+    menu_add_item(&g_settings_menu, 'L', NULL, "LED Animation", NULL, &g_led_menu);
 
     /* Development submenu */
     menu_init(&g_dev_menu, "Development");
-    menu_add_item(&g_dev_menu, 'P', "Python Demo", action_python_demo, NULL);
+    menu_add_item(&g_dev_menu, 'P', NULL, "Python Demo", action_python_demo, NULL);
 
-    /* Main menu */
+    /* Main menu — icon grid mode */
     menu_init(&g_menu, TITLE_STR);
-    menu_add_item(&g_menu, '#', "Tools", NULL, &g_tools_menu);
-    menu_add_item(&g_menu, 'G', "Games", NULL, &g_games_menu);
-    menu_add_item(&g_menu, 'O', "Settings", NULL, &g_settings_menu);
-    menu_add_item(&g_menu, 'D', "Diagnostics", NULL, &g_diag_menu);
-    menu_add_item(&g_menu, 'X', "Development", NULL, &g_dev_menu);
-    menu_add_item(&g_menu, '?', "About", action_about, NULL);
+    g_menu.grid_mode = true;
+    menu_add_item(&g_menu, '#', ICON_TOOLS,       "Tools",       NULL, &g_tools_menu);
+    menu_add_item(&g_menu, 'G', ICON_GAMES,       "Games",       NULL, &g_games_menu);
+    menu_add_item(&g_menu, 'O', ICON_SETTINGS,    "Settings",    NULL, &g_settings_menu);
+    menu_add_item(&g_menu, 'D', ICON_DIAGNOSTICS, "Diagnostics", NULL, &g_diag_menu);
+    menu_add_item(&g_menu, 'X', ICON_DEVELOPMENT, "Development", NULL, &g_dev_menu);
+    menu_add_item(&g_menu, '?', ICON_ABOUT,       "About",       action_about, NULL);
 
     g_current_menu = &g_menu;    /* ── Tasks (all on CPU0; CPU1 reserved for MicroPython) ── */
     xTaskCreatePinnedToCore(display_task, "display", 4096, NULL, 5, NULL, PRO_CPU_NUM);

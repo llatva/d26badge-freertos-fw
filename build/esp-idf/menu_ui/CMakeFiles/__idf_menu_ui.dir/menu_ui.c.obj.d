@@ -10,6 +10,7 @@ esp-idf/menu_ui/CMakeFiles/__idf_menu_ui.dir/menu_ui.c.obj: \
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/xtensa-esp-elf/include/sys/_stdint.h \
  /home/llatva/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20251107/xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include/stdbool.h \
  /home/llatva/git/d26badge-freertos-fw/components/ui/include/badge_settings.h \
+ /home/llatva/git/d26badge-freertos-fw/components/menu_ui/include/menu_icons.h \
  /home/llatva/git/d26badge-freertos-fw/components/st7789/include/st7789.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_driver_spi/include/driver/spi_master.h \
  /home/llatva/git/d26badge-freertos-fw/esp-idf/components/esp_common/include/esp_err.h \
