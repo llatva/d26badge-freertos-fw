@@ -204,8 +204,6 @@ static void action_about(void) {
     atomic_store(&g_app_state, APP_STATE_ABOUT);
 }
 
-static void action_placeholder(void)  { ESP_LOGI(TAG, "Not yet implemented"); }
-
 static void action_audio_spectrum(void) {
     ESP_LOGI(TAG, "Launching Audio Spectrum Analyzer...");
     atomic_store(&g_app_state, APP_STATE_AUDIO_SPECTRUM);
@@ -363,8 +361,9 @@ static const char *PY_DEMO_SCRIPTS[PY_NUM_DEMOS] = {
     "print('Last 10: ', primes[-10:])\n"
     "print('Time:', dt, 'ms')\n"
     "print()\n"
-    "# Twin primes\n"
-    "twins = [(p, p+2) for p in primes if p+2 in primes]\n"
+    "# Twin primes (use set for fast lookup)\n"
+    "prime_set = set(primes)\n"
+    "twins = [(p, p+2) for p in primes if p+2 in prime_set]\n"
     "print('Twin primes:', len(twins))\n"
     "print('First 8:', twins[:8])\n"
     ,
@@ -708,8 +707,9 @@ static void action_python_demo(void) {
     ESP_LOGI(TAG, "Launching Python Demo...");
     atomic_store(&g_app_state, APP_STATE_PYTHON_DEMO);
 
-    /* Spawn a task with 32KB stack (MicroPython needs ≥16KB + capture overhead) */
-    xTaskCreatePinnedToCore(python_demo_task, "py_demo", 32768 / sizeof(StackType_t),
+    /* Spawn a task with 32KB stack (MicroPython needs ≥16KB + capture overhead).
+     * ESP-IDF xTaskCreatePinnedToCore takes stack size in bytes directly. */
+    xTaskCreatePinnedToCore(python_demo_task, "py_demo", 32768,
                             NULL, 5, NULL, PRO_CPU_NUM);
 }
 
