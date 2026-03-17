@@ -1,4 +1,4 @@
-# Disobey Badge 2025/26 – FreeRTOS Firmware by hzb
+# Disobey Badge 2025/26 – FreeRTOS Firmware by hzb (heavily W.I.P, you've been warned;)
 
 Custom ESP-IDF / FreeRTOS firmware for the **Disobey 2025 Badge** (ESP32-S3). Features an icon-grid main menu, customisable nickname with accent colours, 12 LED animation modes, three built-in games, WiFi diagnostics, an audio spectrum analyser, an embedded MicroPython demo, and a real-time clock with date/time setting.
 
@@ -225,13 +225,10 @@ Colour bars, LED rainbow test, and button-press verification. Exit with B+START.
 ### First-Time Setup
 
 ```bash
-# 1. Initialise git submodules
-make submodules
-
-# 2. Install ESP-IDF toolchain (only needed once)
+# 1. Install ESP-IDF toolchain (only needed once)
 make idf_install
 
-# 3. Activate the ESP-IDF environment (needed in each terminal session)
+# 2. Activate the ESP-IDF environment (needed in each terminal session)
 source setup_idf.sh
 ```
 
