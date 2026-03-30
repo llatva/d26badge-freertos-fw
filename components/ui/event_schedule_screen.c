@@ -218,7 +218,7 @@ void event_schedule_screen_draw(event_schedule_screen_t *scr)
 
     /* Day indicator (right-aligned in title area) */
     if (scr->num_days > 0) {
-        char day_ind[8];
+        char day_ind[24];
         snprintf(day_ind, sizeof(day_ind), "%d/%d", scr->current_day + 1, scr->num_days);
         st7789_draw_string(280, 6, day_ind, TEXT, COLOR_BG, 1);
     }

@@ -17,6 +17,7 @@
 #include "esp_timer.h"
 #include "esp_random.h"
 #include "esp_cpu.h"
+#include "xtensa/hal.h"
 
 /* ── Stdout capture buffer ─────────────────────────────────────────────── */
 static char  *s_capture_buf  = NULL;   /* externally provided buffer      */
@@ -109,20 +110,24 @@ uint32_t esp_random(void);
 /* ──── Garbage collection ──── */
 /*
  * gc_collect must scan the CPU registers and the C stack to find GC
- * root pointers.  On Xtensa (non-windowed NLR_SETJMP mode) we save
- * registers into an NLR buffer and then tell the GC to scan the stack
- * from the current SP up to the stack top.
+ * root pointers.  On Xtensa the CPU has 64 address registers in
+ * register windows of 8.  We must recurse deeply enough to force
+ * all windows to be spilled onto the C stack before scanning.  This
+ * matches the official MicroPython ESP32 port (gccollect.c).
  */
+static void gc_collect_inner(volatile unsigned int level) {
+    if (level < XCHAL_NUM_AREGS / 8) {
+        gc_collect_inner(level + 1);
+    } else {
+        volatile uint32_t sp = (uint32_t)esp_cpu_get_sp();
+        gc_collect_root((void **)sp,
+            ((mp_uint_t)MP_STATE_THREAD(stack_top) - sp) / sizeof(uint32_t));
+    }
+}
+
 void gc_collect(void) {
     gc_collect_start();
-    /* Save registers to the stack so GC can see them */
-    volatile uint32_t regs[8];
-    __asm__ __volatile__ ("" : : : "memory");
-    regs[0] = 0;  /* force array to live on stack */
-    (void)regs;
-    /* Scan the C stack from current SP to its top */
-    volatile uint32_t sp = (uint32_t)esp_cpu_get_sp();
-    gc_collect_root((void **)sp, ((uint32_t)MP_STATE_THREAD(stack_top) - sp) / sizeof(uint32_t));
+    gc_collect_inner(0);
     gc_collect_end();
 }
 
