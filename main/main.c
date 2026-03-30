@@ -1404,9 +1404,21 @@ static void display_task(void *arg) {
                 }
 
                 /* LED flash when a point is scored */
-                if (pong_is_active() && !g_pong_game_over) {
-                    /* Accent-colour pulse on paddle hits would be too frequent;
-                     * instead flash on score events (detected inside update). */
+                if (pong_is_active() && !g_pong_game_over && pong_scored_this_frame()) {
+                    /* Brief accent-colour flash on the side LEDs */
+                    uint16_t c16 = settings_get_accent_color();
+                    uint8_t r5 = (c16 >> 11) & 0x1F;
+                    uint8_t g6 = (c16 >> 5)  & 0x3F;
+                    uint8_t b5 = c16 & 0x1F;
+                    sk6812_color_t ac = {
+                        (uint8_t)((r5 << 3) | (r5 >> 2)),
+                        (uint8_t)((g6 << 2) | (g6 >> 4)),
+                        (uint8_t)((b5 << 3) | (b5 >> 2))
+                    };
+                    sk6812_fill(sk6812_scale(ac, 100));
+                    sk6812_show();
+                    vTaskDelay(pdMS_TO_TICKS(40));
+                    sk6812_clear();
                 }
 
                 pong_draw();
@@ -1424,7 +1436,7 @@ static void display_task(void *arg) {
                 if (!archanoid_is_active()) {
                     g_archanoid_game_over = true;
                     /* Flash LEDs on game end */
-                    sk6812_color_t c = (archanoid_get_score() > 0 && !archanoid_is_active())
+                    sk6812_color_t c = (archanoid_get_score() > 0)
                         ? (sk6812_color_t){0, 0, 255}
                         : (sk6812_color_t){255, 0, 0};
                     sk6812_fill(c);

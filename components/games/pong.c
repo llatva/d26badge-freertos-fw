@@ -259,3 +259,7 @@ bool pong_is_active(void) {
 uint32_t pong_get_score(void) {
     return g_pong.player_score;
 }
+
+bool pong_scored_this_frame(void) {
+    return g_pong.scored_this_frame;
+}

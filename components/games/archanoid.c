@@ -271,9 +271,8 @@ void archanoid_draw(void) {
                 if (g_arc.bricks[r][c].alive) continue;
                 int16_t bx = BRICK_OFFSET_X + c * (BRICK_WIDTH + BRICK_PAD);
                 int16_t by = BRICK_OFFSET_Y + r * (BRICK_HEIGHT + BRICK_PAD);
-                /* Only erase if we see the blank spot hasn't been drawn yet:
-                 * We can simply draw all dead bricks as bg each frame they die.
-                 * The cost is small since only one brick dies per frame. */
+                /* Redraw background over all dead brick positions.
+                 * Only one brick dies per frame, so the overhead is minimal. */
                 st7789_fill_rect(bx, by, BRICK_WIDTH, BRICK_HEIGHT, bg);
             }
         }

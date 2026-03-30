@@ -33,4 +33,10 @@ bool pong_is_active(void);
  */
 uint32_t pong_get_score(void);
 
+/**
+ * @brief Check if a point was scored this frame (for LED effects)
+ * @return true if a point was scored this update
+ */
+bool pong_scored_this_frame(void);
+
 #endif // PONG_H
