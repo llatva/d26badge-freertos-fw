@@ -40,7 +40,7 @@
 static const char *TAG = "mp_runner";
 
 /* ──── Configuration ──── */
-#define MP_TASK_STACK_SIZE  (16 * 1024)   /* 16 KB FreeRTOS stack (background task) */
+#define MP_TASK_STACK_SIZE  (32 * 1024)   /* 32 KB – must match python_demo_task stack */
 #define MP_TASK_PRIORITY    5
 #define MP_TASK_CORE        1             /* CPU1 (background task only) */
 #define MP_HEAP_SIZE        (32 * 1024)   /* 32 KB Python heap */
