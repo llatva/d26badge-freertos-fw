@@ -18,6 +18,12 @@
 /* Forward declaration */
 static void draw_signal_bars(uint16_t x, uint16_t y, int8_t rssi);
 
+/* State tracking to avoid full-screen redraws */
+static bool    s_needs_full_redraw  = true;
+static int8_t  s_last_wifi_rssi     = INT8_MAX;  /* sentinel to force first draw */
+static int8_t  s_last_espnow_rssi   = INT8_MAX;
+static uint8_t s_last_nearby        = UINT8_MAX;
+
 void signal_strength_screen_init(signal_strength_screen_t *screen) {
     if (!screen) return;
     
@@ -27,33 +33,52 @@ void signal_strength_screen_init(signal_strength_screen_t *screen) {
     screen->nearby_devices = 3;     /* Placeholder: 3 devices nearby */
     screen->frame_count = 0;
     
+    /* Force a full redraw on next draw call */
+    s_needs_full_redraw  = true;
+    s_last_wifi_rssi     = INT8_MAX;
+    s_last_espnow_rssi   = INT8_MAX;
+    s_last_nearby        = UINT8_MAX;
+    
     ESP_LOGI(TAG, "Signal strength screen initialized");
 }
 
 void signal_strength_screen_draw(signal_strength_screen_t *scr) {
     uint16_t ACCENT = settings_get_accent_color();
     uint16_t TEXT   = settings_get_text_color();
-    st7789_fill(COLOR_BG);
-    
-    st7789_draw_string(4, 10, "Signal Strength", ACCENT, COLOR_BG, 2);
-    st7789_fill_rect(0, 35, 320, 1, ACCENT);
-    
-    st7789_draw_string(4, 45, "WiFi:", ACCENT, COLOR_BG, 1);
-    char buf[32];
-    snprintf(buf, sizeof(buf), "%d dBm", scr->wifi_rssi);
-    st7789_draw_string(100, 45, buf, TEXT, COLOR_BG, 1);
-    
-    st7789_draw_string(4, 58, "ESP-NOW:", ACCENT, COLOR_BG, 1);
-    snprintf(buf, sizeof(buf), "%d dBm (%d)", scr->espnow_rssi, scr->nearby_devices);
-    st7789_draw_string(100, 58, buf, TEXT, COLOR_BG, 1);
-    
-    st7789_draw_string(4, 75, "WiFi Signal:", TEXT, COLOR_BG, 1);
-    draw_signal_bars(10, 88, scr->wifi_rssi);
-    
-    st7789_draw_string(4, 105, "ESP-NOW Signal:", TEXT, COLOR_BG, 1);
-    draw_signal_bars(100, 118, scr->espnow_rssi);
-    
-    st7789_draw_string(4, 150, "Press any button to exit", ACCENT, COLOR_BG, 1);
+
+    /* Draw static elements only once */
+    if (s_needs_full_redraw) {
+        st7789_fill(COLOR_BG);
+        st7789_draw_string(4, 10, "Signal Strength", ACCENT, COLOR_BG, 2);
+        st7789_fill_rect(0, 35, 320, 1, ACCENT);
+        st7789_draw_string(4, 45, "WiFi:", ACCENT, COLOR_BG, 1);
+        st7789_draw_string(4, 58, "ESP-NOW:", ACCENT, COLOR_BG, 1);
+        st7789_draw_string(4, 75, "WiFi Signal:", TEXT, COLOR_BG, 1);
+        st7789_draw_string(4, 105, "ESP-NOW Signal:", TEXT, COLOR_BG, 1);
+        st7789_draw_string(4, 150, "Press any button to exit", ACCENT, COLOR_BG, 1);
+        s_needs_full_redraw = false;
+    }
+
+    /* Redraw WiFi RSSI value and bars only when changed */
+    if (scr->wifi_rssi != s_last_wifi_rssi) {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%-4d dBm    ", scr->wifi_rssi);
+        st7789_draw_string(100, 45, buf, TEXT, COLOR_BG, 1);
+        draw_signal_bars(10, 88, scr->wifi_rssi);
+        s_last_wifi_rssi = scr->wifi_rssi;
+    }
+
+    /* Redraw ESP-NOW RSSI value and bars only when changed */
+    if (scr->espnow_rssi != s_last_espnow_rssi ||
+        scr->nearby_devices != s_last_nearby) {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%-4d dBm (%d)  ", scr->espnow_rssi, scr->nearby_devices);
+        st7789_draw_string(100, 58, buf, TEXT, COLOR_BG, 1);
+        draw_signal_bars(100, 118, scr->espnow_rssi);
+        s_last_espnow_rssi = scr->espnow_rssi;
+        s_last_nearby      = scr->nearby_devices;
+    }
+
     scr->frame_count++;
 }
 
