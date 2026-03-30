@@ -109,6 +109,7 @@
 #define MICROPY_PY_ERRNO                    (1)
 #define MICROPY_PY_RANDOM                   (1)
 #define MICROPY_PY_RANDOM_SEED_INIT_FUNC    (esp_random())
+#include "esp_random.h"
 #define MICROPY_PY_SELECT                   (0)
 #define MICROPY_PY_MACHINE                  (0)
 #define MICROPY_PY_HASHLIB                  (0)

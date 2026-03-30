@@ -305,9 +305,10 @@ static void action_snake(void) {
  */
 
 #define PY_CAPTURE_SIZE  2048   /* stdout capture buffer size */
-#define PY_NUM_DEMOS     6
+#define PY_NUM_DEMOS     7
 
 static const char *PY_DEMO_TITLES[PY_NUM_DEMOS] = {
+    "Hello Python",
     "Fibonacci",
     "Prime Sieve",
     "Classes & OOP",
@@ -317,7 +318,13 @@ static const char *PY_DEMO_TITLES[PY_NUM_DEMOS] = {
 };
 
 static const char *PY_DEMO_SCRIPTS[PY_NUM_DEMOS] = {
-    /* 0: Fibonacci – iterative only (avoids deep recursion stack usage) */
+    /* 0: Hello Python – just print the version */
+    "import sys\n"
+    "print('Hello from MicroPython!')\n"
+    "print('Version:', sys.version)\n"
+    ,
+
+    /* 1: Fibonacci – iterative only (avoids deep recursion stack usage) */
     "import time\n"
     "def fib(n):\n"
     "    a, b = 0, 1\n"
@@ -486,6 +493,7 @@ static const char *PY_DEMO_SCRIPTS[PY_NUM_DEMOS] = {
 
 /* LED colour themes per demo */
 static const sk6812_color_t PY_DEMO_COLORS[PY_NUM_DEMOS] = {
+    { 60, 120,   0},  /* Hello:      lime    */
     {  0, 120,  60},  /* Fibonacci:  teal    */
     {120,  80,   0},  /* Primes:     amber   */
     { 80,   0, 120},  /* Classes:    purple  */

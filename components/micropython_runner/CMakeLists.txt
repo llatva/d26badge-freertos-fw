@@ -28,6 +28,12 @@ set(MICROPY_SOURCE_SHARED
     "${MICROPY_DIR}/shared/runtime/sys_stdio_mphal.c"
 )
 
+# Extmod sources needed for time, random modules
+set(MICROPY_SOURCE_EXTMOD
+    "${MICROPY_DIR}/extmod/modtime.c"
+    "${MICROPY_DIR}/extmod/modrandom.c"
+)
+
 # Port-specific qstr definitions
 set(MICROPY_QSTRDEFS_PORT
     "${CMAKE_CURRENT_LIST_DIR}/qstrdefsport.h"
@@ -37,6 +43,7 @@ set(MICROPY_QSTRDEFS_PORT
 set(MICROPY_SOURCE_QSTR
     ${MICROPY_SOURCE_PY}
     ${MICROPY_SOURCE_SHARED}
+    ${MICROPY_SOURCE_EXTMOD}
     ${RUNNER_SRCS}
 )
 
@@ -46,6 +53,7 @@ idf_component_register(
         ${RUNNER_SRCS}
         ${MICROPY_SOURCE_PY}
         ${MICROPY_SOURCE_SHARED}
+        ${MICROPY_SOURCE_EXTMOD}
     INCLUDE_DIRS
         "include"
         "."
@@ -133,5 +141,8 @@ set_source_files_properties(${MICROPY_SOURCE_PY} PROPERTIES
     COMPILE_FLAGS "-Wno-unused-variable -Wno-unused-function -Wno-sign-compare -Wno-old-style-definition -Wno-missing-field-initializers -Wno-maybe-uninitialized -Wno-shadow"
 )
 set_source_files_properties(${MICROPY_SOURCE_SHARED} PROPERTIES
+    COMPILE_FLAGS "-Wno-unused-variable -Wno-unused-function -Wno-sign-compare -Wno-old-style-definition -Wno-missing-field-initializers -Wno-maybe-uninitialized"
+)
+set_source_files_properties(${MICROPY_SOURCE_EXTMOD} PROPERTIES
     COMPILE_FLAGS "-Wno-unused-variable -Wno-unused-function -Wno-sign-compare -Wno-old-style-definition -Wno-missing-field-initializers -Wno-maybe-uninitialized"
 )

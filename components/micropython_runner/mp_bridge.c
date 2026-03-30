@@ -19,6 +19,11 @@ static SemaphoreHandle_t display_lock_sem = NULL;
 
 esp_err_t mp_bridge_init(void)
 {
+    // Idempotent: skip if already initialised
+    if (display_cmd_queue != NULL) {
+        return ESP_OK;
+    }
+
     ESP_LOGI(TAG, "Initializing MicroPython bridge");
 
     // Create display command queue
