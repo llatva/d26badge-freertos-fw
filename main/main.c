@@ -53,6 +53,8 @@
 #include "hacky_bird.h"         /* Hacky Bird game */
 #include "space_shooter.h"      /* Space Shooter game */
 #include "snake.h"              /* Snake game */
+#include "pong.h"               /* Pong game */
+#include "archanoid.h"          /* Archanoid game */
 #include "micropython_runner.h"  /* MicroPython integration */
 #include "pyapps_fs.h"          /* Python apps filesystem */
 #include "sao_eeprom_screen.h"  /* SAO EEPROM reader */
@@ -120,6 +122,8 @@ typedef enum {
     APP_STATE_HACKY_BIRD,
     APP_STATE_SPACE_SHOOTER,
     APP_STATE_SNAKE,
+    APP_STATE_PONG,
+    APP_STATE_ARCHANOID,
     APP_STATE_PYTHON_DEMO,
     APP_STATE_TIME_DATE_SET,
     APP_STATE_SAO_EEPROM,
@@ -169,6 +173,8 @@ static color_select_screen_t g_color_screen;  /* New color select screen */
 static sao_eeprom_screen_t g_sao_screen;      /* SAO EEPROM reader screen */
 static event_schedule_screen_t g_schedule_screen; /* Event schedule screen */
 static bool g_hacky_bird_game_over = false;   /* Flag for game over state */
+static bool g_pong_game_over = false;         /* Pong game over state */
+static bool g_archanoid_game_over = false;    /* Archanoid game over state */
 
 /* ── Forward declarations ────────────────────────────────────────────────── */
 static void action_led_off(void);
@@ -187,6 +193,8 @@ static void action_color_select(void);  /* New action for color select */
 static void action_hacky_bird(void);    /* Hacky Bird game */
 static void action_space_shooter(void); /* Space Shooter game */
 static void action_snake(void);         /* Snake game */
+static void action_pong(void);          /* Pong game */
+static void action_archanoid(void);     /* Archanoid game */
 static void action_python_demo(void);   /* Python demo */
 static void action_time_date_set(void); /* Time/date setting */
 static void action_sao_eeprom(void);   /* SAO EEPROM reader */
@@ -303,6 +311,22 @@ static void action_snake(void) {
     ESP_LOGI(TAG, "Launching Snake...");
     atomic_store(&g_app_state, APP_STATE_SNAKE);
     snake_init();
+    request_redraw(DISP_CMD_REDRAW_FULL);
+}
+
+static void action_pong(void) {
+    ESP_LOGI(TAG, "Launching Pong...");
+    atomic_store(&g_app_state, APP_STATE_PONG);
+    g_pong_game_over = false;
+    pong_init();
+    request_redraw(DISP_CMD_REDRAW_FULL);
+}
+
+static void action_archanoid(void) {
+    ESP_LOGI(TAG, "Launching Archanoid...");
+    atomic_store(&g_app_state, APP_STATE_ARCHANOID);
+    g_archanoid_game_over = false;
+    archanoid_init();
     request_redraw(DISP_CMD_REDRAW_FULL);
 }
 
@@ -1359,6 +1383,79 @@ static void display_task(void *arg) {
             }
             
             vTaskDelay(pdMS_TO_TICKS(16));  /* Check input at 60 FPS */
+        } else if (state == APP_STATE_PONG) {
+            /* Pong game: continuous rendering */
+            if (!g_pong_game_over) {
+                bool up   = buttons_is_pressed(BTN_UP);
+                bool down = buttons_is_pressed(BTN_DOWN);
+
+                pong_update(up, down);
+
+                if (!pong_is_active()) {
+                    g_pong_game_over = true;
+                    /* Red/green flash on game end */
+                    sk6812_color_t c = (pong_get_score() >= 7)
+                        ? (sk6812_color_t){0, 255, 0}
+                        : (sk6812_color_t){255, 0, 0};
+                    sk6812_fill(c);
+                    sk6812_show();
+                    vTaskDelay(pdMS_TO_TICKS(80));
+                    sk6812_clear();
+                }
+
+                /* LED flash when a point is scored */
+                if (pong_is_active() && !g_pong_game_over) {
+                    /* Accent-colour pulse on paddle hits would be too frequent;
+                     * instead flash on score events (detected inside update). */
+                }
+
+                pong_draw();
+            }
+            vTaskDelay(pdMS_TO_TICKS(16));  /* ~60 FPS */
+        } else if (state == APP_STATE_ARCHANOID) {
+            /* Archanoid game: continuous rendering */
+            if (!g_archanoid_game_over) {
+                bool left   = buttons_is_pressed(BTN_LEFT);
+                bool right  = buttons_is_pressed(BTN_RIGHT);
+                bool launch = buttons_is_pressed(BTN_A) || buttons_is_pressed(BTN_STICK);
+
+                archanoid_update(left, right, launch);
+
+                if (!archanoid_is_active()) {
+                    g_archanoid_game_over = true;
+                    /* Flash LEDs on game end */
+                    sk6812_color_t c = (archanoid_get_score() > 0 && !archanoid_is_active())
+                        ? (sk6812_color_t){0, 0, 255}
+                        : (sk6812_color_t){255, 0, 0};
+                    sk6812_fill(c);
+                    sk6812_show();
+                    vTaskDelay(pdMS_TO_TICKS(80));
+                    sk6812_clear();
+                }
+
+                /* LED effect when a brick is destroyed */
+                if (archanoid_hit_brick_this_frame() && !g_archanoid_game_over) {
+                    /* Rainbow flash — cycle colour with score */
+                    uint8_t hue = (uint8_t)(archanoid_get_score() * 3);
+                    sk6812_color_t brick_c;
+                    if (hue < 85) {
+                        brick_c = (sk6812_color_t){ (uint8_t)(255 - hue * 3), (uint8_t)(hue * 3), 0 };
+                    } else if (hue < 170) {
+                        uint8_t h = hue - 85;
+                        brick_c = (sk6812_color_t){ 0, (uint8_t)(255 - h * 3), (uint8_t)(h * 3) };
+                    } else {
+                        uint8_t h = hue - 170;
+                        brick_c = (sk6812_color_t){ (uint8_t)(h * 3), 0, (uint8_t)(255 - h * 3) };
+                    }
+                    sk6812_fill(sk6812_scale(brick_c, 120));
+                    sk6812_show();
+                    vTaskDelay(pdMS_TO_TICKS(30));
+                    sk6812_clear();
+                }
+
+                archanoid_draw();
+            }
+            vTaskDelay(pdMS_TO_TICKS(16));  /* ~60 FPS */
         } else if (state == APP_STATE_PYTHON_DEMO) {
             /* Python demo: rendering is done by python_demo_task, just wait */
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -1556,6 +1653,42 @@ static void input_task(void *arg) {
                 request_redraw(DISP_CMD_REDRAW_FULL);
             }
             /* Direction input is handled continuously in display_task */
+        } else if (state == APP_STATE_PONG) {
+            /* Pong game: handle button actions */
+            if (g_pong_game_over) {
+                if (ev.id == BTN_B) {
+                    ESP_LOGI(TAG, "Exiting Pong (final score: %lu)", pong_get_score());
+                    atomic_store(&g_app_state, APP_STATE_MENU);
+                    request_redraw(DISP_CMD_REDRAW_FULL);
+                    sk6812_clear();
+                }
+            } else {
+                if (ev.id == BTN_B) {
+                    ESP_LOGI(TAG, "Exiting Pong (user quit)");
+                    atomic_store(&g_app_state, APP_STATE_MENU);
+                    request_redraw(DISP_CMD_REDRAW_FULL);
+                    sk6812_clear();
+                }
+            }
+            /* Paddle movement is handled continuously in display_task */
+        } else if (state == APP_STATE_ARCHANOID) {
+            /* Archanoid game: handle button actions */
+            if (g_archanoid_game_over) {
+                if (ev.id == BTN_B) {
+                    ESP_LOGI(TAG, "Exiting Archanoid (final score: %lu)", archanoid_get_score());
+                    atomic_store(&g_app_state, APP_STATE_MENU);
+                    request_redraw(DISP_CMD_REDRAW_FULL);
+                    sk6812_clear();
+                }
+            } else {
+                if (ev.id == BTN_B) {
+                    ESP_LOGI(TAG, "Exiting Archanoid (user quit)");
+                    atomic_store(&g_app_state, APP_STATE_MENU);
+                    request_redraw(DISP_CMD_REDRAW_FULL);
+                    sk6812_clear();
+                }
+            }
+            /* Paddle movement and launch are handled continuously in display_task */
         } else if (state == APP_STATE_PYTHON_DEMO) {
             /* Python demo handles its own input via polling – ignore queue events */
         } else if (state == APP_STATE_TIME_DATE_SET) {
@@ -1744,6 +1877,8 @@ void app_main(void) {
     menu_add_item(&g_games_menu, 'H', NULL, "Hacky Bird", action_hacky_bird, NULL);
     menu_add_item(&g_games_menu, 'S', NULL, "Space Shooter", action_space_shooter, NULL);
     menu_add_item(&g_games_menu, 'N', NULL, "Snake", action_snake, NULL);
+    menu_add_item(&g_games_menu, 'P', NULL, "Pong", action_pong, NULL);
+    menu_add_item(&g_games_menu, 'A', NULL, "Archanoid", action_archanoid, NULL);
     
     /* LED Animation submenu */
     menu_init(&g_led_menu, "LED Animation");
