@@ -53,6 +53,7 @@
 #include "hacky_bird.h"         /* Hacky Bird game */
 #include "space_shooter.h"      /* Space Shooter game */
 #include "snake.h"              /* Snake game */
+#include "monza.h"              /* Monza racing game */
 #include "micropython_runner.h"  /* MicroPython integration */
 #include "pyapps_fs.h"          /* Python apps filesystem */
 #include "sao_eeprom_screen.h"  /* SAO EEPROM reader */
@@ -124,6 +125,7 @@ typedef enum {
     APP_STATE_TIME_DATE_SET,
     APP_STATE_SAO_EEPROM,
     APP_STATE_EVENT_SCHEDULE,
+    APP_STATE_MONZA,
 } app_state_t;
 
 static atomic_int g_app_state = APP_STATE_IDLE;
@@ -169,6 +171,7 @@ static color_select_screen_t g_color_screen;  /* New color select screen */
 static sao_eeprom_screen_t g_sao_screen;      /* SAO EEPROM reader screen */
 static event_schedule_screen_t g_schedule_screen; /* Event schedule screen */
 static bool g_hacky_bird_game_over = false;   /* Flag for game over state */
+static bool g_monza_game_over = false;        /* Monza game over flag */
 
 /* ── Forward declarations ────────────────────────────────────────────────── */
 static void action_led_off(void);
@@ -187,6 +190,7 @@ static void action_color_select(void);  /* New action for color select */
 static void action_hacky_bird(void);    /* Hacky Bird game */
 static void action_space_shooter(void); /* Space Shooter game */
 static void action_snake(void);         /* Snake game */
+static void action_monza(void);         /* Monza racing game */
 static void action_python_demo(void);   /* Python demo */
 static void action_time_date_set(void); /* Time/date setting */
 static void action_sao_eeprom(void);   /* SAO EEPROM reader */
@@ -303,6 +307,14 @@ static void action_snake(void) {
     ESP_LOGI(TAG, "Launching Snake...");
     atomic_store(&g_app_state, APP_STATE_SNAKE);
     snake_init();
+    request_redraw(DISP_CMD_REDRAW_FULL);
+}
+
+static void action_monza(void) {
+    ESP_LOGI(TAG, "Launching Monza...");
+    atomic_store(&g_app_state, APP_STATE_MONZA);
+    g_monza_game_over = false;
+    monza_init();
     request_redraw(DISP_CMD_REDRAW_FULL);
 }
 
@@ -1359,6 +1371,48 @@ static void display_task(void *arg) {
             }
             
             vTaskDelay(pdMS_TO_TICKS(16));  /* Check input at 60 FPS */
+        } else if (state == APP_STATE_MONZA) {
+            /* Monza racing game: continuous rendering */
+            if (!g_monza_game_over) {
+                /* Get button states */
+                bool steer_left  = buttons_is_pressed(BTN_LEFT);
+                bool steer_right = buttons_is_pressed(BTN_RIGHT);
+                bool accelerate  = buttons_is_pressed(BTN_A) || buttons_is_pressed(BTN_STICK);
+
+                /* Update game state */
+                monza_update(steer_left, steer_right, accelerate);
+
+                /* Check if game ended */
+                if (!monza_is_active()) {
+                    g_monza_game_over = true;
+
+                    /* Flash LEDs red on crash */
+                    sk6812_color_t red = {255, 0, 0};
+                    for (int i = 0; i < 12; i++) {
+                        sk6812_set(i, red);
+                    }
+                    sk6812_show();
+                } else {
+                    /* LED speed indicator: light LEDs proportional to speed */
+                    int16_t spd = monza_get_speed();
+                    int num_lit = spd * 12 / 200;  /* 0..12 LEDs based on speed */
+                    if (num_lit > 12) num_lit = 12;
+                    for (int i = 0; i < 12; i++) {
+                        sk6812_color_t c;
+                        if (i < num_lit) {
+                            c = (sk6812_color_t){(uint8_t)(20 + i * 5), 0, 0};
+                        } else {
+                            c = (sk6812_color_t){0, 0, 0};
+                        }
+                        sk6812_set(i, c);
+                    }
+                    sk6812_show();
+                }
+
+                /* Draw game state */
+                monza_draw();
+            }
+            vTaskDelay(pdMS_TO_TICKS(16));  /* ~60 FPS */
         } else if (state == APP_STATE_PYTHON_DEMO) {
             /* Python demo: rendering is done by python_demo_task, just wait */
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -1556,6 +1610,22 @@ static void input_task(void *arg) {
                 request_redraw(DISP_CMD_REDRAW_FULL);
             }
             /* Direction input is handled continuously in display_task */
+        } else if (state == APP_STATE_MONZA) {
+            /* Monza game: handle button actions */
+            if (g_monza_game_over) {
+                /* Game over: any button exits back to menu */
+                ESP_LOGI(TAG, "Exiting Monza (final score: %lu)", monza_get_score());
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+                sk6812_clear();
+            } else {
+                if (ev.id == BTN_B) {
+                    ESP_LOGI(TAG, "Exiting Monza (user quit)");
+                    atomic_store(&g_app_state, APP_STATE_MENU);
+                    request_redraw(DISP_CMD_REDRAW_FULL);
+                    sk6812_clear();
+                }
+            }
         } else if (state == APP_STATE_PYTHON_DEMO) {
             /* Python demo handles its own input via polling – ignore queue events */
         } else if (state == APP_STATE_TIME_DATE_SET) {
@@ -1744,6 +1814,7 @@ void app_main(void) {
     menu_add_item(&g_games_menu, 'H', NULL, "Hacky Bird", action_hacky_bird, NULL);
     menu_add_item(&g_games_menu, 'S', NULL, "Space Shooter", action_space_shooter, NULL);
     menu_add_item(&g_games_menu, 'N', NULL, "Snake", action_snake, NULL);
+    menu_add_item(&g_games_menu, 'M', NULL, "Monza", action_monza, NULL);
     
     /* LED Animation submenu */
     menu_init(&g_led_menu, "LED Animation");
