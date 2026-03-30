@@ -56,6 +56,7 @@
 #include "micropython_runner.h"  /* MicroPython integration */
 #include "pyapps_fs.h"          /* Python apps filesystem */
 #include "sao_eeprom_screen.h"  /* SAO EEPROM reader */
+#include "event_schedule_screen.h" /* Event schedule */
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -122,6 +123,7 @@ typedef enum {
     APP_STATE_PYTHON_DEMO,
     APP_STATE_TIME_DATE_SET,
     APP_STATE_SAO_EEPROM,
+    APP_STATE_EVENT_SCHEDULE,
 } app_state_t;
 
 static atomic_int g_app_state = APP_STATE_IDLE;
@@ -165,6 +167,7 @@ static wlan_spectrum_screen_t g_wlan_spectrum_screen;
 static wlan_list_screen_t g_wlan_list_screen;
 static color_select_screen_t g_color_screen;  /* New color select screen */
 static sao_eeprom_screen_t g_sao_screen;      /* SAO EEPROM reader screen */
+static event_schedule_screen_t g_schedule_screen; /* Event schedule screen */
 static bool g_hacky_bird_game_over = false;   /* Flag for game over state */
 
 /* ── Forward declarations ────────────────────────────────────────────────── */
@@ -187,6 +190,7 @@ static void action_snake(void);         /* Snake game */
 static void action_python_demo(void);   /* Python demo */
 static void action_time_date_set(void); /* Time/date setting */
 static void action_sao_eeprom(void);   /* SAO EEPROM reader */
+static void action_event_schedule(void); /* Event schedule */
 
 /* ── Menu action callbacks ───────────────────────────────────────────────── */
 static void action_led_off(void)      { atomic_store(&g_led_mode, LED_MODE_OFF);      }
@@ -238,6 +242,12 @@ static void action_sao_eeprom(void) {
     ESP_LOGI(TAG, "Launching SAO EEPROM reader...");
     atomic_store(&g_app_state, APP_STATE_SAO_EEPROM);
     sao_eeprom_screen_init(&g_sao_screen);
+}
+
+static void action_event_schedule(void) {
+    ESP_LOGI(TAG, "Launching Event Schedule...");
+    atomic_store(&g_app_state, APP_STATE_EVENT_SCHEDULE);
+    event_schedule_screen_init(&g_schedule_screen);
 }
 
 static void action_signal_strength(void) {
@@ -1222,6 +1232,15 @@ static void display_task(void *arg) {
             if (xQueueReceive(g_disp_queue, &cmd, pdMS_TO_TICKS(50)) == pdTRUE) {
                 sao_eeprom_screen_draw(&g_sao_screen);
             }
+        } else if (state == APP_STATE_EVENT_SCHEDULE) {
+            /* Event schedule: static data, redraw on entry or navigation */
+            if (last_state != APP_STATE_EVENT_SCHEDULE) {
+                event_schedule_screen_draw(&g_schedule_screen);
+                last_state = APP_STATE_EVENT_SCHEDULE;
+            }
+            if (xQueueReceive(g_disp_queue, &cmd, pdMS_TO_TICKS(50)) == pdTRUE) {
+                event_schedule_screen_draw(&g_schedule_screen);
+            }
         } else if (state == APP_STATE_SIGNAL_STRENGTH) {
             /* Signal strength mode: continuous rendering */
             signal_strength_screen_draw(&g_signal_screen);
@@ -1422,6 +1441,25 @@ static void input_task(void *arg) {
                 request_redraw(DISP_CMD_REDRAW_FULL);
             } else if (ev.id == BTN_DOWN) {
                 sao_eeprom_screen_scroll_down(&g_sao_screen);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            }
+        } else if (state == APP_STATE_EVENT_SCHEDULE) {
+            /* Event schedule: LEFT/RIGHT switch day, UP/DOWN scroll, B exits */
+            if (ev.id == BTN_B) {
+                ESP_LOGI(TAG, "Exiting event schedule");
+                atomic_store(&g_app_state, APP_STATE_MENU);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            } else if (ev.id == BTN_LEFT) {
+                event_schedule_screen_prev_day(&g_schedule_screen);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            } else if (ev.id == BTN_RIGHT) {
+                event_schedule_screen_next_day(&g_schedule_screen);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            } else if (ev.id == BTN_UP) {
+                event_schedule_screen_scroll_up(&g_schedule_screen);
+                request_redraw(DISP_CMD_REDRAW_FULL);
+            } else if (ev.id == BTN_DOWN) {
+                event_schedule_screen_scroll_down(&g_schedule_screen);
                 request_redraw(DISP_CMD_REDRAW_FULL);
             }
         } else if (state == APP_STATE_SIGNAL_STRENGTH) {
@@ -1699,6 +1737,7 @@ void app_main(void) {
     /* Tools submenu */
     menu_init(&g_tools_menu, "Tools");
     menu_add_item(&g_tools_menu, '@', NULL, "Audio Spectrum", action_audio_spectrum, NULL);
+    menu_add_item(&g_tools_menu, 'E', NULL, "Event Schedule", action_event_schedule, NULL);
     
     /* Games submenu */
     menu_init(&g_games_menu, "Games");
