@@ -1,8 +1,8 @@
 /*
- * Monza – Outrun-style pseudo-3D racing game
+ * RaceCondition – Outrun-style pseudo-3D racing game
  *
- * The player drives through a simplified version of the legendary
- * Autodromo Nazionale Monza circuit.  The road is rendered with a
+ * The player drives through a simplified version of a racing circuit.
+ * The road is rendered with a
  * classic perspective projection, C64-inspired colour palette and
  * chunky pixel style.  Avoid traffic, survive the laps and rack up
  * distance!
@@ -13,7 +13,7 @@
  *   B             – exit (handled in main.c)
  */
 
-#include "monza.h"
+#include "race_condition.h"
 #include "st7789.h"
 #include "sk6812.h"
 #include "buttons.h"
@@ -64,37 +64,37 @@
 #define MAX_OTHER_CARS    4
 #define CAR_SPAWN_DIST    600
 
-/* ── Monza track – sequence of curve segments ────────────────────────── */
+/* ── Race track – sequence of curve segments ────────────────────────── */
 /* Each segment: { curve_strength (negative=left), length_in_ticks }     */
-/* Approximates Monza's 5.8 km layout: long straights + Lesmo,          */
-/* Variante Ascari, Parabolica, two Variante chicanes.                  */
+/* A challenging 5.8 km layout with long straights, tight chicanes       */
+/* and sweeping curves.                                                  */
 
 typedef struct {
     int8_t  curve;     /* –5 .. +5  (0 = straight) */
     int16_t length;    /* ticks (higher = longer segment) */
 } track_seg_t;
 
-static const track_seg_t MONZA_TRACK[] = {
+static const track_seg_t RACE_CONDITION_TRACK[] = {
     {  0, 300 },   /* Start / finish straight          */
-    {  3, 100 },   /* Variante del Rettifilo chicane R */
-    { -3,  80 },   /* Variante del Rettifilo chicane L */
-    {  0, 180 },   /* Curva Grande approach             */
-    {  2, 140 },   /* Curva Grande (gentle right)       */
-    {  0, 100 },   /* Short straight to Variante        */
-    { -3, 100 },   /* Variante della Roggia chicane L   */
-    {  3,  80 },   /* Variante della Roggia chicane R   */
-    {  0,  80 },   /* Run to Lesmo                      */
-    {  2, 120 },   /* Lesmo 1 (right)                   */
-    {  2, 100 },   /* Lesmo 2 (right)                   */
+    {  3, 100 },   /* First chicane right               */
+    { -3,  80 },   /* First chicane left                */
+    {  0, 180 },   /* Long curve approach               */
+    {  2, 140 },   /* Sweeping right                    */
+    {  0, 100 },   /* Short straight                    */
+    { -3, 100 },   /* Second chicane left               */
+    {  3,  80 },   /* Second chicane right              */
+    {  0,  80 },   /* Straight run                      */
+    {  2, 120 },   /* Double right turn 1               */
+    {  2, 100 },   /* Double right turn 2               */
     {  0, 200 },   /* Long back straight                */
-    { -4, 100 },   /* Variante Ascari left              */
-    {  4,  80 },   /* Variante Ascari right             */
-    { -3,  80 },   /* Variante Ascari exit left          */
-    {  0, 250 },   /* Long straight to Parabolica       */
-    {  3, 200 },   /* Parabolica (long right)           */
+    { -4, 100 },   /* Esses left                        */
+    {  4,  80 },   /* Esses right                       */
+    { -3,  80 },   /* Esses exit left                   */
+    {  0, 250 },   /* Final straight                    */
+    {  3, 200 },   /* Long sweeping right               */
     {  0, 120 },   /* Pit straight back to start        */
 };
-#define NUM_TRACK_SEGS  (sizeof(MONZA_TRACK) / sizeof(MONZA_TRACK[0]))
+#define NUM_TRACK_SEGS  (sizeof(RACE_CONDITION_TRACK) / sizeof(RACE_CONDITION_TRACK[0]))
 
 /* ── Other car / traffic ─────────────────────────────────────────────── */
 typedef struct {
@@ -115,7 +115,7 @@ typedef struct {
     uint32_t lap_length;     /* total length of one lap          */
 
     /* Track */
-    uint8_t  seg_index;      /* current segment in MONZA_TRACK  */
+    uint8_t  seg_index;      /* current segment in RACE_CONDITION_TRACK  */
     int16_t  seg_remain;     /* ticks remaining in segment      */
     int8_t   cur_curve;      /* curve of current segment        */
 
@@ -146,19 +146,19 @@ static uint16_t car_colors[] = {
 static uint32_t compute_lap_length(void) {
     uint32_t total = 0;
     for (int i = 0; i < (int)NUM_TRACK_SEGS; i++) {
-        total += MONZA_TRACK[i].length;
+        total += RACE_CONDITION_TRACK[i].length;
     }
     return total;
 }
 
 /* ── Initialise ──────────────────────────────────────────────────────── */
-void monza_init(void) {
+void race_condition_init(void) {
     memset(&g_game, 0, sizeof(g_game));
     srand((unsigned)esp_random());
     g_game.lap          = 1;
     g_game.seg_index    = 0;
-    g_game.seg_remain   = MONZA_TRACK[0].length;
-    g_game.cur_curve    = MONZA_TRACK[0].curve;
+    g_game.seg_remain   = RACE_CONDITION_TRACK[0].length;
+    g_game.cur_curve    = RACE_CONDITION_TRACK[0].curve;
     g_game.lap_length   = compute_lap_length();
     g_game.next_car_dist = CAR_SPAWN_DIST;
 
@@ -168,7 +168,7 @@ void monza_init(void) {
 }
 
 /* ── Update ──────────────────────────────────────────────────────────── */
-void monza_update(bool steer_left, bool steer_right, bool accelerate) {
+void race_condition_update(bool steer_left, bool steer_right, bool accelerate) {
     if (g_game.game_over) return;
 
     /* ── Speed ───────────────────────────────────────────────────────── */
@@ -213,8 +213,8 @@ void monza_update(bool steer_left, bool steer_right, bool accelerate) {
             g_game.lap++;
             g_game.lap_distance = 0;
         }
-        g_game.seg_remain += MONZA_TRACK[g_game.seg_index].length;
-        g_game.cur_curve   = MONZA_TRACK[g_game.seg_index].curve;
+        g_game.seg_remain += RACE_CONDITION_TRACK[g_game.seg_index].length;
+        g_game.cur_curve   = RACE_CONDITION_TRACK[g_game.seg_index].curve;
     }
 
     /* Road visual offset for curve rendering */
@@ -403,7 +403,7 @@ static void draw_player_car(void) {
                      (uint16_t)(car_w + 4), 2, C64_BLACK);
 }
 
-void monza_draw(void) {
+void race_condition_draw(void) {
     uint32_t scroll = g_game.distance;
 
     /* ── Sky ──────────────────────────────────────────────────────── */
@@ -500,14 +500,14 @@ void monza_draw(void) {
 }
 
 /* ── Queries ─────────────────────────────────────────────────────────── */
-bool monza_is_active(void) {
+bool race_condition_is_active(void) {
     return !g_game.game_over;
 }
 
-uint32_t monza_get_score(void) {
+uint32_t race_condition_get_score(void) {
     return g_game.distance;
 }
 
-int16_t monza_get_speed(void) {
+int16_t race_condition_get_speed(void) {
     return g_game.speed;
 }
