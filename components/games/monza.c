@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "esp_random.h"
 
 /* ── Display ─────────────────────────────────────────────────────────── */
 #define SCREEN_WIDTH  320
@@ -153,6 +154,7 @@ static uint32_t compute_lap_length(void) {
 /* ── Initialise ──────────────────────────────────────────────────────── */
 void monza_init(void) {
     memset(&g_game, 0, sizeof(g_game));
+    srand((unsigned)esp_random());
     g_game.lap          = 1;
     g_game.seg_index    = 0;
     g_game.seg_remain   = MONZA_TRACK[0].length;
@@ -504,4 +506,8 @@ bool monza_is_active(void) {
 
 uint32_t monza_get_score(void) {
     return g_game.distance;
+}
+
+int16_t monza_get_speed(void) {
+    return g_game.speed;
 }

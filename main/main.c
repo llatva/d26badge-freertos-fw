@@ -1375,14 +1375,13 @@ static void display_task(void *arg) {
                     sk6812_show();
                 } else {
                     /* LED speed indicator: light LEDs proportional to speed */
-                    uint32_t spd = monza_get_score();  /* reuse for speed visual */
-                    (void)spd;
-                    /* Pulse LEDs based on speed – use low brightness */
-                    sk6812_color_t c = {0, 0, 0};
-                    int num_lit = buttons_is_pressed(BTN_A) ? 6 : 2;
+                    int16_t spd = monza_get_speed();
+                    int num_lit = spd * 12 / 200;  /* 0..12 LEDs based on speed */
+                    if (num_lit > 12) num_lit = 12;
                     for (int i = 0; i < 12; i++) {
+                        sk6812_color_t c;
                         if (i < num_lit) {
-                            c = (sk6812_color_t){20, 0, 0};
+                            c = (sk6812_color_t){(uint8_t)(20 + i * 5), 0, 0};
                         } else {
                             c = (sk6812_color_t){0, 0, 0};
                         }
