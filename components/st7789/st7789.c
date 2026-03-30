@@ -285,6 +285,13 @@ void st7789_draw_bitmap(uint16_t x, uint16_t y, const uint8_t *bitmap,
     }
 }
 
+void st7789_draw_buffer(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
+                        const uint16_t *buf) {
+    if (w == 0 || h == 0 || !buf) return;
+    set_window(x, y, x + w - 1, y + h - 1);
+    spi_write_buf(buf, (size_t)w * h * 2);
+}
+
 void st7789_set_backlight(bool on) {
     gpio_set_level(ST7789_PIN_BL, on ? 1 : 0);
 }
