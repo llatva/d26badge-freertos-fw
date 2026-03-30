@@ -45,6 +45,7 @@
 #define NAV_H            16      /* Navigation bar height */
 #define VISIBLE_LINES    8       /* Max event rows visible at once */
 #define HTTP_BUF_SIZE    4096    /* Max HTTP response size */
+#define COLOR_HINT       0x7BEF  /* Gray – navigation hint text */
 
 /* ── Fallback template (used when fetch fails) ──────────────────────────── */
 
@@ -152,6 +153,15 @@ static bool fetch_schedule(event_schedule_screen_t *scr)
     int content_len = esp_http_client_fetch_headers(client);
     (void)content_len;  /* May be -1 for chunked transfers */
 
+    int status = esp_http_client_get_status_code(client);
+    if (status != 200) {
+        ESP_LOGE(TAG, "HTTP status %d (expected 200)", status);
+        esp_http_client_close(client);
+        esp_http_client_cleanup(client);
+        free(buf);
+        return false;
+    }
+
     int total_read = 0;
     int read_len;
     while (total_read < HTTP_BUF_SIZE - 1) {
@@ -162,14 +172,13 @@ static bool fetch_schedule(event_schedule_screen_t *scr)
     }
     buf[total_read] = '\0';
 
-    int status = esp_http_client_get_status_code(client);
     esp_http_client_close(client);
     esp_http_client_cleanup(client);
 
-    ESP_LOGI(TAG, "HTTP %d – received %d bytes", status, total_read);
+    ESP_LOGI(TAG, "HTTP 200 – received %d bytes", total_read);
 
     bool ok = false;
-    if (status == 200 && total_read > 0) {
+    if (total_read > 0) {
         ok = parse_schedule_json(scr, buf);
     }
 
@@ -248,11 +257,8 @@ void event_schedule_screen_draw(event_schedule_screen_t *scr)
             int bar_total_h = VISIBLE_LINES * LINE_H;
             int bar_h = bar_total_h * VISIBLE_LINES / day->num_events;
             if (bar_h < 6) bar_h = 6;
-            int bar_y = y;
-            if (day->num_events > VISIBLE_LINES) {
-                bar_y = y + (bar_total_h - bar_h) * scr->scroll_offset /
+            int bar_y = y + (bar_total_h - bar_h) * scr->scroll_offset /
                         (day->num_events - VISIBLE_LINES);
-            }
             st7789_fill_rect(316, bar_y, 3, bar_h, ACCENT);
         }
     }
@@ -261,9 +267,9 @@ void event_schedule_screen_draw(event_schedule_screen_t *scr)
     int nav_y = 170 - NAV_H;
     st7789_fill_rect(0, nav_y - 1, 320, 1, ACCENT);
     st7789_draw_string(4, nav_y + 2, "B:back", ACCENT, COLOR_BG, 1);
-    st7789_draw_string(110, nav_y + 2, "L/R:day", 0x7BEF, COLOR_BG, 1);
+    st7789_draw_string(110, nav_y + 2, "L/R:day", COLOR_HINT, COLOR_BG, 1);
     if (day->num_events > VISIBLE_LINES) {
-        st7789_draw_string(220, nav_y + 2, "U/D:scroll", 0x7BEF, COLOR_BG, 1);
+        st7789_draw_string(220, nav_y + 2, "U/D:scroll", COLOR_HINT, COLOR_BG, 1);
     }
 }
 
