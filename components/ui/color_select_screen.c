@@ -69,7 +69,7 @@ void color_select_screen_draw(color_select_screen_t *scr) {
         st7789_fill_rect(x, y, BOX_W, BOX_H, s_colors[i]);
     }
     
-    st7789_draw_string(4, 155, "Arrows:Nav  A:Save  B:Back", TEXT == 0x0000 ? 0x8410 : TEXT, bg, 1);
+    st7789_draw_string(4, 155, "Nav:Arrows  OK:Stick  B:Back", TEXT == 0x0000 ? 0x8410 : TEXT, bg, 1);
 }
 
 void color_select_screen_handle_button(color_select_screen_t *scr, int btn_id) {
@@ -82,6 +82,8 @@ void color_select_screen_handle_button(color_select_screen_t *scr, int btn_id) {
         case BTN_LEFT:  c = (c == 0) ? GRID_W - 1 : c - 1; break;
         case BTN_RIGHT: c = (c + 1) % GRID_W; break;
         case BTN_A:
+        case BTN_STICK:
+        case BTN_SELECT:
             scr->confirmed = true;
             return;  /* don't update position */
         case BTN_B:
