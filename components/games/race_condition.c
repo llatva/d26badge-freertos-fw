@@ -7,6 +7,10 @@
  * chunky pixel style.  Avoid traffic, survive the laps and rack up
  * distance!
  *
+ * Double-buffered rendering: every frame is composed entirely in a
+ * RAM buffer and then blitted to the display in one SPI transaction,
+ * so the user never sees a partially-drawn frame.
+ *
  * Controls:
  *   LEFT / RIGHT  – steer
  *   A             – accelerate
@@ -15,12 +19,16 @@
 
 #include "race_condition.h"
 #include "st7789.h"
+#include "font8x16.h"
 #include "sk6812.h"
 #include "buttons.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "esp_random.h"
+#include "esp_log.h"
+
+static const char *TAG = "race";
 
 /* ── Display ─────────────────────────────────────────────────────────── */
 #define SCREEN_WIDTH  320
@@ -133,6 +141,79 @@ typedef struct {
 
 static game_state_t g_game;
 
+/* ── Double-buffer frame buffer ─────────────────────────────────────── */
+/* 320 × 170 × 2 bytes ≈ 106 KB – allocated once on first init.        */
+/* Pixels are stored in big-endian (wire) byte order so that the buffer */
+/* can be blitted directly via SPI without per-pixel conversion.        */
+
+#define FB_PIXELS  (SCREEN_WIDTH * SCREEN_HEIGHT)
+static uint16_t *fb;
+
+/* Byte-swap a host-order RGB565 value to wire (big-endian) order. */
+#define SWAP16(c) ((uint16_t)(((c) >> 8) | ((c) << 8)))
+
+static void fb_fill_rect(int x, int y, int w, int h, uint16_t color) {
+    uint16_t cs = SWAP16(color);
+    /* Clip to screen */
+    if (x < 0) { w += x; x = 0; }
+    if (y < 0) { h += y; y = 0; }
+    if (x + w > SCREEN_WIDTH)  w = SCREEN_WIDTH  - x;
+    if (y + h > SCREEN_HEIGHT) h = SCREEN_HEIGHT - y;
+    if (w <= 0 || h <= 0) return;
+
+    /* Fill first row, then memcpy to the rest */
+    uint16_t *row = &fb[y * SCREEN_WIDTH + x];
+    for (int i = 0; i < w; i++) row[i] = cs;
+    for (int r = 1; r < h; r++) {
+        memcpy(&fb[(y + r) * SCREEN_WIDTH + x], row, (size_t)w * sizeof(uint16_t));
+    }
+}
+
+static inline void fb_pixel(int x, int y, uint16_t color) {
+    if ((unsigned)x < SCREEN_WIDTH && (unsigned)y < SCREEN_HEIGHT)
+        fb[y * SCREEN_WIDTH + x] = SWAP16(color);
+}
+
+/* Minimal 8×16 text renderer that writes directly into the frame buffer. */
+static void fb_draw_char(int x, int y, char c, uint16_t fg, uint16_t bg, int scale) {
+    if (scale < 1) scale = 1;
+    if ((uint8_t)c < 32 || (uint8_t)c > 127) c = '?';
+
+    uint16_t fg_s = SWAP16(fg);
+    uint16_t bg_s = SWAP16(bg);
+    const uint8_t *glyph = font8x16_data[(uint8_t)c - 32];
+
+    for (int row = 0; row < 16; row++) {
+        uint8_t bits = glyph[row];
+        for (int sr = 0; sr < scale; sr++) {
+            int py = y + row * scale + sr;
+            if ((unsigned)py >= SCREEN_HEIGHT) continue;
+            uint16_t *dst = &fb[py * SCREEN_WIDTH];
+            for (int col = 0; col < 8; col++) {
+                uint16_t pix = (bits & (0x80 >> col)) ? fg_s : bg_s;
+                for (int sc = 0; sc < scale; sc++) {
+                    int px = x + col * scale + sc;
+                    if ((unsigned)px < SCREEN_WIDTH)
+                        dst[px] = pix;
+                }
+            }
+        }
+    }
+}
+
+static void fb_draw_string(int x, int y, const char *s, uint16_t fg, uint16_t bg, int scale) {
+    if (scale < 1) scale = 1;
+    while (*s) {
+        fb_draw_char(x, y, *s++, fg, bg, scale);
+        x += 8 * scale;
+    }
+}
+
+/* Send the completed frame buffer to the display in one transaction. */
+static void fb_flush(void) {
+    st7789_draw_buffer(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fb);
+}
+
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
 /* Simple pseudo-random using stdlib rand() seeded by distance */
@@ -153,6 +234,15 @@ static uint32_t compute_lap_length(void) {
 
 /* ── Initialise ──────────────────────────────────────────────────────── */
 void race_condition_init(void) {
+    /* Allocate frame buffer once (persists across replays) */
+    if (!fb) {
+        fb = malloc(FB_PIXELS * sizeof(uint16_t));
+        if (!fb) {
+            ESP_LOGE(TAG, "Failed to allocate frame buffer (%u bytes)",
+                     (unsigned)(FB_PIXELS * sizeof(uint16_t)));
+        }
+    }
+
     memset(&g_game, 0, sizeof(g_game));
     srand((unsigned)esp_random());
     g_game.lap          = 1;
@@ -267,7 +357,7 @@ void race_condition_update(bool steer_left, bool steer_right, bool accelerate) {
     g_game.frame++;
 }
 
-/* ── Draw ────────────────────────────────────────────────────────────── */
+/* ── Draw (all rendering goes into the frame buffer) ─────────────────── */
 
 /*
  * Draw a horizontal road scanline at screen row y.
@@ -294,11 +384,8 @@ static void draw_road_line(int y, int t1000, uint32_t scroll) {
     bool stripe_on = stripe_phase < RUMBLE_STRIPE_LEN;
 
     /* ── Colours ──────────────────────────────────────────────────── */
-    /* Grass alternates light / dark green (C64 style) */
     uint16_t grass_col   = stripe_on ? C64_GREEN : C64_DARK_GREY;
-    /* Rumble strips red/white */
     uint16_t rumble_col  = stripe_on ? C64_RED : C64_WHITE;
-    /* Road surface alternates grey shades for depth cue */
     uint16_t road_col    = stripe_on ? C64_DARK_GREY : C64_GREY;
 
     /* Centre dashes */
@@ -306,15 +393,14 @@ static void draw_road_line(int y, int t1000, uint32_t scroll) {
                      % (CENTRE_DASH_LEN * 2);
     bool dash_on = dash_phase < CENTRE_DASH_LEN;
 
-    /* ── Draw scanline segments ──────────────────────────────────── */
+    /* ── Draw scanline segments into frame buffer ────────────────── */
     /* Left grass */
     if (road_l > 0) {
-        st7789_fill_rect(0, (uint16_t)y, (uint16_t)road_l, 1, grass_col);
+        fb_fill_rect(0, y, road_l, 1, grass_col);
     }
     /* Left rumble strip */
     if (rumble_w > 0 && road_l >= 0 && road_l + rumble_w < SCREEN_WIDTH) {
-        st7789_fill_rect((uint16_t)road_l, (uint16_t)y,
-                         (uint16_t)rumble_w, 1, rumble_col);
+        fb_fill_rect(road_l, y, rumble_w, 1, rumble_col);
     }
     /* Road surface */
     int inner_l = road_l + rumble_w;
@@ -322,25 +408,22 @@ static void draw_road_line(int y, int t1000, uint32_t scroll) {
     if (inner_l < 0) inner_l = 0;
     if (inner_r > SCREEN_WIDTH) inner_r = SCREEN_WIDTH;
     if (inner_r > inner_l) {
-        st7789_fill_rect((uint16_t)inner_l, (uint16_t)y,
-                         (uint16_t)(inner_r - inner_l), 1, road_col);
+        fb_fill_rect(inner_l, y, inner_r - inner_l, 1, road_col);
     }
     /* Centre dash */
     if (dash_on && road_w > 20) {
         int dash_x = cx - 1;
         if (dash_x >= inner_l && dash_x + 2 <= inner_r) {
-            st7789_fill_rect((uint16_t)dash_x, (uint16_t)y, 2, 1, C64_WHITE);
+            fb_fill_rect(dash_x, y, 2, 1, C64_WHITE);
         }
     }
     /* Right rumble strip */
     if (rumble_w > 0 && road_r - rumble_w >= 0 && road_r <= SCREEN_WIDTH) {
-        st7789_fill_rect((uint16_t)(road_r - rumble_w), (uint16_t)y,
-                         (uint16_t)rumble_w, 1, rumble_col);
+        fb_fill_rect(road_r - rumble_w, y, rumble_w, 1, rumble_col);
     }
     /* Right grass */
     if (road_r < SCREEN_WIDTH) {
-        st7789_fill_rect((uint16_t)road_r, (uint16_t)y,
-                         (uint16_t)(SCREEN_WIDTH - road_r), 1, grass_col);
+        fb_fill_rect(road_r, y, SCREEN_WIDTH - road_r, 1, grass_col);
     }
 }
 
@@ -358,15 +441,13 @@ static void draw_car_sprite(int x, int y, int w, uint16_t body_color) {
     if (y < HORIZON_Y || y + h >= SCREEN_HEIGHT) return;
 
     /* Body */
-    st7789_fill_rect((uint16_t)(x - w / 2), (uint16_t)y,
-                     (uint16_t)w, (uint16_t)h, body_color);
+    fb_fill_rect(x - w / 2, y, w, h, body_color);
     /* Windscreen */
     int ws_w = w * 2 / 3;
     if (ws_w < 2) ws_w = 2;
     int ws_h = h / 3;
     if (ws_h < 1) ws_h = 1;
-    st7789_fill_rect((uint16_t)(x - ws_w / 2), (uint16_t)y,
-                     (uint16_t)ws_w, (uint16_t)ws_h, C64_LIGHT_BLUE);
+    fb_fill_rect(x - ws_w / 2, y, ws_w, ws_h, C64_LIGHT_BLUE);
 }
 
 /*
@@ -379,52 +460,45 @@ static void draw_player_car(void) {
     int car_y = SCREEN_HEIGHT - car_h - 6;
 
     /* Shadow */
-    st7789_fill_rect((uint16_t)(car_x - car_w / 2 + 2),
-                     (uint16_t)(car_y + car_h - 2),
-                     (uint16_t)(car_w), 3, C64_DARK_GREY);
+    fb_fill_rect(car_x - car_w / 2 + 2, car_y + car_h - 2, car_w, 3, C64_DARK_GREY);
 
     /* Main body (classic F1 red) */
-    st7789_fill_rect((uint16_t)(car_x - car_w / 2), (uint16_t)car_y,
-                     (uint16_t)car_w, (uint16_t)car_h, C64_RED);
+    fb_fill_rect(car_x - car_w / 2, car_y, car_w, car_h, C64_RED);
 
     /* Cockpit */
     int cp_w = car_w / 2;
     int cp_h = car_h / 3;
-    st7789_fill_rect((uint16_t)(car_x - cp_w / 2), (uint16_t)(car_y + 2),
-                     (uint16_t)cp_w, (uint16_t)cp_h, C64_DARK_GREY);
+    fb_fill_rect(car_x - cp_w / 2, car_y + 2, cp_w, cp_h, C64_DARK_GREY);
 
     /* Nose stripe */
-    st7789_fill_rect((uint16_t)(car_x - 1), (uint16_t)(car_y - 2),
-                     3, 4, C64_WHITE);
+    fb_fill_rect(car_x - 1, car_y - 2, 3, 4, C64_WHITE);
 
     /* Rear wing */
-    st7789_fill_rect((uint16_t)(car_x - car_w / 2 - 2),
-                     (uint16_t)(car_y + car_h - 4),
-                     (uint16_t)(car_w + 4), 2, C64_BLACK);
+    fb_fill_rect(car_x - car_w / 2 - 2, car_y + car_h - 4, car_w + 4, 2, C64_BLACK);
 }
 
 void race_condition_draw(void) {
+    if (!fb) return;   /* no buffer – cannot render */
+
     uint32_t scroll = g_game.distance;
 
     /* ── Sky ──────────────────────────────────────────────────────── */
-    st7789_fill_rect(0, 0, SCREEN_WIDTH, (uint16_t)HORIZON_Y, C64_LIGHT_BLUE);
+    fb_fill_rect(0, 0, SCREEN_WIDTH, HORIZON_Y, C64_LIGHT_BLUE);
 
     /* Distant hills / tree line silhouette (scrolls slowly) */
     {
         int hill_scroll = (int)(scroll / 20) % SCREEN_WIDTH;
         for (int x = 0; x < SCREEN_WIDTH; x += 4) {
-            /* Simple sine-ish hill profile using integer maths */
             int phase = (x + hill_scroll) % 80;
             int h;
             if (phase < 40) {
-                h = phase / 4;       /* 0 → 10 */
+                h = phase / 4;
             } else {
-                h = (80 - phase) / 4; /* 10 → 0 */
+                h = (80 - phase) / 4;
             }
             int tree_y = HORIZON_Y - h - 3;
             if (tree_y < 0) tree_y = 0;
-            st7789_fill_rect((uint16_t)x, (uint16_t)tree_y,
-                             4, (uint16_t)(HORIZON_Y - tree_y), C64_GREEN);
+            fb_fill_rect(x, tree_y, 4, HORIZON_Y - tree_y, C64_GREEN);
         }
     }
 
@@ -432,7 +506,7 @@ void race_condition_draw(void) {
     int road_lines = SCREEN_HEIGHT - HORIZON_Y;
     for (int i = 0; i < road_lines; i++) {
         int y = SCREEN_HEIGHT - 1 - i;
-        int t1000 = i * 1000 / road_lines;   /* 0 at bottom, 999 at top */
+        int t1000 = i * 1000 / road_lines;
         draw_road_line(y, t1000, scroll);
     }
 
@@ -441,19 +515,15 @@ void race_condition_draw(void) {
         if (!g_game.cars[i].active) continue;
         if (g_game.cars[i].dist <= 0 || g_game.cars[i].dist > 500) continue;
 
-        /* Map world distance → screen position */
-        /* Perspective: closer cars are further from horizon */
         int depth = g_game.cars[i].dist;
         if (depth < 1) depth = 1;
 
-        /* Scale factor: 1 at dist=1, 0 at dist=500 */
         int scale1000 = 1000 - depth * 1000 / 500;
         if (scale1000 < 50) scale1000 = 50;
 
         int cy = HORIZON_Y + (SCREEN_HEIGHT - HORIZON_Y) * scale1000 / 1000;
         int cw = 8 + 20 * scale1000 / 1000;
 
-        /* Lateral position accounts for curve offset and car's lane */
         int cx = SCREEN_WIDTH / 2
                  + g_game.cars[i].lane * scale1000 / 1000
                  + g_game.road_offset * (1000 - scale1000) / 1000;
@@ -471,32 +541,35 @@ void race_condition_draw(void) {
     int bar_w = g_game.speed * 60 / MAX_SPEED;
     if (bar_w > 0) {
         uint16_t bar_col = g_game.speed > MAX_SPEED * 3 / 4 ? C64_RED : C64_YELLOW;
-        st7789_fill_rect(5, 3, (uint16_t)bar_w, 5, bar_col);
+        fb_fill_rect(5, 3, bar_w, 5, bar_col);
     }
-    snprintf(buf, sizeof(buf), "%d km/h", g_game.speed);
-    st7789_draw_string(70, 1, buf, C64_WHITE, C64_LIGHT_BLUE, 1);
+    snprintf(buf, sizeof(buf), "%3d km/h", g_game.speed);
+    fb_draw_string(70, 1, buf, C64_WHITE, C64_LIGHT_BLUE, 1);
 
     /* Lap */
     snprintf(buf, sizeof(buf), "LAP %u", (unsigned)g_game.lap);
-    st7789_draw_string(SCREEN_WIDTH - 60, 1, buf, C64_YELLOW, C64_LIGHT_BLUE, 1);
+    fb_draw_string(SCREEN_WIDTH - 60, 1, buf, C64_YELLOW, C64_LIGHT_BLUE, 1);
 
     /* Score (distance) */
     snprintf(buf, sizeof(buf), "%lu m", (unsigned long)g_game.distance);
-    st7789_draw_string(SCREEN_WIDTH / 2 - 30, 1, buf, C64_WHITE, C64_LIGHT_BLUE, 1);
+    fb_draw_string(SCREEN_WIDTH / 2 - 30, 1, buf, C64_WHITE, C64_LIGHT_BLUE, 1);
 
     /* ── Game-over overlay ────────────────────────────────────────── */
     if (g_game.game_over) {
-        st7789_fill_rect(40, 50, 240, 70, C64_BLACK);
-        st7789_draw_string(80, 58, "GAME OVER", C64_RED, C64_BLACK, 2);
+        fb_fill_rect(40, 50, 240, 70, C64_BLACK);
+        fb_draw_string(80, 58, "GAME OVER", C64_RED, C64_BLACK, 2);
 
         snprintf(buf, sizeof(buf), "Distance: %lu m", (unsigned long)g_game.distance);
-        st7789_draw_string(80, 82, buf, C64_WHITE, C64_BLACK, 1);
+        fb_draw_string(80, 82, buf, C64_WHITE, C64_BLACK, 1);
 
         snprintf(buf, sizeof(buf), "Lap %u", (unsigned)g_game.lap);
-        st7789_draw_string(80, 98, buf, C64_YELLOW, C64_BLACK, 1);
+        fb_draw_string(80, 98, buf, C64_YELLOW, C64_BLACK, 1);
 
-        st7789_draw_string(72, 112, "Press any key", C64_LIGHT_GREY, C64_BLACK, 1);
+        fb_draw_string(72, 112, "Press any key", C64_LIGHT_GREY, C64_BLACK, 1);
     }
+
+    /* ── Flush the completed frame to the display ────────────────── */
+    fb_flush();
 }
 
 /* ── Queries ─────────────────────────────────────────────────────────── */

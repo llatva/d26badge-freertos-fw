@@ -85,6 +85,20 @@ void st7789_draw_bitmap(uint16_t x, uint16_t y, const uint8_t *bitmap,
                         uint8_t w, uint8_t h, uint16_t fg, uint16_t bg, uint8_t scale);
 
 /**
+ * @brief  Blit a pre-formatted RGB565 pixel buffer to the display.
+ *
+ * Pixels must already be in big-endian (wire) byte order
+ * (i.e. each uint16_t has its bytes swapped compared to the
+ * host-order RGB565 value).
+ *
+ * Intended for double-buffered rendering: the caller builds the
+ * frame in a RAM buffer and then sends the entire image in one
+ * shot so the display never shows a partially rendered frame.
+ */
+void st7789_draw_buffer(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
+                        const uint16_t *buf);
+
+/**
  * @brief  Control backlight (true = on).
  */
 void st7789_set_backlight(bool on);
